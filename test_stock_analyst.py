@@ -391,6 +391,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("Atlas", document)
         self.assertIn("/api/scan", document)
         self.assertIn("/stock_report.html", document)
+        self.assertIn("/atlas_ai_wordmark.jpg", document)
 
     def test_app_command_builders_use_expected_outputs(self):
         script = stock_analyst.Path("/tmp/stock_analyst.py")

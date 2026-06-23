@@ -7642,23 +7642,7 @@ def report_dashboard_html() -> str:
     body {{ margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); }}
     main {{ min-height: 100vh; display: grid; place-items: center; padding: 28px; }}
     .app {{ width: min(980px, 100%); display: grid; justify-items: center; gap: 30px; }}
-    .atlas-wordmark {{
-      margin: 0;
-      width: 100%;
-      text-align: center;
-      font-family: "Arial Black", "Arial Narrow", Inter, ui-sans-serif, system-ui, sans-serif;
-      font-size: clamp(48px, 11vw, 132px);
-      line-height: .8;
-      letter-spacing: .20em;
-      text-indent: .20em;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: transparent;
-      background: linear-gradient(180deg, #f4f4f4 0%, #a9a9a9 38%, #5d5d5d 72%, #d9d9d9 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      filter: drop-shadow(0 16px 22px rgba(255,255,255,.08));
-    }}
+    .atlas-wordmark {{ width: min(1000px, 100%); height: auto; display: block; object-fit: contain; }}
     .tagline {{ margin: -10px 0 0; color: #777; text-align: center; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; }}
     a {{ color: inherit; text-decoration: none; }}
     .controls {{ width: min(520px, 100%); display: grid; gap: 14px; justify-items: center; }}
@@ -7675,7 +7659,7 @@ def report_dashboard_html() -> str:
     @media (max-width: 820px) {{
       main {{ padding: 22px 14px; }}
       .app {{ gap: 24px; padding-top: 16vh; }}
-      .atlas-wordmark {{ font-size: clamp(42px, 13vw, 72px); letter-spacing: .12em; text-indent: .12em; }}
+      .atlas-wordmark {{ width: min(100%, 720px); }}
       .tagline {{ font-size: 11px; letter-spacing: .12em; }}
       .actions {{ grid-template-columns: 1fr; }}
     }}
@@ -7684,7 +7668,7 @@ def report_dashboard_html() -> str:
 <body>
   <main>
     <section class="app">
-      <h1 class="atlas-wordmark">Atlas AI</h1>
+      <img class="atlas-wordmark" src="/atlas_ai_wordmark.jpg" alt="ATLAS AI">
       <div class="tagline">Market scanner</div>
       <div class="controls">
         <div class="actions">
