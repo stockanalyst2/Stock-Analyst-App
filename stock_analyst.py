@@ -7668,6 +7668,13 @@ def report_dashboard_html() -> str:
     .metric {{ border: 1px solid var(--line); border-radius: 12px; padding: 13px; background: #0b0b0b; min-height: 82px; }}
     .metric-label {{ color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }}
     .metric-value {{ margin-top: 8px; font-size: 20px; font-weight: 900; }}
+    .subject-grid {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }}
+    .subject-card {{ border: 1px solid var(--line); border-radius: 13px; background: rgba(17,17,17,.96); padding: 13px; min-height: 94px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 14px 32px rgba(0,0,0,.22); }}
+    .subject-card:hover {{ border-color: #595959; background: #151515; }}
+    .subject-top {{ display: flex; align-items: center; justify-content: space-between; gap: 8px; }}
+    .subject-icon {{ width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 9px; background: #080808; color: #f2f2f2; font-size: 14px; font-weight: 900; }}
+    .subject-title {{ margin-top: 10px; font-size: 14px; font-weight: 900; }}
+    .subject-detail {{ margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.25; }}
     .grid {{ display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; align-items: start; }}
     .panel {{ border: 1px solid var(--line); border-radius: 14px; background: rgba(17,17,17,.94); padding: 17px; box-shadow: 0 18px 42px rgba(0,0,0,.28); }}
     .panel-header {{ display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 12px; }}
@@ -7693,12 +7700,27 @@ def report_dashboard_html() -> str:
     .warn-panel strong {{ color: #fde68a; }}
     .note {{ margin-top: 12px; color: var(--muted); font-size: 12px; }}
     @media (max-width: 820px) {{
-      main {{ padding: 16px 12px 36px; }}
+      main {{ padding: 12px 10px 28px; }}
       .topbar, .hero-grid, .grid, .row {{ display: grid; grid-template-columns: 1fr; }}
+      .app-shell {{ gap: 12px; }}
+      h1 {{ font-size: 30px; line-height: .98; }}
       .stamp {{ white-space: normal; }}
-      .hero {{ padding: 18px; }}
-      .metrics {{ grid-template-columns: 1fr; }}
+      .logo {{ width: 42px; height: 42px; }}
+      .topbar {{ gap: 9px; padding-top: 4px; }}
+      .hero {{ padding: 14px; border-radius: 14px; }}
+      .eyebrow {{ margin-bottom: 10px; }}
+      .hero-note {{ font-size: 13px; margin-top: 9px; }}
+      .metrics {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
+      .metric {{ min-height: 64px; padding: 10px; }}
+      .metric-value {{ font-size: 15px; margin-top: 5px; }}
+      .subject-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
+      .subject-card {{ min-height: 82px; padding: 11px; }}
+      .subject-detail {{ font-size: 11px; }}
+      .panel {{ padding: 14px; border-radius: 13px; }}
       .panel-header {{ align-items: start; }}
+    }}
+    @media (max-width: 1120px) and (min-width: 821px) {{
+      .subject-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
     }}
   </style>
 </head>
@@ -7744,9 +7766,62 @@ def report_dashboard_html() -> str:
         </div>
       </section>
 
+      <nav class="subject-grid" aria-label="Dashboard sections">
+        <a class="subject-card" href="#scan">
+          <div class="subject-top">
+            <span class="subject-icon">S</span>
+            <span class="pill good">Run</span>
+          </div>
+          <div>
+            <div class="subject-title">Scan</div>
+            <div class="subject-detail">Fresh market read</div>
+          </div>
+        </a>
+        <a class="subject-card" href="#alerts">
+          <div class="subject-top">
+            <span class="subject-icon">A</span>
+            <span class="pill {'good' if telegram_configured() else 'warn'}">{html.escape(alert_status)}</span>
+          </div>
+          <div>
+            <div class="subject-title">Alerts</div>
+            <div class="subject-detail">Watch to enter-now</div>
+          </div>
+        </a>
+        <a class="subject-card" href="#reports">
+          <div class="subject-top">
+            <span class="subject-icon">R</span>
+            <span class="pill">Open</span>
+          </div>
+          <div>
+            <div class="subject-title">Reports</div>
+            <div class="subject-detail">Latest trade tickets</div>
+          </div>
+        </a>
+        <a class="subject-card" href="#ticker">
+          <div class="subject-top">
+            <span class="subject-icon">T</span>
+            <span class="pill">Check</span>
+          </div>
+          <div>
+            <div class="subject-title">Ticker</div>
+            <div class="subject-detail">One-name analysis</div>
+          </div>
+        </a>
+        <a class="subject-card" href="#workflow">
+          <div class="subject-top">
+            <span class="subject-icon">W</span>
+            <span class="pill">Rules</span>
+          </div>
+          <div>
+            <div class="subject-title">Workflow</div>
+            <div class="subject-detail">How to execute</div>
+          </div>
+        </a>
+      </nav>
+
       <section class="grid">
         <div class="stack">
-          <div class="panel">
+          <div class="panel" id="scan">
             <div class="panel-header">
               <div>
                 <div class="panel-kicker">Primary action</div>
@@ -7762,7 +7837,7 @@ def report_dashboard_html() -> str:
             <div class="status" id="scanStatus"></div>
           </div>
 
-          <div class="panel">
+          <div class="panel" id="ticker">
             <div class="panel-header">
               <div>
                 <div class="panel-kicker">Single ticker</div>
@@ -7780,7 +7855,7 @@ def report_dashboard_html() -> str:
         </div>
 
         <aside class="stack">
-          <div class="panel">
+          <div class="panel" id="alerts">
             <div class="panel-header">
               <div>
                 <div class="panel-kicker">Phone alerts</div>
@@ -7796,7 +7871,7 @@ def report_dashboard_html() -> str:
             <p class="note">Required: <code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code>, <code>STOCK_ANALYST_PUBLIC_URL</code>.</p>
           </div>
 
-          <div class="panel">
+          <div class="panel" id="reports">
             <div class="panel-header">
               <div>
                 <div class="panel-kicker">Reports</div>
@@ -7821,7 +7896,7 @@ def report_dashboard_html() -> str:
         </aside>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="workflow">
         <div class="panel-header">
           <div>
             <div class="panel-kicker">Setup checklist</div>
