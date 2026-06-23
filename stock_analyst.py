@@ -7622,7 +7622,6 @@ def report_dashboard_html() -> str:
     generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
     auto_minutes = auto_scan_minutes()
     auto_status = f"Every {auto_minutes} min" if auto_minutes else "Manual"
-    alert_status = "Connected" if telegram_configured() else "Needs setup"
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -7635,321 +7634,77 @@ def report_dashboard_html() -> str:
       color-scheme: dark;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --bg: #050505;
-      --panel: #111111;
-      --panel-2: #171717;
       --line: #2c2c2c;
       --muted: #9b9b9b;
       --text: #f2f2f2;
       --good: #33d17a;
-      --warn: #f6c453;
     }}
     * {{ box-sizing: border-box; }}
-    body {{ margin: 0; background: radial-gradient(circle at top right, #1a1a1a 0, var(--bg) 34rem); color: var(--text); }}
-    body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, black, transparent 72%); }}
-    main {{ position: relative; max-width: 1120px; margin: 0 auto; padding: 22px 18px 48px; }}
-    h1 {{ margin: 0; font-size: clamp(34px, 7vw, 58px); letter-spacing: 0; line-height: .94; }}
-    h2 {{ margin: 0; font-size: 17px; }}
-    p {{ margin: 0; color: #bdbdbd; line-height: 1.48; }}
-    a {{ color: inherit; text-decoration: none; }}
-    code {{ color: #e7e7e7; background: #050505; border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }}
-    .app-shell {{ display: grid; gap: 18px; }}
-    .topbar {{ display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 10px 0 4px; }}
-    .brand {{ display: flex; gap: 12px; align-items: center; min-width: 0; }}
-    .logo {{ width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: #050505; box-shadow: 0 12px 30px rgba(0,0,0,.45); }}
+    body {{ margin: 0; min-height: 100vh; background: radial-gradient(circle at top right, #191919 0, var(--bg) 34rem); color: var(--text); }}
+    main {{ min-height: 100vh; display: grid; place-items: center; padding: 20px; }}
+    .app {{ width: min(620px, 100%); display: grid; gap: 16px; }}
+    .brand {{ display: flex; align-items: center; gap: 12px; }}
+    .logo {{ width: 52px; height: 52px; border-radius: 13px; object-fit: cover; background: #050505; box-shadow: 0 14px 34px rgba(0,0,0,.45); }}
     .brand-title {{ font-size: 15px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }}
     .brand-subtitle {{ color: var(--muted); font-size: 12px; margin-top: 2px; }}
-    .stamp {{ color: var(--muted); font-size: 12px; white-space: nowrap; border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; background: rgba(17,17,17,.78); }}
-    .hero {{ border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(135deg, rgba(24,24,24,.96), rgba(9,9,9,.96)); padding: 24px; box-shadow: 0 22px 60px rgba(0,0,0,.42); overflow: hidden; }}
-    .hero-grid {{ display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 22px; align-items: end; }}
-    .eyebrow {{ display: inline-flex; align-items: center; gap: 8px; color: #dadada; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; background: #0d0d0d; }}
-    .dot {{ width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 20px rgba(51,209,122,.8); }}
-    .hero-note {{ margin-top: 14px; max-width: 720px; color: #d6d6d6; font-size: 16px; }}
-    .metrics {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }}
-    .metric {{ border: 1px solid var(--line); border-radius: 12px; padding: 13px; background: #0b0b0b; min-height: 82px; }}
-    .metric-label {{ color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }}
-    .metric-value {{ margin-top: 8px; font-size: 20px; font-weight: 900; }}
-    .subject-grid {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }}
-    .subject-card {{ border: 1px solid var(--line); border-radius: 13px; background: rgba(17,17,17,.96); padding: 13px; min-height: 94px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 14px 32px rgba(0,0,0,.22); }}
-    .subject-card:hover {{ border-color: #595959; background: #151515; }}
-    .subject-top {{ display: flex; align-items: center; justify-content: space-between; gap: 8px; }}
-    .subject-icon {{ width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 9px; background: #080808; color: #f2f2f2; font-size: 14px; font-weight: 900; }}
-    .subject-title {{ margin-top: 10px; font-size: 14px; font-weight: 900; }}
-    .subject-detail {{ margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.25; }}
-    .grid {{ display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; align-items: start; }}
-    .panel {{ border: 1px solid var(--line); border-radius: 14px; background: rgba(17,17,17,.94); padding: 17px; box-shadow: 0 18px 42px rgba(0,0,0,.28); }}
-    .panel-header {{ display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 12px; }}
-    .panel-kicker {{ color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 900; margin-bottom: 5px; }}
-    .stack {{ display: grid; gap: 16px; }}
-    .row {{ display: flex; gap: 9px; margin-top: 15px; }}
-    input, button, .button {{ min-height: 46px; border: 1px solid #363636; border-radius: 10px; background: var(--panel-2); color: var(--text); font: inherit; font-size: 15px; }}
-    input {{ flex: 1; min-width: 0; padding: 0 13px; text-transform: uppercase; }}
-    button, .button {{ display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; cursor: pointer; font-weight: 900; }}
+    .panel {{ border: 1px solid var(--line); border-radius: 16px; background: rgba(15,15,15,.96); padding: 22px; box-shadow: 0 26px 70px rgba(0,0,0,.42); }}
+    h1 {{ margin: 0; font-size: clamp(32px, 9vw, 50px); line-height: .96; letter-spacing: 0; }}
+    p {{ margin: 12px 0 0; color: #bdbdbd; line-height: 1.45; }}
+    a {{ color: inherit; text-decoration: none; }}
+    .actions {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }}
+    button, .button {{ min-height: 54px; border: 1px solid #363636; border-radius: 12px; background: #171717; color: var(--text); font: inherit; font-size: 15px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; cursor: pointer; }}
     .primary {{ background: #f2f2f2; color: #050505; border-color: #f2f2f2; }}
     button:hover, .button:hover {{ border-color: #666; background: #222; }}
     .primary:hover {{ background: #d8d8d8; border-color: #d8d8d8; }}
     button:disabled {{ opacity: .55; cursor: wait; }}
-    .status {{ display: none; margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: #080808; padding: 12px; color: #d0d0d0; line-height: 1.4; }}
+    .status {{ display: none; margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; background: #080808; padding: 13px; color: #d0d0d0; line-height: 1.4; }}
     .status.is-visible {{ display: block; }}
-    .links {{ display: grid; gap: 10px; margin-top: 12px; }}
-    .workflow {{ margin: 13px 0 0; padding-left: 18px; color: #d6d6d6; line-height: 1.5; }}
-    .workflow li + li {{ margin-top: 7px; }}
-    .pill {{ border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px; color: #d8d8d8; background: #080808; font-size: 12px; font-weight: 800; white-space: nowrap; }}
-    .pill.good {{ color: #adf5c9; border-color: rgba(51,209,122,.42); background: rgba(51,209,122,.08); }}
-    .pill.warn {{ color: #ffe2a1; border-color: rgba(246,196,83,.42); background: rgba(246,196,83,.08); }}
-    .warn-panel {{ border-color: #3b331d; background: #11100b; }}
-    .warn-panel strong {{ color: #fde68a; }}
-    .note {{ margin-top: 12px; color: var(--muted); font-size: 12px; }}
+    .meta {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; color: var(--muted); font-size: 12px; }}
+    .meta span {{ border: 1px solid var(--line); border-radius: 999px; padding: 7px 9px; background: #080808; }}
+    .note {{ color: var(--muted); font-size: 12px; text-align: center; }}
     @media (max-width: 820px) {{
-      main {{ padding: 12px 10px 28px; }}
-      .topbar, .hero-grid, .grid, .row {{ display: grid; grid-template-columns: 1fr; }}
-      .app-shell {{ gap: 12px; }}
-      h1 {{ font-size: 30px; line-height: .98; }}
-      .stamp {{ white-space: normal; }}
-      .logo {{ width: 42px; height: 42px; }}
-      .topbar {{ gap: 9px; padding-top: 4px; }}
-      .hero {{ padding: 14px; border-radius: 14px; }}
-      .eyebrow {{ margin-bottom: 10px; }}
-      .hero-note {{ font-size: 13px; margin-top: 9px; }}
-      .metrics {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
-      .metric {{ min-height: 64px; padding: 10px; }}
-      .metric-value {{ font-size: 15px; margin-top: 5px; }}
-      .subject-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
-      .subject-card {{ min-height: 82px; padding: 11px; }}
-      .subject-detail {{ font-size: 11px; }}
-      .panel {{ padding: 14px; border-radius: 13px; }}
-      .panel-header {{ align-items: start; }}
-    }}
-    @media (max-width: 1120px) and (min-width: 821px) {{
-      .subject-grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+      main {{ padding: 14px; place-items: start center; }}
+      .panel {{ padding: 18px; }}
+      .actions {{ grid-template-columns: 1fr; }}
+      h1 {{ font-size: 34px; }}
     }}
   </style>
 </head>
 <body>
   <main>
-    <div class="app-shell">
-      <header class="topbar">
-        <div class="brand">
-          <img class="logo" src="/stock_analyst_logo.jpg" alt="AIA logo">
-          <div>
-            <div class="brand-title">AIA Stock Analyst</div>
-            <div class="brand-subtitle">Catalyst-backed options scanner</div>
-          </div>
+    <section class="app">
+      <div class="brand">
+        <img class="logo" src="/stock_analyst_logo.jpg" alt="AIA logo">
+        <div>
+          <div class="brand-title">AIA Stock Analyst</div>
+          <div class="brand-subtitle">Scanner dashboard</div>
         </div>
-        <div class="stamp">Loaded {html.escape(generated)}</div>
-      </header>
+      </div>
 
-      <section class="hero">
-        <div class="hero-grid">
-          <div>
-            <div class="eyebrow"><span class="dot"></span> Market command center</div>
-            <h1>Find the setup. Get the ticket. Execute manually.</h1>
-            <p class="hero-note">Refresh the cloud scanner from your phone, receive Telegram trade tickets, and open the latest report with the same catalyst, macro, chart, and option context.</p>
-          </div>
-          <div class="metrics">
-            <div class="metric">
-              <div class="metric-label">Scanner</div>
-              <div class="metric-value">{html.escape(auto_status)}</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Alerts</div>
-              <div class="metric-value">{html.escape(alert_status)}</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Universe</div>
-              <div class="metric-value">Liquid options</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Execution</div>
-              <div class="metric-value">Manual</div>
-            </div>
-          </div>
+      <div class="panel">
+        <h1>Stock Analyst App</h1>
+        <p>Run the scanner, then open the latest report. Background Telegram alerts still watch for saved setups that upgrade into entry conditions.</p>
+        <div class="actions">
+          <button class="primary" type="button" id="scanButton">Run scanner</button>
+          <a class="button" href="/stock_report.html">Open latest report</a>
         </div>
-      </section>
-
-      <nav class="subject-grid" aria-label="Dashboard sections">
-        <a class="subject-card" href="#scan">
-          <div class="subject-top">
-            <span class="subject-icon">S</span>
-            <span class="pill good">Run</span>
-          </div>
-          <div>
-            <div class="subject-title">Scan</div>
-            <div class="subject-detail">Fresh market read</div>
-          </div>
-        </a>
-        <a class="subject-card" href="#alerts">
-          <div class="subject-top">
-            <span class="subject-icon">A</span>
-            <span class="pill {'good' if telegram_configured() else 'warn'}">{html.escape(alert_status)}</span>
-          </div>
-          <div>
-            <div class="subject-title">Alerts</div>
-            <div class="subject-detail">Watch to enter-now</div>
-          </div>
-        </a>
-        <a class="subject-card" href="#reports">
-          <div class="subject-top">
-            <span class="subject-icon">R</span>
-            <span class="pill">Open</span>
-          </div>
-          <div>
-            <div class="subject-title">Reports</div>
-            <div class="subject-detail">Latest trade tickets</div>
-          </div>
-        </a>
-        <a class="subject-card" href="#ticker">
-          <div class="subject-top">
-            <span class="subject-icon">T</span>
-            <span class="pill">Check</span>
-          </div>
-          <div>
-            <div class="subject-title">Ticker</div>
-            <div class="subject-detail">One-name analysis</div>
-          </div>
-        </a>
-        <a class="subject-card" href="#workflow">
-          <div class="subject-top">
-            <span class="subject-icon">W</span>
-            <span class="pill">Rules</span>
-          </div>
-          <div>
-            <div class="subject-title">Workflow</div>
-            <div class="subject-detail">How to execute</div>
-          </div>
-        </a>
-      </nav>
-
-      <section class="grid">
-        <div class="stack">
-          <div class="panel" id="scan">
-            <div class="panel-header">
-              <div>
-                <div class="panel-kicker">Primary action</div>
-                <h2>Full market scan</h2>
-              </div>
-              <span class="pill good">Live run</span>
-            </div>
-            <p>Ranks the strongest current CALL/PUT setups using price action, major catalysts, macro pressure, liquidity, and options structure.</p>
-            <div class="row">
-              <button class="primary" type="button" id="scanButton">Run full scanner</button>
-              <a class="button" href="/stock_report.html">Open latest report</a>
-            </div>
-            <div class="status" id="scanStatus"></div>
-          </div>
-
-          <div class="panel" id="ticker">
-            <div class="panel-header">
-              <div>
-                <div class="panel-kicker">Single ticker</div>
-                <h2>On-demand analysis</h2>
-              </div>
-              <span class="pill">Optional</span>
-            </div>
-            <p>Check one name when you already have a ticker in mind and want it translated into the same strategy framework.</p>
-            <div class="row">
-              <input id="symbolInput" maxlength="12" placeholder="NVDA" aria-label="Ticker symbol">
-              <button type="button" id="analyzeButton">Analyze</button>
-            </div>
-            <div class="status" id="tickerStatus"></div>
-          </div>
+        <div class="status" id="scanStatus"></div>
+        <div class="meta">
+          <span>Auto scan: {html.escape(auto_status)}</span>
+          <span>Updated: {html.escape(generated)}</span>
         </div>
+      </div>
 
-        <aside class="stack">
-          <div class="panel" id="alerts">
-            <div class="panel-header">
-              <div>
-                <div class="panel-kicker">Phone alerts</div>
-                <h2>Telegram notifications</h2>
-              </div>
-              <span class="pill {'good' if telegram_configured() else 'warn'}">{html.escape(alert_status)}</span>
-            </div>
-            <p>Send a test notification, then let the scanner alert you only when a previously watched/waiting setup upgrades into an entry condition.</p>
-            <div class="row">
-              <button type="button" id="testAlertButton">Send test notification</button>
-            </div>
-            <div class="status" id="alertStatus"></div>
-            <p class="note">Required: <code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code>, <code>STOCK_ANALYST_PUBLIC_URL</code>.</p>
-          </div>
-
-          <div class="panel" id="reports">
-            <div class="panel-header">
-              <div>
-                <div class="panel-kicker">Reports</div>
-                <h2>Latest files</h2>
-              </div>
-            </div>
-            <div class="links">
-              <a class="button" href="/stock_report.html">Full scanner report</a>
-              <a class="button" href="/on_demand_report.html">On-demand report</a>
-            </div>
-          </div>
-
-          <div class="panel warn-panel">
-            <div class="panel-header">
-              <div>
-                <div class="panel-kicker">Risk control</div>
-                <h2>Execution rule</h2>
-              </div>
-            </div>
-            <p><strong>Render does not place Robinhood orders.</strong> Use alerts as a trade ticket, then confirm the trigger, spread, and limit price in Robinhood before entering.</p>
-          </div>
-        </aside>
-      </section>
-
-      <section class="panel" id="workflow">
-        <div class="panel-header">
-          <div>
-            <div class="panel-kicker">Setup checklist</div>
-            <h2>How to use it at work</h2>
-          </div>
-          <span class="pill">Phone workflow</span>
-        </div>
-        <ol class="workflow">
-          <li>Open this dashboard from your phone and make sure the Telegram test alert works.</li>
-          <li>Use automatic scans, or tap <strong>Run full scanner</strong> when you want a fresh read.</li>
-          <li>Open the report from the alert or dashboard and expand the best setup.</li>
-          <li>Only place the long call/put manually if the entry trigger is active and the option spread is reasonable.</li>
-        </ol>
-        <p class="note">Keep <strong>STOCK_ANALYST_PASSWORD</strong> set on Render. Free Render instances may sleep; always-on hosting is more dependable for 10-minute alerts.</p>
-      </section>
-    </div>
+      <div class="note">Manual Robinhood execution only. Confirm the trigger and option spread before placing a trade.</div>
+    </section>
   </main>
   <script>
-    const symbolInput = document.getElementById('symbolInput');
-    const analyzeButton = document.getElementById('analyzeButton');
     const scanButton = document.getElementById('scanButton');
-    const tickerStatus = document.getElementById('tickerStatus');
     const scanStatus = document.getElementById('scanStatus');
-    const testAlertButton = document.getElementById('testAlertButton');
-    const alertStatus = document.getElementById('alertStatus');
 
     function setStatus(element, message) {{
       element.innerHTML = message;
       element.classList.add('is-visible');
-    }}
-
-    function cleanSymbol() {{
-      return symbolInput.value.trim().toUpperCase().replace(/[^A-Z0-9.-]/g, '');
-    }}
-
-    async function analyzeTicker() {{
-      const symbol = cleanSymbol();
-      if (!symbol) {{
-        setStatus(tickerStatus, 'Type a ticker first, for example NVDA.');
-        return;
-      }}
-      analyzeButton.disabled = true;
-      setStatus(tickerStatus, `Analyzing <strong>${{symbol}}</strong>. This can take 45-120 seconds.`);
-      try {{
-        const response = await fetch(`/api/analyze?symbol=${{encodeURIComponent(symbol)}}`);
-        const payload = await response.json();
-        if (!response.ok || !payload.ok) throw new Error(payload.error || 'Analysis failed.');
-        setStatus(tickerStatus, `Finished <strong>${{symbol}}</strong>. <a href="${{payload.report_url}}">Open report</a>.`);
-      }} catch (error) {{
-        setStatus(tickerStatus, `Could not analyze ticker: ${{error.message}}`);
-      }} finally {{
-        analyzeButton.disabled = false;
-      }}
     }}
 
     async function runScanner() {{
@@ -7967,27 +7722,7 @@ def report_dashboard_html() -> str:
       }}
     }}
 
-    async function sendTestAlert() {{
-      testAlertButton.disabled = true;
-      setStatus(alertStatus, 'Sending test notification...');
-      try {{
-        const response = await fetch('/api/test-alert');
-        const payload = await response.json();
-        if (!response.ok || !payload.ok) throw new Error(payload.error || 'Test alert failed.');
-        setStatus(alertStatus, 'Test notification sent. Check Telegram on your phone.');
-      }} catch (error) {{
-        setStatus(alertStatus, `Could not send test notification: ${{error.message}}`);
-      }} finally {{
-        testAlertButton.disabled = false;
-      }}
-    }}
-
-    analyzeButton.addEventListener('click', analyzeTicker);
     scanButton.addEventListener('click', runScanner);
-    testAlertButton.addEventListener('click', sendTestAlert);
-    symbolInput.addEventListener('keydown', (event) => {{
-      if (event.key === 'Enter') analyzeTicker();
-    }});
   </script>
 </body>
 </html>"""

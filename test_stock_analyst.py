@@ -389,8 +389,8 @@ class StockAnalystTests(unittest.TestCase):
         document = stock_analyst.report_dashboard_html()
 
         self.assertIn("Stock Analyst App", document)
-        self.assertIn("/api/analyze", document)
         self.assertIn("/api/scan", document)
+        self.assertIn("/stock_report.html", document)
 
     def test_app_command_builders_use_expected_outputs(self):
         script = stock_analyst.Path("/tmp/stock_analyst.py")
