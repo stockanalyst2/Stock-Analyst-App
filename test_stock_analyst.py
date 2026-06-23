@@ -404,7 +404,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("--single", single_command)
         self.assertIn("NVDA", single_command)
 
-    def test_report_header_includes_logo(self):
+    def test_report_header_omits_old_logo(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             output = stock_analyst.Path(temp_dir) / "stock_report.html"
 
@@ -412,8 +412,8 @@ class StockAnalystTests(unittest.TestCase):
 
             document = output.read_text()
         self.assertIn('class="report-hero"', document)
-        self.assertIn('src="stock_analyst_logo.jpg"', document)
-        self.assertIn("Stock Analyst logo", document)
+        self.assertNotIn("stock_analyst_logo.jpg", document)
+        self.assertNotIn("Stock Analyst logo", document)
         self.assertNotIn("On-demand ticker", document)
         self.assertNotIn("tickerInput", document)
         self.assertIn("collapseAll", document)

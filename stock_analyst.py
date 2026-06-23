@@ -4901,7 +4901,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     body {{ margin: 0; background: #050505; color: #eeeeee; }}
     main {{ max-width: 1180px; margin: 0 auto; padding: 32px 20px 48px; }}
     .report-hero {{ display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }}
-    .report-logo {{ width: 72px; height: 72px; border-radius: 18px; object-fit: cover; border: 1px solid #2a2a2a; box-shadow: 0 14px 36px rgba(0, 0, 0, .42); flex: 0 0 auto; }}
     .report-title-block {{ min-width: 0; }}
     h1 {{ margin: 0 0 8px; font-size: 32px; line-height: 1.15; }}
     p {{ margin: 0 0 16px; color: #b8b8b8; }}
@@ -5011,14 +5010,13 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .modal-head {{ display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; color: #eeeeee; font-weight: 800; }}
     .modal-close {{ border: 1px solid #333333; border-radius: 999px; background: #171717; color: #eeeeee; padding: 6px 10px; cursor: pointer; }}
     .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 680px; cursor: default; }}
-    @media (max-width: 860px) {{ .report-hero {{ align-items: flex-start; gap: 12px; }} .report-logo {{ width: 58px; height: 58px; border-radius: 14px; }} h1 {{ font-size: 28px; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-top {{ grid-template-columns: 1fr; }} .chart-svg, .plotly-chart {{ height: 320px; }} .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 420px; }} }}
+    @media (max-width: 860px) {{ .report-hero {{ align-items: flex-start; gap: 12px; }} h1 {{ font-size: 28px; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-top {{ grid-template-columns: 1fr; }} .chart-svg, .plotly-chart {{ height: 320px; }} .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 420px; }} }}
   </style>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 </head>
 <body>
   <main>
     <header class="report-hero">
-      <img class="report-logo" src="stock_analyst_logo.jpg" alt="Stock Analyst logo">
       <div class="report-title-block">
         <h1>Stock Analyst Report</h1>
         <p>Ranks short-term CALL/PUT trade candidates using current catalysts, major news, geopolitical/macro pressure, liquidity, and chart context. Use this as a screening aid, not as personalized financial advice.</p>
@@ -7628,7 +7626,7 @@ def report_dashboard_html() -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Atlas AI</title>
-  <link rel="icon" href="/stock_analyst_logo.jpg">
+  <link rel="icon" href="/atlas_ai_wordmark.jpg">
   <style>
     :root {{
       color-scheme: dark;
