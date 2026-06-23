@@ -7561,108 +7561,224 @@ def normalize_on_demand_symbol(raw_symbol: str) -> str:
 
 def report_dashboard_html() -> str:
     generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
+    auto_minutes = auto_scan_minutes()
+    auto_status = f"Every {auto_minutes} min" if auto_minutes else "Manual"
+    alert_status = "Connected" if telegram_configured() else "Needs setup"
     return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stock Analyst App</title>
+  <title>AIA Stock Analyst App</title>
+  <link rel="icon" href="/stock_analyst_logo.jpg">
   <style>
-    :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
-    body {{ margin: 0; background: #050505; color: #eeeeee; }}
-    main {{ max-width: 980px; margin: 0 auto; padding: 28px 18px 44px; }}
-    h1 {{ margin: 0 0 8px; font-size: clamp(28px, 7vw, 44px); line-height: 1; }}
-    p {{ margin: 0; color: #b8b8b8; line-height: 1.45; }}
-    a {{ color: #eeeeee; text-decoration: none; }}
-    .top {{ display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 22px; }}
-    .stamp {{ color: #8e8e8e; font-size: 12px; white-space: nowrap; }}
-    .hero-note {{ margin-top: 10px; color: #d6d6d6; max-width: 720px; }}
-    .grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }}
-    .panel {{ border: 1px solid #2a2a2a; border-radius: 10px; background: #101010; padding: 16px; box-shadow: 0 18px 42px rgba(0,0,0,.35); }}
-    .panel h2 {{ margin: 0 0 8px; font-size: 18px; }}
-    .row {{ display: flex; gap: 8px; margin-top: 14px; }}
-    input, button, .button {{ min-height: 42px; border: 1px solid #333333; border-radius: 8px; background: #171717; color: #eeeeee; font: inherit; font-size: 15px; }}
-    input {{ flex: 1; min-width: 0; padding: 0 12px; text-transform: uppercase; }}
-    button, .button {{ display: inline-flex; align-items: center; justify-content: center; padding: 0 13px; cursor: pointer; font-weight: 800; }}
-    button:hover, .button:hover {{ border-color: #555555; background: #202020; }}
+    :root {{
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #050505;
+      --panel: #111111;
+      --panel-2: #171717;
+      --line: #2c2c2c;
+      --muted: #9b9b9b;
+      --text: #f2f2f2;
+      --good: #33d17a;
+      --warn: #f6c453;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; background: radial-gradient(circle at top right, #1a1a1a 0, var(--bg) 34rem); color: var(--text); }}
+    body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, black, transparent 72%); }}
+    main {{ position: relative; max-width: 1120px; margin: 0 auto; padding: 22px 18px 48px; }}
+    h1 {{ margin: 0; font-size: clamp(34px, 7vw, 58px); letter-spacing: 0; line-height: .94; }}
+    h2 {{ margin: 0; font-size: 17px; }}
+    p {{ margin: 0; color: #bdbdbd; line-height: 1.48; }}
+    a {{ color: inherit; text-decoration: none; }}
+    code {{ color: #e7e7e7; background: #050505; border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }}
+    .app-shell {{ display: grid; gap: 18px; }}
+    .topbar {{ display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 10px 0 4px; }}
+    .brand {{ display: flex; gap: 12px; align-items: center; min-width: 0; }}
+    .logo {{ width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: #050505; box-shadow: 0 12px 30px rgba(0,0,0,.45); }}
+    .brand-title {{ font-size: 15px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }}
+    .brand-subtitle {{ color: var(--muted); font-size: 12px; margin-top: 2px; }}
+    .stamp {{ color: var(--muted); font-size: 12px; white-space: nowrap; border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; background: rgba(17,17,17,.78); }}
+    .hero {{ border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(135deg, rgba(24,24,24,.96), rgba(9,9,9,.96)); padding: 24px; box-shadow: 0 22px 60px rgba(0,0,0,.42); overflow: hidden; }}
+    .hero-grid {{ display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 22px; align-items: end; }}
+    .eyebrow {{ display: inline-flex; align-items: center; gap: 8px; color: #dadada; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; background: #0d0d0d; }}
+    .dot {{ width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 20px rgba(51,209,122,.8); }}
+    .hero-note {{ margin-top: 14px; max-width: 720px; color: #d6d6d6; font-size: 16px; }}
+    .metrics {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }}
+    .metric {{ border: 1px solid var(--line); border-radius: 12px; padding: 13px; background: #0b0b0b; min-height: 82px; }}
+    .metric-label {{ color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }}
+    .metric-value {{ margin-top: 8px; font-size: 20px; font-weight: 900; }}
+    .grid {{ display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; align-items: start; }}
+    .panel {{ border: 1px solid var(--line); border-radius: 14px; background: rgba(17,17,17,.94); padding: 17px; box-shadow: 0 18px 42px rgba(0,0,0,.28); }}
+    .panel-header {{ display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 12px; }}
+    .panel-kicker {{ color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 900; margin-bottom: 5px; }}
+    .stack {{ display: grid; gap: 16px; }}
+    .row {{ display: flex; gap: 9px; margin-top: 15px; }}
+    input, button, .button {{ min-height: 46px; border: 1px solid #363636; border-radius: 10px; background: var(--panel-2); color: var(--text); font: inherit; font-size: 15px; }}
+    input {{ flex: 1; min-width: 0; padding: 0 13px; text-transform: uppercase; }}
+    button, .button {{ display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; cursor: pointer; font-weight: 900; }}
+    .primary {{ background: #f2f2f2; color: #050505; border-color: #f2f2f2; }}
+    button:hover, .button:hover {{ border-color: #666; background: #222; }}
+    .primary:hover {{ background: #d8d8d8; border-color: #d8d8d8; }}
     button:disabled {{ opacity: .55; cursor: wait; }}
-    .status {{ display: none; margin-top: 12px; border: 1px solid #2a2a2a; border-radius: 8px; background: #050505; padding: 11px; color: #d0d0d0; line-height: 1.4; }}
+    .status {{ display: none; margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: #080808; padding: 12px; color: #d0d0d0; line-height: 1.4; }}
     .status.is-visible {{ display: block; }}
-    .links {{ display: grid; gap: 10px; margin-top: 14px; }}
-    .workflow {{ margin-top: 14px; padding-left: 18px; color: #d6d6d6; line-height: 1.5; }}
+    .links {{ display: grid; gap: 10px; margin-top: 12px; }}
+    .workflow {{ margin: 13px 0 0; padding-left: 18px; color: #d6d6d6; line-height: 1.5; }}
     .workflow li + li {{ margin-top: 7px; }}
-    .warn {{ border-color: #854d0e; background: #11100b; }}
-    .warn strong {{ color: #fde68a; }}
-    code {{ color: #e7e7e7; background: #050505; border: 1px solid #2a2a2a; border-radius: 6px; padding: 2px 6px; }}
-    .note {{ margin-top: 18px; color: #8e8e8e; font-size: 12px; }}
-    @media (max-width: 760px) {{ .top, .grid, .row {{ display: grid; grid-template-columns: 1fr; }} .stamp {{ white-space: normal; }} }}
+    .pill {{ border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px; color: #d8d8d8; background: #080808; font-size: 12px; font-weight: 800; white-space: nowrap; }}
+    .pill.good {{ color: #adf5c9; border-color: rgba(51,209,122,.42); background: rgba(51,209,122,.08); }}
+    .pill.warn {{ color: #ffe2a1; border-color: rgba(246,196,83,.42); background: rgba(246,196,83,.08); }}
+    .warn-panel {{ border-color: #3b331d; background: #11100b; }}
+    .warn-panel strong {{ color: #fde68a; }}
+    .note {{ margin-top: 12px; color: var(--muted); font-size: 12px; }}
+    @media (max-width: 820px) {{
+      main {{ padding: 16px 12px 36px; }}
+      .topbar, .hero-grid, .grid, .row {{ display: grid; grid-template-columns: 1fr; }}
+      .stamp {{ white-space: normal; }}
+      .hero {{ padding: 18px; }}
+      .metrics {{ grid-template-columns: 1fr; }}
+      .panel-header {{ align-items: start; }}
+    }}
   </style>
 </head>
 <body>
   <main>
-    <div class="top">
-      <div>
-        <h1>Stock Analyst App</h1>
-        <p>Phone-ready scanner for short-term CALL/PUT candidates with catalyst, macro, liquidity, options, and chart context.</p>
-        <p class="hero-note">Use this from work to refresh the cloud report and get the exact trade ticket. Final order placement still happens in Robinhood or through a confirmed agentic order review.</p>
-      </div>
-      <div class="stamp">Loaded {html.escape(generated)}</div>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <img class="logo" src="/stock_analyst_logo.jpg" alt="AIA logo">
+          <div>
+            <div class="brand-title">AIA Stock Analyst</div>
+            <div class="brand-subtitle">Catalyst-backed options scanner</div>
+          </div>
+        </div>
+        <div class="stamp">Loaded {html.escape(generated)}</div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="eyebrow"><span class="dot"></span> Market command center</div>
+            <h1>Find the setup. Get the ticket. Execute manually.</h1>
+            <p class="hero-note">Refresh the cloud scanner from your phone, receive Telegram trade tickets, and open the latest report with the same catalyst, macro, chart, and option context.</p>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">Scanner</div>
+              <div class="metric-value">{html.escape(auto_status)}</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Alerts</div>
+              <div class="metric-value">{html.escape(alert_status)}</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Universe</div>
+              <div class="metric-value">Liquid options</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Execution</div>
+              <div class="metric-value">Manual</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-kicker">Primary action</div>
+                <h2>Full market scan</h2>
+              </div>
+              <span class="pill good">Live run</span>
+            </div>
+            <p>Ranks the strongest current CALL/PUT setups using price action, major catalysts, macro pressure, liquidity, and options structure.</p>
+            <div class="row">
+              <button class="primary" type="button" id="scanButton">Run full scanner</button>
+              <a class="button" href="/stock_report.html">Open latest report</a>
+            </div>
+            <div class="status" id="scanStatus"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-kicker">Single ticker</div>
+                <h2>On-demand analysis</h2>
+              </div>
+              <span class="pill">Optional</span>
+            </div>
+            <p>Check one name when you already have a ticker in mind and want it translated into the same strategy framework.</p>
+            <div class="row">
+              <input id="symbolInput" maxlength="12" placeholder="NVDA" aria-label="Ticker symbol">
+              <button type="button" id="analyzeButton">Analyze</button>
+            </div>
+            <div class="status" id="tickerStatus"></div>
+          </div>
+        </div>
+
+        <aside class="stack">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-kicker">Phone alerts</div>
+                <h2>Telegram notifications</h2>
+              </div>
+              <span class="pill {'good' if telegram_configured() else 'warn'}">{html.escape(alert_status)}</span>
+            </div>
+            <p>Send a test notification, then let scanner alerts hit your phone as trade-ticket style messages.</p>
+            <div class="row">
+              <button type="button" id="testAlertButton">Send test notification</button>
+            </div>
+            <div class="status" id="alertStatus"></div>
+            <p class="note">Required: <code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code>, <code>STOCK_ANALYST_PUBLIC_URL</code>.</p>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-kicker">Reports</div>
+                <h2>Latest files</h2>
+              </div>
+            </div>
+            <div class="links">
+              <a class="button" href="/stock_report.html">Full scanner report</a>
+              <a class="button" href="/on_demand_report.html">On-demand report</a>
+            </div>
+          </div>
+
+          <div class="panel warn-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-kicker">Risk control</div>
+                <h2>Execution rule</h2>
+              </div>
+            </div>
+            <p><strong>Render does not place Robinhood orders.</strong> Use alerts as a trade ticket, then confirm the trigger, spread, and limit price in Robinhood before entering.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-kicker">Setup checklist</div>
+            <h2>How to use it at work</h2>
+          </div>
+          <span class="pill">Phone workflow</span>
+        </div>
+        <ol class="workflow">
+          <li>Open this dashboard from your phone and make sure the Telegram test alert works.</li>
+          <li>Use automatic scans, or tap <strong>Run full scanner</strong> when you want a fresh read.</li>
+          <li>Open the report from the alert or dashboard and expand the best setup.</li>
+          <li>Only place the long call/put manually if the entry trigger is active and the option spread is reasonable.</li>
+        </ol>
+        <p class="note">Keep <strong>STOCK_ANALYST_PASSWORD</strong> set on Render. Free Render instances may sleep; always-on hosting is more dependable for 10-minute alerts.</p>
+      </section>
     </div>
-
-    <section class="grid">
-      <div class="panel">
-        <h2>Full scanner</h2>
-        <p>Refresh the liquid-universe report and rank the strongest current CALL/PUT setups with current news and macro pressure.</p>
-        <div class="row">
-          <button type="button" id="scanButton">Run full scanner</button>
-        </div>
-        <div class="status" id="scanStatus"></div>
-      </div>
-
-      <div class="panel">
-        <h2>On-demand ticker</h2>
-        <p>Optional: check one symbol when you already have a name in mind.</p>
-        <div class="row">
-          <input id="symbolInput" maxlength="12" placeholder="NVDA" aria-label="Ticker symbol">
-          <button type="button" id="analyzeButton">Analyze</button>
-        </div>
-        <div class="status" id="tickerStatus"></div>
-      </div>
-    </section>
-
-    <section class="panel" style="margin-top:14px;">
-      <h2>Reports</h2>
-      <div class="links">
-        <a class="button" href="/stock_report.html">Open full scanner report</a>
-        <a class="button" href="/on_demand_report.html">Open latest on-demand report</a>
-      </div>
-    </section>
-
-    <section class="panel" style="margin-top:14px;">
-      <h2>Phone notifications</h2>
-      <p>Telegram alerts send trade-ticket style notifications when the scanner finds a setup that clears the alert rules.</p>
-      <div class="row">
-        <button type="button" id="testAlertButton">Send test notification</button>
-      </div>
-      <div class="status" id="alertStatus"></div>
-      <ol class="workflow">
-        <li>Add these Render environment variables: <code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code>, and <code>STOCK_ANALYST_PUBLIC_URL</code>.</li>
-        <li>Optional: set <code>STOCK_ANALYST_AUTO_SCAN_MINUTES</code> to something like <code>30</code> if you want automatic market-hours scans.</li>
-        <li>Optional: set <code>STOCK_ANALYST_ALERT_MODE</code> to <code>watch</code> if you want earlier trigger-forming alerts instead of only the cleanest actionable alerts.</li>
-      </ol>
-    </section>
-
-    <section class="panel warn" style="margin-top:14px;">
-      <h2>Phone execution workflow</h2>
-      <p><strong>Render can run the scanner, but it cannot silently place Robinhood trades.</strong> Use the cloud report to choose the setup, then place the exact option ticket in Robinhood from your phone, or message me the reviewed trade for agentic confirmation when you have Codex access.</p>
-      <ol class="workflow">
-        <li>Tap <strong>Run full scanner</strong>.</li>
-        <li>Open the full scanner report and expand the best setup.</li>
-        <li>Use the entry status, option strike, expiration, bid/ask, and entry plan as the trade ticket.</li>
-        <li>Open Robinhood on your phone and place the same long call/put only if the trigger is active.</li>
-      </ol>
-      <p class="note">Keep <strong>STOCK_ANALYST_PASSWORD</strong> set on Render. Do not expose this dashboard publicly without a password.</p>
-    </section>
   </main>
   <script>
     const symbolInput = document.getElementById('symbolInput');
