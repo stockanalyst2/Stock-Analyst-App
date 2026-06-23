@@ -21,6 +21,7 @@ import re
 import subprocess
 import statistics
 import sys
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -5435,6 +5436,211 @@ def analyst_stance(item: Analysis, brief: TradeBrief | None) -> str:
     return "Conditional setup"
 
 
+def telegram_configured() -> bool:
+    return bool(os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"))
+
+
+def send_telegram_message(message: str) -> bool:
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    if not token or not chat_id:
+        return False
+    payload = urllib.parse.urlencode(
+        {
+            "chat_id": chat_id,
+            "text": message,
+            "disable_web_page_preview": "true",
+        }
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        f"https://api.telegram.org/bot{token}/sendMessage",
+        data=payload,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=15) as response:
+        return 200 <= response.status < 300
+
+
+def alert_state_path() -> Path:
+    configured = os.environ.get("STOCK_ANALYST_ALERT_STATE")
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parent / ".stock_analyst_alerts.json"
+
+
+def load_alert_state() -> set[str]:
+    path = alert_state_path()
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return set()
+    if isinstance(payload, dict):
+        keys = payload.get("sent") or []
+    else:
+        keys = payload
+    return {str(key) for key in keys if str(key).strip()}
+
+
+def save_alert_state(keys: set[str]) -> None:
+    path = alert_state_path()
+    path.write_text(json.dumps({"sent": sorted(keys)[-500:]}, indent=2), encoding="utf-8")
+
+
+def report_public_url(output: Path | str) -> str:
+    base_url = os.environ.get("STOCK_ANALYST_PUBLIC_URL", "").strip().rstrip("/")
+    report_name = Path(output).name
+    if base_url:
+        return f"{base_url}/{report_name}"
+    return report_name
+
+
+def alert_key(item: Analysis, stance: str) -> str:
+    option = item.option
+    option_key = "-"
+    if option:
+        option_key = f"{option.expiration.isoformat()}:{option.strike:.2f}:{option.side}"
+    today = dt.datetime.now().astimezone().date().isoformat()
+    return f"{today}:{item.symbol}:{item.setup_direction}:{stance}:{option_key}"
+
+
+def alert_candidates(results: list[Analysis]) -> list[tuple[Analysis, str, str]]:
+    mode = os.environ.get("STOCK_ANALYST_ALERT_MODE", "actionable").strip().lower()
+    candidates: list[tuple[Analysis, str, str]] = []
+    for item in results:
+        brief = item.trade_brief
+        stance = analyst_stance(item, brief)
+        status, _detail = entry_status(item, brief)
+        if stance.startswith("Pass"):
+            continue
+        if mode == "all":
+            candidates.append((item, stance, status))
+        elif mode == "watch":
+            if stance.startswith("Actionable") or status in {"Confirmed entry", "Starter entry active", "Trigger forming"}:
+                candidates.append((item, stance, status))
+        else:
+            if stance.startswith("Actionable") or status in {"Confirmed entry", "Starter entry active"}:
+                candidates.append((item, stance, status))
+    limit = max(1, int(os.environ.get("STOCK_ANALYST_ALERT_LIMIT", "5") or "5"))
+    return candidates[:limit]
+
+
+def format_trade_alert(item: Analysis, stance: str, status: str, report_url: str) -> str:
+    option = item.option
+    option_line = "Option: verify chain manually"
+    if option:
+        bid_ask = format_bid_ask(option)
+        option_line = f"Option: {option.side} {option.strike:g} exp {option.expiration.isoformat()} bid/ask {bid_ask}"
+    grade = item.trade_brief.setup_grade if item.trade_brief else score_grade(rank_score(item, "trade"))
+    company = display_company_name(item.symbol, item.name)
+    return "\n".join(
+        [
+            f"Stock Analyst alert: {item.symbol} {item.setup_direction or ''}".strip(),
+            company,
+            f"Grade: {grade}",
+            f"Stance: {stance}",
+            f"Entry status: {status}",
+            f"Price: ${item.price:.2f}",
+            option_line,
+            f"Report: {report_url}",
+            "Manual execution only. Confirm trigger and limit price in Robinhood before placing anything.",
+        ]
+    )
+
+
+def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
+    if not telegram_configured():
+        return 0
+    sent_keys = load_alert_state()
+    report_url = report_public_url(output)
+    sent_count = 0
+    for item, stance, status in alert_candidates(results):
+        key = alert_key(item, stance)
+        if key in sent_keys:
+            continue
+        try:
+            if send_telegram_message(format_trade_alert(item, stance, status, report_url)):
+                sent_keys.add(key)
+                sent_count += 1
+        except Exception as exc:
+            print(f"Telegram alert failed for {item.symbol}: {exc}", file=sys.stderr)
+    if sent_count:
+        save_alert_state(sent_keys)
+    return sent_count
+
+
+def send_test_alert() -> bool:
+    generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
+    return send_telegram_message(
+        "Stock Analyst test alert\n"
+        f"Time: {generated}\n"
+        "If you got this, phone notifications are connected."
+    )
+
+
+SCAN_LOCK = threading.Lock()
+
+
+def in_market_alert_window(now: dt.datetime | None = None) -> bool:
+    current = now or dt.datetime.now().astimezone()
+    if current.weekday() >= 5:
+        return False
+    start = current.replace(hour=9, minute=25, second=0, microsecond=0)
+    end = current.replace(hour=16, minute=10, second=0, microsecond=0)
+    return start <= current <= end
+
+
+def auto_scan_minutes() -> int:
+    raw_value = os.environ.get("STOCK_ANALYST_AUTO_SCAN_MINUTES", "").strip()
+    if not raw_value:
+        return 0
+    try:
+        return max(0, int(raw_value))
+    except ValueError:
+        return 0
+
+
+def run_scheduled_scan_once() -> None:
+    if not SCAN_LOCK.acquire(blocking=False):
+        print("Scheduled scan skipped because another scan is already running.", flush=True)
+        return
+    try:
+        script_path = Path(__file__).resolve()
+        command = scanner_command(script_path, "stock_report.html")
+        completed = subprocess.run(
+            command,
+            cwd=script_path.parent,
+            capture_output=True,
+            text=True,
+            timeout=480,
+        )
+        if completed.returncode == 0:
+            print("Scheduled scan finished.", flush=True)
+        else:
+            error_text = (completed.stderr or completed.stdout or "Scheduled scan failed.").strip().splitlines()
+            print(f"Scheduled scan failed: {error_text[-1] if error_text else 'unknown error'}", file=sys.stderr, flush=True)
+    except Exception as exc:
+        print(f"Scheduled scan failed: {exc}", file=sys.stderr, flush=True)
+    finally:
+        SCAN_LOCK.release()
+
+
+def scheduled_scan_loop(minutes: int) -> None:
+    while True:
+        if in_market_alert_window():
+            run_scheduled_scan_once()
+        time.sleep(max(60, minutes * 60))
+
+
+def start_scheduled_scanner() -> None:
+    minutes = auto_scan_minutes()
+    if minutes <= 0:
+        return
+    thread = threading.Thread(target=scheduled_scan_loop, args=(minutes,), daemon=True)
+    thread.start()
+    print(f"Automatic market-hours scanner enabled every {minutes} minute(s).", flush=True)
+
+
 def analyst_catalyst_opinion(item: Analysis) -> str:
     symbol = item.symbol
     score = item.catalyst_score if item.catalyst_score is not None else 50.0
@@ -7335,6 +7541,12 @@ def run(args: argparse.Namespace) -> int:
     print_table(results, args.limit)
     output = Path(args.output)
     write_report(results[: args.limit], output, args.profile, failed)
+    if args.notify:
+        sent = maybe_send_trade_alerts(results[: args.limit], output)
+        if sent:
+            print(f"Sent {sent} Telegram trade alert(s).")
+        elif telegram_configured():
+            print("No new Telegram trade alerts met the alert rules.")
     print(f"\nReport written to {output.resolve()}")
     print("Reminder: this is a screening model, not personalized investment advice.")
     return 0
@@ -7381,6 +7593,7 @@ def report_dashboard_html() -> str:
     .workflow li + li {{ margin-top: 7px; }}
     .warn {{ border-color: #854d0e; background: #11100b; }}
     .warn strong {{ color: #fde68a; }}
+    code {{ color: #e7e7e7; background: #050505; border: 1px solid #2a2a2a; border-radius: 6px; padding: 2px 6px; }}
     .note {{ margin-top: 18px; color: #8e8e8e; font-size: 12px; }}
     @media (max-width: 760px) {{ .top, .grid, .row {{ display: grid; grid-template-columns: 1fr; }} .stamp {{ white-space: normal; }} }}
   </style>
@@ -7425,6 +7638,20 @@ def report_dashboard_html() -> str:
       </div>
     </section>
 
+    <section class="panel" style="margin-top:14px;">
+      <h2>Phone notifications</h2>
+      <p>Telegram alerts send trade-ticket style notifications when the scanner finds a setup that clears the alert rules.</p>
+      <div class="row">
+        <button type="button" id="testAlertButton">Send test notification</button>
+      </div>
+      <div class="status" id="alertStatus"></div>
+      <ol class="workflow">
+        <li>Add these Render environment variables: <code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code>, and <code>STOCK_ANALYST_PUBLIC_URL</code>.</li>
+        <li>Optional: set <code>STOCK_ANALYST_AUTO_SCAN_MINUTES</code> to something like <code>30</code> if you want automatic market-hours scans.</li>
+        <li>Optional: set <code>STOCK_ANALYST_ALERT_MODE</code> to <code>watch</code> if you want earlier trigger-forming alerts instead of only the cleanest actionable alerts.</li>
+      </ol>
+    </section>
+
     <section class="panel warn" style="margin-top:14px;">
       <h2>Phone execution workflow</h2>
       <p><strong>Render can run the scanner, but it cannot silently place Robinhood trades.</strong> Use the cloud report to choose the setup, then place the exact option ticket in Robinhood from your phone, or message me the reviewed trade for agentic confirmation when you have Codex access.</p>
@@ -7443,6 +7670,8 @@ def report_dashboard_html() -> str:
     const scanButton = document.getElementById('scanButton');
     const tickerStatus = document.getElementById('tickerStatus');
     const scanStatus = document.getElementById('scanStatus');
+    const testAlertButton = document.getElementById('testAlertButton');
+    const alertStatus = document.getElementById('alertStatus');
 
     function setStatus(element, message) {{
       element.innerHTML = message;
@@ -7488,8 +7717,24 @@ def report_dashboard_html() -> str:
       }}
     }}
 
+    async function sendTestAlert() {{
+      testAlertButton.disabled = true;
+      setStatus(alertStatus, 'Sending test notification...');
+      try {{
+        const response = await fetch('/api/test-alert');
+        const payload = await response.json();
+        if (!response.ok || !payload.ok) throw new Error(payload.error || 'Test alert failed.');
+        setStatus(alertStatus, 'Test notification sent. Check Telegram on your phone.');
+      }} catch (error) {{
+        setStatus(alertStatus, `Could not send test notification: ${{error.message}}`);
+      }} finally {{
+        testAlertButton.disabled = false;
+      }}
+    }}
+
     analyzeButton.addEventListener('click', analyzeTicker);
     scanButton.addEventListener('click', runScanner);
+    testAlertButton.addEventListener('click', sendTestAlert);
     symbolInput.addEventListener('keydown', (event) => {{
       if (event.key === 'Enter') analyzeTicker();
     }});
@@ -7528,6 +7773,7 @@ def scanner_command(script_path: Path, output_name: str) -> list[str]:
         "20",
         "--progress",
         "10",
+        "--notify",
         "--output",
         output_name,
     ]
@@ -7571,6 +7817,9 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
         if parsed.path == "/api/scan":
             self.handle_scan()
+            return
+        if parsed.path == "/api/test-alert":
+            self.handle_test_alert()
             return
         if parsed.path == "/healthz":
             self.send_json({"ok": True, "service": "stock-analyst"})
@@ -7636,6 +7885,9 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
         output_name = "stock_report.html"
         script_path = Path(__file__).resolve()
         command = scanner_command(script_path, output_name)
+        if not SCAN_LOCK.acquire(blocking=False):
+            self.send_json({"ok": False, "error": "A scan is already running. Try again in a few minutes."}, status=409)
+            return
         try:
             completed = subprocess.run(
                 command,
@@ -7645,8 +7897,15 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
                 timeout=420,
             )
         except subprocess.TimeoutExpired:
+            SCAN_LOCK.release()
             self.send_json({"ok": False, "error": "Full scanner timed out after 7 minutes."}, status=504)
             return
+        finally:
+            if SCAN_LOCK.locked():
+                try:
+                    SCAN_LOCK.release()
+                except RuntimeError:
+                    pass
 
         if completed.returncode != 0:
             error_text = (completed.stderr or completed.stdout or "Scanner failed.").strip().splitlines()
@@ -7654,6 +7913,23 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         self.send_json({"ok": True, "report_url": f"/{output_name}?t={int(time.time())}"})
+
+    def handle_test_alert(self) -> None:
+        if not telegram_configured():
+            self.send_json(
+                {
+                    "ok": False,
+                    "error": "Telegram is not configured. Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Render Environment.",
+                },
+                status=400,
+            )
+            return
+        try:
+            sent = send_test_alert()
+        except Exception as exc:
+            self.send_json({"ok": False, "error": str(exc)}, status=500)
+            return
+        self.send_json({"ok": bool(sent)})
 
     def send_json(self, payload: dict[str, Any], status: int = 200) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -7677,6 +7953,7 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
 def serve_report(args: argparse.Namespace) -> int:
     root = Path(__file__).resolve().parent
     os.chdir(root)
+    start_scheduled_scanner()
     server = http.server.ThreadingHTTPServer((args.host, args.port), ReportRequestHandler)
     host = "127.0.0.1" if args.host in {"", "0.0.0.0"} else args.host
     print(f"Serving Stock Analyst App at http://{host}:{args.port}/app")
@@ -7747,6 +8024,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--fundamentals", dest="skip_quotes", action="store_false", help="Try Yahoo quote/fundamental lookup for P/E, dividends, beta, and market cap")
     parser.add_argument("--skip-quotes", dest="skip_quotes", action="store_true", default=True, help="Skip Yahoo quote/fundamental lookup; currently the default because Yahoo often blocks this endpoint")
     parser.add_argument("--verbose", action="store_true", help="Print every skipped symbol error")
+    parser.add_argument("--notify", action="store_true", help="Send Telegram alerts for qualifying trade setups")
     parser.add_argument("--news", dest="news", action="store_true", default=True, help="Include recent Yahoo Finance headlines in the HTML report")
     parser.add_argument("--no-news", dest="news", action="store_false", help="Skip headline lookup")
     parser.add_argument("--catalysts", dest="catalysts", action="store_true", default=True, help="Use recent headlines, hype terms, and geopolitical/macro terms to adjust trade rankings")

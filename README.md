@@ -82,6 +82,24 @@ Add this environment variable in Render:
 STOCK_ANALYST_PASSWORD=choose-a-strong-password
 ```
 
+For phone alerts, add these environment variables too:
+
+```text
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+TELEGRAM_CHAT_ID=your-telegram-chat-id
+STOCK_ANALYST_PUBLIC_URL=https://YOUR-RENDER-APP.onrender.com
+```
+
+Optional alert controls:
+
+```text
+STOCK_ANALYST_AUTO_SCAN_MINUTES=30
+STOCK_ANALYST_ALERT_MODE=actionable
+STOCK_ANALYST_ALERT_LIMIT=5
+```
+
+`STOCK_ANALYST_ALERT_MODE=actionable` sends only the strongest trigger-ready alerts. Use `watch` if you want earlier trigger-forming alerts too. Automatic scans are best on an always-on Render instance; free services may sleep when nobody is visiting the app.
+
 Then open:
 
 ```text
@@ -97,11 +115,12 @@ stock
 ### Phone workflow
 
 1. Open the Render `/app` page from your phone.
-2. Tap **Run full scanner**.
-3. Open the full scanner report.
-4. Expand the best setup.
-5. Use the option side, strike, expiration, bid/ask, entry status, and entry plan as the trade ticket.
-6. Place the order manually in Robinhood only if the trigger is active.
+2. Tap **Send test notification** once after configuring Telegram.
+3. Tap **Run full scanner**, or let the automatic scanner run if `STOCK_ANALYST_AUTO_SCAN_MINUTES` is set.
+4. Open the full scanner report from the alert or dashboard.
+5. Expand the best setup.
+6. Use the option side, strike, expiration, bid/ask, entry status, and entry plan as the trade ticket.
+7. Place the order manually in Robinhood only if the trigger is active.
 
 Important: the cloud app can scan and prepare the trade ticket, but it does not have the Codex Robinhood agentic tools. Real Robinhood execution still requires either manual placement in the Robinhood app or an explicit confirmed order through a Codex session that has Robinhood access.
 

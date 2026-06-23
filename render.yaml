@@ -9,3 +9,13 @@ services:
     envVars:
       - key: STOCK_ANALYST_PASSWORD
         sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: STOCK_ANALYST_PUBLIC_URL
+        sync: false
+      - key: STOCK_ANALYST_AUTO_SCAN_MINUTES
+        value: "30"
+      - key: STOCK_ANALYST_ALERT_MODE
+        value: actionable
