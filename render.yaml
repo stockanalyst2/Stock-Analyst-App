@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: stock-analyst
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python3 stock_analyst.py --serve --host 0.0.0.0"
+    healthCheckPath: /healthz
+    envVars:
+      - key: STOCK_ANALYST_PASSWORD
+        sync: false
