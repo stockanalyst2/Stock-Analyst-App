@@ -7627,63 +7627,66 @@ def report_dashboard_html() -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Atlas</title>
+  <title>Atlas AI</title>
   <link rel="icon" href="/stock_analyst_logo.jpg">
   <style>
     :root {{
       color-scheme: dark;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg: #030303;
-      --panel: #0c0c0c;
-      --line: #242424;
-      --muted: #858585;
-      --text: #f4f4f4;
+      --bg: #000;
+      --line: #202020;
+      --muted: #777;
+      --text: #f1f1f1;
     }}
     * {{ box-sizing: border-box; }}
     body {{ margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); }}
-    main {{ min-height: 100vh; display: grid; place-items: center; padding: 24px; }}
-    .app {{ width: min(560px, 100%); display: grid; gap: 14px; }}
-    .brand {{ display: flex; align-items: center; gap: 10px; }}
-    .logo {{ width: 42px; height: 42px; border-radius: 10px; object-fit: cover; background: #050505; }}
-    .brand-title {{ font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }}
-    .brand-subtitle {{ color: var(--muted); font-size: 12px; margin-top: 1px; }}
-    .panel {{ border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 24px; }}
-    h1 {{ margin: 0; font-size: clamp(44px, 13vw, 76px); line-height: .9; letter-spacing: 0; font-weight: 900; }}
-    p {{ margin: 14px 0 0; color: #a9a9a9; line-height: 1.45; max-width: 440px; }}
+    main {{ min-height: 100vh; display: grid; place-items: center; padding: 28px; }}
+    .app {{ width: min(980px, 100%); display: grid; justify-items: center; gap: 30px; }}
+    .atlas-wordmark {{
+      margin: 0;
+      width: 100%;
+      text-align: center;
+      font-family: "Arial Black", "Arial Narrow", Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: clamp(48px, 11vw, 132px);
+      line-height: .8;
+      letter-spacing: .20em;
+      text-indent: .20em;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: transparent;
+      background: linear-gradient(180deg, #f4f4f4 0%, #a9a9a9 38%, #5d5d5d 72%, #d9d9d9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 16px 22px rgba(255,255,255,.08));
+    }}
+    .tagline {{ margin: -10px 0 0; color: #777; text-align: center; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; }}
     a {{ color: inherit; text-decoration: none; }}
-    .actions {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }}
-    button, .button {{ min-height: 52px; border: 1px solid #333; border-radius: 8px; background: #111; color: var(--text); font: inherit; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; cursor: pointer; }}
-    .primary {{ background: #f2f2f2; color: #050505; border-color: #f2f2f2; }}
-    button:hover, .button:hover {{ border-color: #555; background: #171717; }}
-    .primary:hover {{ background: #d8d8d8; border-color: #d8d8d8; }}
+    .controls {{ width: min(520px, 100%); display: grid; gap: 14px; justify-items: center; }}
+    .actions {{ width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }}
+    button, .button {{ min-height: 52px; border: 1px solid #2d2d2d; border-radius: 0; background: #050505; color: #dcdcdc; font: inherit; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; cursor: pointer; }}
+    .primary {{ background: #d8d8d8; color: #050505; border-color: #d8d8d8; }}
+    button:hover, .button:hover {{ border-color: #777; background: #101010; }}
+    .primary:hover {{ background: #f2f2f2; border-color: #f2f2f2; }}
     button:disabled {{ opacity: .55; cursor: wait; }}
-    .status {{ display: none; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: #070707; padding: 12px; color: #cfcfcf; line-height: 1.4; }}
+    .status {{ display: none; width: 100%; border: 1px solid var(--line); background: #050505; padding: 12px; color: #bdbdbd; line-height: 1.4; text-align: center; }}
     .status.is-visible {{ display: block; }}
-    .meta {{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; color: var(--muted); font-size: 12px; }}
-    .meta span {{ border-top: 1px solid var(--line); padding-top: 9px; }}
-    .note {{ color: var(--muted); font-size: 12px; text-align: center; }}
+    .meta {{ display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; color: var(--muted); font-size: 11px; letter-spacing: .10em; text-transform: uppercase; }}
+    .note {{ color: #555; font-size: 11px; text-align: center; letter-spacing: .06em; }}
     @media (max-width: 820px) {{
-      main {{ padding: 14px; place-items: start center; }}
-      .panel {{ padding: 18px; }}
+      main {{ padding: 22px 14px; }}
+      .app {{ gap: 24px; padding-top: 16vh; }}
+      .atlas-wordmark {{ font-size: clamp(42px, 13vw, 72px); letter-spacing: .12em; text-indent: .12em; }}
+      .tagline {{ font-size: 11px; letter-spacing: .12em; }}
       .actions {{ grid-template-columns: 1fr; }}
-      h1 {{ font-size: 54px; }}
     }}
   </style>
 </head>
 <body>
   <main>
     <section class="app">
-      <div class="brand">
-        <img class="logo" src="/stock_analyst_logo.jpg" alt="AIA logo">
-        <div>
-          <div class="brand-title">Atlas</div>
-          <div class="brand-subtitle">Market scanner</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h1>Atlas</h1>
-        <p>Run the scanner. Open the latest report. Alerts keep watching for saved setups that turn into entries.</p>
+      <h1 class="atlas-wordmark">Atlas AI</h1>
+      <div class="tagline">Market scanner</div>
+      <div class="controls">
         <div class="actions">
           <button class="primary" type="button" id="scanButton">Run scanner</button>
           <a class="button" href="/stock_report.html">Open latest report</a>
@@ -7694,7 +7697,6 @@ def report_dashboard_html() -> str:
           <span>Updated: {html.escape(generated)}</span>
         </div>
       </div>
-
       <div class="note">Manual Robinhood execution only. Confirm the trigger and option spread before placing a trade.</div>
     </section>
   </main>
