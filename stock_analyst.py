@@ -7627,46 +7627,46 @@ def report_dashboard_html() -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AIA Stock Analyst App</title>
+  <title>Atlas</title>
   <link rel="icon" href="/stock_analyst_logo.jpg">
   <style>
     :root {{
       color-scheme: dark;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg: #050505;
-      --line: #2c2c2c;
-      --muted: #9b9b9b;
-      --text: #f2f2f2;
-      --good: #33d17a;
+      --bg: #030303;
+      --panel: #0c0c0c;
+      --line: #242424;
+      --muted: #858585;
+      --text: #f4f4f4;
     }}
     * {{ box-sizing: border-box; }}
-    body {{ margin: 0; min-height: 100vh; background: radial-gradient(circle at top right, #191919 0, var(--bg) 34rem); color: var(--text); }}
-    main {{ min-height: 100vh; display: grid; place-items: center; padding: 20px; }}
-    .app {{ width: min(620px, 100%); display: grid; gap: 16px; }}
-    .brand {{ display: flex; align-items: center; gap: 12px; }}
-    .logo {{ width: 52px; height: 52px; border-radius: 13px; object-fit: cover; background: #050505; box-shadow: 0 14px 34px rgba(0,0,0,.45); }}
-    .brand-title {{ font-size: 15px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }}
-    .brand-subtitle {{ color: var(--muted); font-size: 12px; margin-top: 2px; }}
-    .panel {{ border: 1px solid var(--line); border-radius: 16px; background: rgba(15,15,15,.96); padding: 22px; box-shadow: 0 26px 70px rgba(0,0,0,.42); }}
-    h1 {{ margin: 0; font-size: clamp(32px, 9vw, 50px); line-height: .96; letter-spacing: 0; }}
-    p {{ margin: 12px 0 0; color: #bdbdbd; line-height: 1.45; }}
+    body {{ margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); }}
+    main {{ min-height: 100vh; display: grid; place-items: center; padding: 24px; }}
+    .app {{ width: min(560px, 100%); display: grid; gap: 14px; }}
+    .brand {{ display: flex; align-items: center; gap: 10px; }}
+    .logo {{ width: 42px; height: 42px; border-radius: 10px; object-fit: cover; background: #050505; }}
+    .brand-title {{ font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }}
+    .brand-subtitle {{ color: var(--muted); font-size: 12px; margin-top: 1px; }}
+    .panel {{ border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 24px; }}
+    h1 {{ margin: 0; font-size: clamp(44px, 13vw, 76px); line-height: .9; letter-spacing: 0; font-weight: 900; }}
+    p {{ margin: 14px 0 0; color: #a9a9a9; line-height: 1.45; max-width: 440px; }}
     a {{ color: inherit; text-decoration: none; }}
-    .actions {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }}
-    button, .button {{ min-height: 54px; border: 1px solid #363636; border-radius: 12px; background: #171717; color: var(--text); font: inherit; font-size: 15px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; cursor: pointer; }}
+    .actions {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }}
+    button, .button {{ min-height: 52px; border: 1px solid #333; border-radius: 8px; background: #111; color: var(--text); font: inherit; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; cursor: pointer; }}
     .primary {{ background: #f2f2f2; color: #050505; border-color: #f2f2f2; }}
-    button:hover, .button:hover {{ border-color: #666; background: #222; }}
+    button:hover, .button:hover {{ border-color: #555; background: #171717; }}
     .primary:hover {{ background: #d8d8d8; border-color: #d8d8d8; }}
     button:disabled {{ opacity: .55; cursor: wait; }}
-    .status {{ display: none; margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; background: #080808; padding: 13px; color: #d0d0d0; line-height: 1.4; }}
+    .status {{ display: none; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: #070707; padding: 12px; color: #cfcfcf; line-height: 1.4; }}
     .status.is-visible {{ display: block; }}
-    .meta {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; color: var(--muted); font-size: 12px; }}
-    .meta span {{ border: 1px solid var(--line); border-radius: 999px; padding: 7px 9px; background: #080808; }}
+    .meta {{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; color: var(--muted); font-size: 12px; }}
+    .meta span {{ border-top: 1px solid var(--line); padding-top: 9px; }}
     .note {{ color: var(--muted); font-size: 12px; text-align: center; }}
     @media (max-width: 820px) {{
       main {{ padding: 14px; place-items: start center; }}
       .panel {{ padding: 18px; }}
       .actions {{ grid-template-columns: 1fr; }}
-      h1 {{ font-size: 34px; }}
+      h1 {{ font-size: 54px; }}
     }}
   </style>
 </head>
@@ -7676,14 +7676,14 @@ def report_dashboard_html() -> str:
       <div class="brand">
         <img class="logo" src="/stock_analyst_logo.jpg" alt="AIA logo">
         <div>
-          <div class="brand-title">AIA Stock Analyst</div>
-          <div class="brand-subtitle">Scanner dashboard</div>
+          <div class="brand-title">Atlas</div>
+          <div class="brand-subtitle">Market scanner</div>
         </div>
       </div>
 
       <div class="panel">
-        <h1>Stock Analyst App</h1>
-        <p>Run the scanner, then open the latest report. Background Telegram alerts still watch for saved setups that upgrade into entry conditions.</p>
+        <h1>Atlas</h1>
+        <p>Run the scanner. Open the latest report. Alerts keep watching for saved setups that turn into entries.</p>
         <div class="actions">
           <button class="primary" type="button" id="scanButton">Run scanner</button>
           <a class="button" href="/stock_report.html">Open latest report</a>

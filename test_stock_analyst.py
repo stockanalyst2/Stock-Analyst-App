@@ -388,7 +388,7 @@ class StockAnalystTests(unittest.TestCase):
     def test_dashboard_html_exposes_app_controls(self):
         document = stock_analyst.report_dashboard_html()
 
-        self.assertIn("Stock Analyst App", document)
+        self.assertIn("Atlas", document)
         self.assertIn("/api/scan", document)
         self.assertIn("/stock_report.html", document)
 
