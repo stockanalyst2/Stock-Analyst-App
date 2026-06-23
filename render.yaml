@@ -17,5 +17,5 @@ services:
         sync: false
       - key: STOCK_ANALYST_AUTO_SCAN_MINUTES
         value: "30"
-      - key: STOCK_ANALYST_ALERT_MODE
-        value: actionable
+      - key: STOCK_ANALYST_ALERT_ENTRY_MODE
+        value: confirmed

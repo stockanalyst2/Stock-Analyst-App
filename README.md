@@ -94,11 +94,11 @@ Optional alert controls:
 
 ```text
 STOCK_ANALYST_AUTO_SCAN_MINUTES=30
-STOCK_ANALYST_ALERT_MODE=actionable
+STOCK_ANALYST_ALERT_ENTRY_MODE=confirmed
 STOCK_ANALYST_ALERT_LIMIT=5
 ```
 
-`STOCK_ANALYST_ALERT_MODE=actionable` sends only the strongest trigger-ready alerts. Use `watch` if you want earlier trigger-forming alerts too. Automatic scans are best on an always-on Render instance; free services may sleep when nobody is visiting the app.
+Alerts are transition-based: the first scan quietly records the report candidates, then later scans notify you only when a previously watched/waiting setup upgrades into an entry condition. `STOCK_ANALYST_ALERT_ENTRY_MODE=confirmed` alerts only on confirmed entries. Use `starter` if you also want smaller starter-entry alerts. Automatic scans are best on an always-on Render instance; free services may sleep when nobody is visiting the app.
 
 Then open:
 

@@ -999,6 +999,57 @@ class StockAnalystTests(unittest.TestCase):
         self.assertEqual(status, "Avoid / invalidated")
         self.assertIn("vetoed", detail)
 
+    def test_alert_candidates_require_watch_to_entry_transition(self):
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=80,
+            rating="Candidate",
+            momentum_score=75,
+            value_score=55,
+            risk_score=65,
+            yield_score=40,
+            return_1y=0.12,
+            return_6m=0.06,
+            return_3m=0.04,
+            volatility=0.25,
+            max_drawdown=-0.10,
+            sharpe_like=None,
+            rsi=55,
+            sma_50=98,
+            sma_200=92,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_direction="CALL",
+        )
+        original_stance = stock_analyst.analyst_stance
+        original_status = stock_analyst.entry_status
+        try:
+            stock_analyst.analyst_stance = lambda _item, _brief: "Actionable on trigger"
+            stock_analyst.entry_status = lambda _item, _brief: ("Confirmed entry", "aligned")
+
+            self.assertEqual(stock_analyst.alert_candidates_from_transitions([item], {}), [])
+
+            prior = {
+                "TEST:CALL": {
+                    "symbol": "TEST",
+                    "direction": "CALL",
+                    "stance": "Watch only",
+                    "status": "Trigger forming",
+                }
+            }
+            candidates = stock_analyst.alert_candidates_from_transitions([item], prior)
+
+            self.assertEqual(candidates, [(item, "Actionable on trigger", "Confirmed entry")])
+        finally:
+            stock_analyst.analyst_stance = original_stance
+            stock_analyst.entry_status = original_status
+
 
 if __name__ == "__main__":
     unittest.main()

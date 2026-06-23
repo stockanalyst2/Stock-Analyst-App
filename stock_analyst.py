@@ -5469,22 +5469,38 @@ def alert_state_path() -> Path:
     return Path(__file__).resolve().parent / ".stock_analyst_alerts.json"
 
 
-def load_alert_state() -> set[str]:
+def load_alert_state() -> dict[str, Any]:
     path = alert_state_path()
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return set()
-    if isinstance(payload, dict):
-        keys = payload.get("sent") or []
-    else:
-        keys = payload
-    return {str(key) for key in keys if str(key).strip()}
+        return {"sent": [], "observed": {}}
+    if not isinstance(payload, dict):
+        payload = {"sent": payload, "observed": {}}
+    sent = payload.get("sent") or []
+    observed = payload.get("observed") or {}
+    if not isinstance(observed, dict):
+        observed = {}
+    return {
+        "sent": [str(key) for key in sent if str(key).strip()],
+        "observed": {str(key): value for key, value in observed.items() if isinstance(value, dict)},
+    }
 
 
-def save_alert_state(keys: set[str]) -> None:
+def save_alert_state(state: dict[str, Any]) -> None:
     path = alert_state_path()
-    path.write_text(json.dumps({"sent": sorted(keys)[-500:]}, indent=2), encoding="utf-8")
+    sent = [str(key) for key in state.get("sent", []) if str(key).strip()]
+    observed = state.get("observed") or {}
+    path.write_text(
+        json.dumps(
+            {
+                "sent": sorted(set(sent))[-500:],
+                "observed": observed if isinstance(observed, dict) else {},
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
 
 def report_public_url(output: Path | str) -> str:
@@ -5504,23 +5520,63 @@ def alert_key(item: Analysis, stance: str) -> str:
     return f"{today}:{item.symbol}:{item.setup_direction}:{stance}:{option_key}"
 
 
-def alert_candidates(results: list[Analysis]) -> list[tuple[Analysis, str, str]]:
-    mode = os.environ.get("STOCK_ANALYST_ALERT_MODE", "actionable").strip().lower()
+def observed_alert_key(item: Analysis) -> str:
+    return f"{item.symbol}:{item.setup_direction or '-'}"
+
+
+def is_watch_or_wait_state(stance: str, status: str) -> bool:
+    return (
+        stance.startswith("Watch")
+        or stance.startswith("Wait")
+        or stance.startswith("Early watch")
+        or stance.startswith("Conditional")
+        or status in {"Watch only", "Trigger forming"}
+    )
+
+
+def is_enter_now_state(stance: str, status: str) -> bool:
+    entry_mode = os.environ.get("STOCK_ANALYST_ALERT_ENTRY_MODE", "confirmed").strip().lower()
+    if status == "Confirmed entry":
+        return True
+    if entry_mode in {"starter", "early"} and status == "Starter entry active":
+        return True
+    return False
+
+
+def current_alert_observations(results: list[Analysis]) -> dict[str, dict[str, str]]:
+    observations: dict[str, dict[str, str]] = {}
+    for item in results:
+        brief = item.trade_brief
+        stance = analyst_stance(item, brief)
+        status, _detail = entry_status(item, brief)
+        observations[observed_alert_key(item)] = {
+            "symbol": item.symbol,
+            "direction": item.setup_direction or "",
+            "stance": stance,
+            "status": status,
+            "updated": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+        }
+    return observations
+
+
+def alert_candidates_from_transitions(
+    results: list[Analysis],
+    previous: dict[str, dict[str, str]],
+) -> list[tuple[Analysis, str, str]]:
     candidates: list[tuple[Analysis, str, str]] = []
     for item in results:
         brief = item.trade_brief
         stance = analyst_stance(item, brief)
         status, _detail = entry_status(item, brief)
-        if stance.startswith("Pass"):
+        if stance.startswith("Pass") or not is_enter_now_state(stance, status):
             continue
-        if mode == "all":
+        prior = previous.get(observed_alert_key(item))
+        if not prior:
+            continue
+        prior_stance = str(prior.get("stance") or "")
+        prior_status = str(prior.get("status") or "")
+        if is_watch_or_wait_state(prior_stance, prior_status):
             candidates.append((item, stance, status))
-        elif mode == "watch":
-            if stance.startswith("Actionable") or status in {"Confirmed entry", "Starter entry active", "Trigger forming"}:
-                candidates.append((item, stance, status))
-        else:
-            if stance.startswith("Actionable") or status in {"Confirmed entry", "Starter entry active"}:
-                candidates.append((item, stance, status))
     limit = max(1, int(os.environ.get("STOCK_ANALYST_ALERT_LIMIT", "5") or "5"))
     return candidates[:limit]
 
@@ -5535,7 +5591,7 @@ def format_trade_alert(item: Analysis, stance: str, status: str, report_url: str
     company = display_company_name(item.symbol, item.name)
     return "\n".join(
         [
-            f"Stock Analyst alert: {item.symbol} {item.setup_direction or ''}".strip(),
+            f"ENTER NOW alert: {item.symbol} {item.setup_direction or ''}".strip(),
             company,
             f"Grade: {grade}",
             f"Stance: {stance}",
@@ -5551,10 +5607,12 @@ def format_trade_alert(item: Analysis, stance: str, status: str, report_url: str
 def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
     if not telegram_configured():
         return 0
-    sent_keys = load_alert_state()
+    state = load_alert_state()
+    sent_keys = set(str(key) for key in state.get("sent", []))
+    previous = state.get("observed") or {}
     report_url = report_public_url(output)
     sent_count = 0
-    for item, stance, status in alert_candidates(results):
+    for item, stance, status in alert_candidates_from_transitions(results, previous):
         key = alert_key(item, stance)
         if key in sent_keys:
             continue
@@ -5564,8 +5622,9 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
                 sent_count += 1
         except Exception as exc:
             print(f"Telegram alert failed for {item.symbol}: {exc}", file=sys.stderr)
-    if sent_count:
-        save_alert_state(sent_keys)
+    state["sent"] = sorted(sent_keys)
+    state["observed"] = current_alert_observations(results)
+    save_alert_state(state)
     return sent_count
 
 
@@ -5574,7 +5633,7 @@ def send_test_alert() -> bool:
     return send_telegram_message(
         "Stock Analyst test alert\n"
         f"Time: {generated}\n"
-        "If you got this, phone notifications are connected."
+        "If you got this, phone notifications are connected. Trade alerts only send when a watched/waiting setup upgrades into an entry condition."
     )
 
 
@@ -7546,7 +7605,7 @@ def run(args: argparse.Namespace) -> int:
         if sent:
             print(f"Sent {sent} Telegram trade alert(s).")
         elif telegram_configured():
-            print("No new Telegram trade alerts met the alert rules.")
+            print("No watched setup upgraded into an entry condition.")
     print(f"\nReport written to {output.resolve()}")
     print("Reminder: this is a screening model, not personalized investment advice.")
     return 0
@@ -7729,7 +7788,7 @@ def report_dashboard_html() -> str:
               </div>
               <span class="pill {'good' if telegram_configured() else 'warn'}">{html.escape(alert_status)}</span>
             </div>
-            <p>Send a test notification, then let scanner alerts hit your phone as trade-ticket style messages.</p>
+            <p>Send a test notification, then let the scanner alert you only when a previously watched/waiting setup upgrades into an entry condition.</p>
             <div class="row">
               <button type="button" id="testAlertButton">Send test notification</button>
             </div>
