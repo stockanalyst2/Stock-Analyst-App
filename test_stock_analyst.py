@@ -442,7 +442,10 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.write_report([], output, "balanced", [])
 
             document = output.read_text()
-        self.assertIn('class="report-hero"', document)
+        self.assertIn("<title>Current Watchlist</title>", document)
+        self.assertNotIn('class="report-hero"', document)
+        self.assertNotIn('class="report-logo"', document)
+        self.assertNotIn('src="atlas_wordmark.jpg"', document)
         self.assertNotIn("stock_analyst_logo.jpg", document)
         self.assertNotIn("Stock Analyst logo", document)
         self.assertNotIn("On-demand ticker", document)

@@ -5567,13 +5567,9 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
     body {{ margin: 0; background: #000000; color: #eeeeee; }}
     body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .035), transparent 34%); }}
-    main {{ position: relative; max-width: 1320px; margin: 0 auto; padding: 34px 24px 56px; }}
-    .report-hero {{ display: grid; justify-items: center; gap: 15px; margin: 0 0 28px; text-align: center; }}
-    .report-logo {{ width: min(360px, 74vw); height: auto; display: block; opacity: .96; }}
-    .report-title-block {{ max-width: 820px; min-width: 0; }}
+    main {{ position: relative; max-width: 1320px; margin: 0 auto; padding: 18px 24px 56px; }}
     h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
-    .report-subtitle {{ margin: 0; color: #8f8f8f; font-size: 12px; line-height: 1.6; letter-spacing: .14em; text-transform: uppercase; }}
     a {{ color: #d6d6d6; }}
     a:visited {{ color: #a8a8a8; }}
     .meta {{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 28px; }}
@@ -5672,19 +5668,13 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 26px 14px 44px; }} .report-hero {{ gap: 12px; }} .report-logo {{ width: min(300px, 78vw); }} .report-subtitle {{ font-size: 10px; letter-spacing: .11em; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-summary {{ padding: 17px 14px; }} .setup-top {{ padding: 18px 14px 22px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 16px 14px 44px; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-summary {{ padding: 17px 14px; }} .setup-top {{ padding: 18px 14px 22px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
     @media (max-width: 520px) {{ .setup-summary-main {{ align-items: flex-start; }} .direction {{ margin-top: 1px; }} .vital-grid {{ grid-template-columns: 1fr; }} .setup-summary-actions {{ align-self: flex-start; }} }}
   </style>
 </head>
 <body>
   <main>
-    <header class="report-hero">
-      <img class="report-logo" src="atlas_wordmark.jpg" alt="ATLAS">
-      <div class="report-title-block">
-        <h1>Current Watchlist</h1>
-        <p class="report-subtitle">Autonomous Trading &amp; Logistical Assessment System</p>
-      </div>
-    </header>
+    <h1>Current Watchlist</h1>
     <div class="meta">
       <span class="pill">Generated: {html.escape(generated)}</span>
       <span class="pill">Profile: {html.escape(profile)}</span>
@@ -8408,7 +8398,9 @@ def report_dashboard_html() -> str:
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      padding: 0 36px 30px 28px;
+      padding: 0 40px 30px 40px;
+      max-width: 560px;
+      margin: 0 auto;
     }}
     .wordmark-image {{
       display: block;
@@ -8432,30 +8424,34 @@ def report_dashboard_html() -> str:
       content: "";
       position: absolute;
       top: 12px;
-      left: 18px;
+      left: 50%;
       width: 12px;
       height: 12px;
       border: 2px solid currentColor;
       border-radius: 50%;
+      transform: translateX(-50%);
     }}
     .profile-button::after {{
       content: "";
       position: absolute;
-      left: 12px;
-      bottom: 11px;
-      width: 23px;
-      height: 13px;
+      left: 50%;
+      bottom: 10px;
+      width: 24px;
+      height: 14px;
       border: 2px solid currentColor;
       border-bottom: 0;
       border-radius: 20px 20px 0 0;
+      transform: translateX(-50%);
     }}
     .tabs {{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: center;
       min-height: 76px;
-      padding: 0 19px;
-      gap: 18px;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 20px;
+      gap: 0;
     }}
     .tab {{
       border: 0;
@@ -8502,24 +8498,24 @@ def report_dashboard_html() -> str:
     @media (max-width: 560px) {{
       .top-bar {{
         height: 160px;
-        padding: 0 31px 30px 28px;
+        padding: 0 38px 30px;
       }}
       .wordmark-image {{ width: 176px; }}
       .profile-button {{ width: 51px; height: 51px; }}
       .tabs {{
         min-height: 76px;
-        padding: 0 25px;
-        gap: 22px;
+        padding: 0 20px;
+        gap: 0;
       }}
-      .tab {{ font-size: 16px; }}
+      .tab {{ font-size: 15px; }}
       .content {{ min-height: calc(100vh - 236px); }}
       .watchlist-panel {{ height: calc(100vh - 236px); min-height: 650px; }}
     }}
     @media (max-width: 390px) {{
-      .top-bar {{ padding-left: 22px; padding-right: 24px; }}
+      .top-bar {{ padding-left: 30px; padding-right: 30px; }}
       .wordmark-image {{ width: 150px; }}
-      .tabs {{ padding: 0 16px; gap: 12px; }}
-      .tab {{ font-size: 14px; }}
+      .tabs {{ padding: 0 12px; }}
+      .tab {{ font-size: 13px; }}
     }}
   </style>
 </head>
