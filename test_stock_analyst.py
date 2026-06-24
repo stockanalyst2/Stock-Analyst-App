@@ -749,6 +749,150 @@ class StockAnalystTests(unittest.TestCase):
 
         self.assertTrue(any("contract quality is poor" in reason for reason in judgment["reasons"]))
 
+    def test_normalized_event_builds_transmission_path(self):
+        item = stock_analyst.Analysis(
+            symbol="CVX",
+            name="Chevron Corporation",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=None,
+            volatility=None,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=None,
+            sma_50=None,
+            sma_200=None,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_direction="CALL",
+        )
+        news = stock_analyst.NewsItem("Iran oil shock lifts crude prices", "", dt.datetime.now(dt.timezone.utc).isoformat(), "Reuters")
+
+        event = stock_analyst.normalize_event(news, item)
+
+        self.assertEqual(event.event_type, "GEOPOLITICAL")
+        self.assertEqual(event.direction, "VOLATILITY")
+        self.assertIn("oil/supply risk", event.transmission_path)
+        self.assertGreater(event.confidence, 60)
+
+    def test_rejection_engine_blocks_social_only_thesis(self):
+        option = stock_analyst.OptionContract(
+            contract_symbol="TEST260717C00100000",
+            side="CALL",
+            strike=100,
+            expiration=dt.datetime.now().astimezone().date() + dt.timedelta(days=24),
+            bid=4.8,
+            ask=5.2,
+            last_price=5.0,
+            volume=1500,
+            open_interest=2000,
+            implied_volatility=0.45,
+        )
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=0.08,
+            volatility=0.30,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=55,
+            sma_50=95,
+            sma_200=90,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[stock_analyst.NewsItem("Viral Reddit short squeeze chatter builds", "", "", "Stocktwits")],
+            setup_score=82,
+            setup_notes=["breakout"],
+            return_20d=0.06,
+            volume_ratio=1.4,
+            setup_direction="CALL",
+            option=option,
+            catalyst_score=80,
+        )
+
+        rejection = stock_analyst.opportunity_rejection_engine(item)
+
+        self.assertEqual(rejection.action, "NO_TRADE")
+        self.assertTrue(any("social-only thesis" in reason for reason in rejection.reasons))
+
+    def test_rejection_engine_flags_priced_in_options(self):
+        option = stock_analyst.OptionContract(
+            contract_symbol="TEST260717C00100000",
+            side="CALL",
+            strike=100,
+            expiration=dt.datetime.now().astimezone().date() + dt.timedelta(days=24),
+            bid=4.8,
+            ask=5.2,
+            last_price=5.0,
+            volume=1500,
+            open_interest=2000,
+            implied_volatility=1.80,
+        )
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=0.08,
+            volatility=0.20,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=55,
+            sma_50=95,
+            sma_200=90,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[stock_analyst.NewsItem("Test Co wins new customer contract", "", "", "Reuters")],
+            setup_score=82,
+            setup_notes=["breakout"],
+            return_20d=0.06,
+            volume_ratio=1.4,
+            setup_direction="CALL",
+            option=option,
+            catalyst_score=70,
+            chart_highs=[101.0] * 40,
+            chart_lows=[99.5] * 40,
+            chart_closes=[100.0] * 40,
+        )
+
+        rejection = stock_analyst.opportunity_rejection_engine(item)
+
+        self.assertEqual(rejection.action, "NO_TRADE")
+        self.assertTrue(any("price more movement" in reason for reason in rejection.reasons))
+
     def test_tradingview_chart_url_uses_exchange_prefix(self):
         self.assertIn("NASDAQ%3AMSFT", stock_analyst.tradingview_chart_url("MSFT"))
         self.assertIn("NYSE%3AXOM", stock_analyst.tradingview_chart_url("XOM"))

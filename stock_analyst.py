@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import base64
 import datetime as dt
+import hashlib
 import html
 import http.server
 import json
@@ -556,6 +557,31 @@ class OptionsOpportunityScore:
 
 
 @dataclass
+class NormalizedEvent:
+    event_id: str
+    ticker: str
+    source: str
+    headline: str
+    event_type: str
+    direction: str
+    confidence: float
+    novelty_score: float
+    urgency_score: float
+    timestamp: str
+    transmission_path: list[str]
+    summary: str
+
+
+@dataclass
+class OpportunityRejection:
+    action: str
+    reasons: list[str]
+    expected_move_pct: float | None
+    implied_move_pct: float | None
+    estimated_edge_pct: float | None
+
+
+@dataclass
 class UniverseStock:
     symbol: str
     name: str
@@ -626,6 +652,8 @@ class Analysis:
     trade_brief: "TradeBrief | None" = None
     pattern_detection: PatternDetection | None = None
     options_opportunity: OptionsOpportunityScore | None = None
+    normalized_events: list[NormalizedEvent] | None = None
+    opportunity_rejection: OpportunityRejection | None = None
 
 
 @dataclass
@@ -698,7 +726,7 @@ def fetch_tradier_json(path: str, params: dict[str, str] | None = None, timeout:
         return json.loads(response.read().decode("utf-8"))
 
 
-def fetch_nasdaq_json(symbol: str, timeout: int = 8) -> dict[str, Any]:
+def fetch_nasdaq_json(symbol: str, timeout: int = 5) -> dict[str, Any]:
     encoded = urllib.parse.quote(symbol.upper())
     url = NASDAQ_OPTIONS_URL.format(symbol=encoded) + "?assetclass=stocks&limit=9999"
     request = urllib.request.Request(
@@ -1064,7 +1092,7 @@ def fetch_google_news_search(query: str, limit: int = 10) -> list[NewsItem]:
     url = "https://news.google.com/rss/search?" + urllib.parse.urlencode(
         {"q": query, "hl": "en-US", "gl": "US", "ceid": "US:en"}
     )
-    raw = fetch_text(url, timeout=8)
+    raw = fetch_text(url, timeout=4)
     root = ET.fromstring(raw)
     items: list[NewsItem] = []
     for item in root.findall("./channel/item"):
@@ -1080,7 +1108,7 @@ def fetch_google_news_search(query: str, limit: int = 10) -> list[NewsItem]:
     return items
 
 
-def fetch_deep_research_news(symbol: str, name: str, limit: int = 24) -> list[NewsItem]:
+def fetch_deep_research_news(symbol: str, name: str, limit: int = 16) -> list[NewsItem]:
     aliases = list(SYMBOL_ALIASES.get(symbol.upper(), ()))
     company_term = aliases[0] if aliases else first_company_name_token(name)
     identity = f"{symbol.upper()} stock"
@@ -1089,14 +1117,13 @@ def fetch_deep_research_news(symbol: str, name: str, limit: int = 24) -> list[Ne
     query_topics = (
         "",
         "(earnings OR revenue OR guidance OR margin OR forecast)",
-        "(deal OR contract OR partnership OR order OR acquisition)",
-        "(AI OR cloud OR chip OR data center OR product OR launch OR lawsuit OR regulation OR tariff OR China OR Iran OR Fed OR rates OR inflation OR geopolitical)",
+        "(deal OR contract OR partnership OR order OR acquisition OR AI OR cloud OR chip OR data center OR lawsuit OR regulation OR tariff OR China OR Iran OR Fed OR rates OR inflation OR geopolitical)",
     )
     items: list[NewsItem] = []
     for topic in query_topics:
         query = f"{identity} {topic} ({PREFERRED_NEWS_SOURCE_QUERY})".strip()
         try:
-            items.extend(fetch_google_news_search(query, limit=8))
+            items.extend(fetch_google_news_search(query, limit=6))
         except Exception:
             continue
         items = dedupe_news(items)
@@ -1385,9 +1412,15 @@ def fetch_option_contract(symbol: str, side: str, price: float, min_dte: int = 2
     if provider == "none":
         return None
     if provider == "nasdaq":
-        return fetch_nasdaq_option_contract(symbol, side, price, min_dte, max_dte)
+        try:
+            return fetch_nasdaq_option_contract(symbol, side, price, min_dte, max_dte)
+        except Exception:
+            return None
     if provider == "yahoo":
-        return fetch_yahoo_option_contract(symbol, side, price, min_dte, max_dte)
+        try:
+            return fetch_yahoo_option_contract(symbol, side, price, min_dte, max_dte)
+        except Exception:
+            return None
     try:
         return fetch_tradier_option_contract(symbol, side, price, min_dte, max_dte)
     except Exception:
@@ -4048,6 +4081,225 @@ def option_trade_plan(item: Analysis, target_pct: float = 0.20, stop_pct: float 
     )
 
 
+def parse_event_timestamp(value: str) -> dt.datetime | None:
+    if not value:
+        return None
+    text = value.strip()
+    candidates = [
+        text,
+        text.replace("Z", "+00:00"),
+    ]
+    for candidate in candidates:
+        try:
+            parsed = dt.datetime.fromisoformat(candidate)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=dt.timezone.utc)
+            return parsed
+        except ValueError:
+            continue
+    return None
+
+
+def classify_event_type(title: str) -> str:
+    text = title.lower()
+    if any(contains_keyword(text, keyword) for keyword in EARNINGS_GUIDANCE_KEYWORDS):
+        return "EARNINGS_GUIDANCE"
+    if any(contains_keyword(text, keyword) for keyword in DEAL_CONTRACT_KEYWORDS):
+        return "CONTRACT_WIN"
+    if any(contains_keyword(text, keyword) for keyword in REGULATORY_LEGAL_KEYWORDS):
+        return "LEGAL_REGULATORY"
+    if any(contains_keyword(text, keyword) for keyword in PRODUCT_TECH_KEYWORDS):
+        return "PRODUCT_TECH"
+    if any(contains_keyword(text, keyword) for keyword in GEOPOLITICAL_KEYWORDS):
+        return "GEOPOLITICAL"
+    if any(contains_keyword(text, keyword) for keyword in HYPE_KEYWORDS):
+        return "SOCIAL_MOMENTUM"
+    if "upgrade" in text or "downgrade" in text or "price target" in text:
+        return "ANALYST_ACTION"
+    return "MARKET_NEWS"
+
+
+def classify_event_direction(title: str, setup_direction: str = "") -> str:
+    text = title.lower()
+    positive = any(contains_keyword(text, keyword) for keyword in POSITIVE_CATALYST_KEYWORDS)
+    negative = any(contains_keyword(text, keyword) for keyword in NEGATIVE_CATALYST_KEYWORDS)
+    geopolitical = any(contains_keyword(text, keyword) for keyword in GEOPOLITICAL_KEYWORDS)
+    if positive and not negative:
+        return "BULLISH"
+    if negative and not positive:
+        return "BEARISH"
+    if geopolitical:
+        return "VOLATILITY"
+    if setup_direction == "CALL":
+        return "BULLISH"
+    if setup_direction == "PUT":
+        return "BEARISH"
+    return "UNKNOWN"
+
+
+def source_credibility_score(source: str) -> float:
+    if not source:
+        return 45.0
+    if any(source.lower() == preferred.lower() for preferred in PREFERRED_NEWS_SOURCES):
+        return 82.0
+    if any(preferred.lower() in source.lower() for preferred in PREFERRED_NEWS_SOURCES):
+        return 78.0
+    return 58.0
+
+
+def event_transmission_path(item: Analysis, event_type: str, direction: str) -> list[str]:
+    sector = SYMBOL_SECTORS.get(item.symbol.upper(), "stock")
+    if event_type == "GEOPOLITICAL":
+        if sector == "energy":
+            return ["geopolitical stress", "oil/supply risk", "cash-flow expectations", item.symbol]
+        if sector == "semis":
+            return ["geopolitical stress", "supply-chain/export-control risk", "multiple pressure", item.symbol]
+        return ["geopolitical stress", "risk appetite", "sector rotation", item.symbol]
+    if event_type == "EARNINGS_GUIDANCE":
+        return ["earnings/guidance update", "forward estimates", "valuation/positioning", item.symbol]
+    if event_type == "CONTRACT_WIN":
+        return ["deal/contract signal", "future revenue visibility", "demand validation", item.symbol]
+    if event_type == "PRODUCT_TECH":
+        return ["product/technology news", "growth narrative", "multiple/earnings expectations", item.symbol]
+    if event_type == "LEGAL_REGULATORY":
+        return ["legal/regulatory event", "risk premium", "earnings uncertainty", item.symbol]
+    if event_type == "ANALYST_ACTION":
+        return ["analyst action", "estimate/sentiment reset", "near-term positioning", item.symbol]
+    if direction == "VOLATILITY":
+        return ["market news", "uncertainty", "volatility repricing", item.symbol]
+    return ["market news", "expectation change", "price discovery", item.symbol]
+
+
+def normalize_event(news_item: NewsItem, item: Analysis, index: int = 0) -> NormalizedEvent:
+    event_type = classify_event_type(news_item.title)
+    direction = classify_event_direction(news_item.title, item.setup_direction)
+    credibility = source_credibility_score(news_item.source)
+    novelty = 65.0 if index == 0 else max(25.0, 60.0 - index * 5)
+    event_time = parse_event_timestamp(news_item.published)
+    urgency = 70.0
+    if event_time:
+        age_hours = max(0.0, (dt.datetime.now(dt.timezone.utc) - event_time.astimezone(dt.timezone.utc)).total_seconds() / 3600)
+        urgency = 85.0 if age_hours <= 6 else 70.0 if age_hours <= 24 else 50.0 if age_hours <= 72 else 25.0
+    confidence = clamp((credibility * 0.45) + (novelty * 0.25) + (urgency * 0.20) + (10 if direction != "UNKNOWN" else 0))
+    event_seed = f"{item.symbol}|{event_type}|{news_item.title}|{news_item.source}|{news_item.published}"
+    event_digest = hashlib.sha1(event_seed.encode("utf-8")).hexdigest()[:12]
+    event_id = f"{item.symbol}:{event_type}:{event_digest}"
+    path = event_transmission_path(item, event_type, direction)
+    summary = f"{event_type.replace('_', ' ').title()} event for {item.symbol}: {' -> '.join(path)}."
+    return NormalizedEvent(
+        event_id=event_id,
+        ticker=item.symbol,
+        source=news_item.source or "unknown",
+        headline=news_item.title,
+        event_type=event_type,
+        direction=direction,
+        confidence=round(confidence, 1),
+        novelty_score=round(novelty, 1),
+        urgency_score=round(urgency, 1),
+        timestamp=news_item.published,
+        transmission_path=path,
+        summary=summary,
+    )
+
+
+def normalize_events_for_item(item: Analysis, limit: int = 8) -> list[NormalizedEvent]:
+    company_news = relevant_company_news(item.news, item)
+    if not company_news:
+        company_news = item.news[:limit]
+    macro_news = relevant_macro_news(item.macro_news or [], item.symbol)
+    combined = dedupe_news(company_news + macro_news)
+    events = [normalize_event(news_item, item, index) for index, news_item in enumerate(combined[:limit])]
+    return sorted(events, key=lambda event: (event.confidence, event.novelty_score, event.urgency_score), reverse=True)
+
+
+def expected_stock_move_pct(item: Analysis) -> float | None:
+    if item.price <= 0:
+        return None
+    atr = average_true_range(item.chart_highs or [], item.chart_lows or [], item.chart_closes or [])
+    if atr:
+        base = atr / item.price
+    elif item.volatility:
+        base = item.volatility / math.sqrt(252)
+    else:
+        return None
+    catalyst_boost = 1.0
+    if item.catalyst_score is not None:
+        catalyst_boost += max(0.0, item.catalyst_score - 55.0) / 100.0
+    return round(max(0.005, base * catalyst_boost), 4)
+
+
+def current_implied_move_pct(item: Analysis) -> float | None:
+    option = item.option
+    if option is None:
+        return None
+    dte = option_days_to_expiration(option)
+    if dte is None or dte <= 0:
+        return None
+    if option.implied_volatility is not None:
+        return round(max(0.0, option.implied_volatility * math.sqrt(dte / 365)), 4)
+    mid = option_mid_price(option)
+    if mid is not None and item.price > 0:
+        return round(max(0.0, mid / item.price), 4)
+    return None
+
+
+def social_only_thesis(events: list[NormalizedEvent]) -> bool:
+    if not events:
+        return False
+    return all(event.event_type == "SOCIAL_MOMENTUM" for event in events[:3])
+
+
+def opportunity_rejection_engine(item: Analysis) -> OpportunityRejection:
+    events = item.normalized_events if item.normalized_events is not None else normalize_events_for_item(item)
+    expected_move = expected_stock_move_pct(item)
+    implied_move = current_implied_move_pct(item)
+    edge = None
+    if expected_move is not None and implied_move is not None:
+        spread_cost = option_spread_pct(item.option) or 0.0
+        edge = round(expected_move - implied_move - min(spread_cost, 0.5) * 0.10, 4)
+    reasons: list[str] = []
+    option_score, option_missing, option_risks = option_chain_quality(item.option, item)
+    spread = option_spread_pct(item.option)
+    if item.option is None:
+        reasons.append("NO_TRADE: live option contract unavailable")
+    if item.option and item.option.estimated:
+        reasons.append("WATCH: option contract is estimated, not verified live")
+    if option_score < 45:
+        reasons.append("NO_TRADE: option contract quality is too weak")
+    elif option_score < 60:
+        reasons.append("WATCH: option contract quality is only average")
+    if spread is not None and spread > 0.40:
+        reasons.append("NO_TRADE: bid/ask spread likely destroys edge")
+    if likely_earnings_window(item) and item.option and item.option.implied_volatility is not None and item.option.implied_volatility >= 0.85:
+        reasons.append("WATCH: earnings IV inflation may favor volatility structures over straight directional longs")
+    if implied_move is not None and expected_move is not None and implied_move > expected_move * 1.45 and (item.catalyst_score or 50.0) < 82:
+        reasons.append("NO_TRADE: options market appears to price more movement than the current edge estimate")
+    if item.catalyst_score is not None and item.catalyst_score < 55:
+        reasons.append("WATCH: catalyst support is too weak for a forced entry")
+    if social_only_thesis(events):
+        reasons.append("NO_TRADE: social-only thesis without credible confirmation")
+    if events and max(event.confidence for event in events) < 45:
+        reasons.append("WATCH: event confidence is low")
+    if not events:
+        reasons.append("WATCH: no normalized catalyst event available")
+    no_trade = any(reason.startswith("NO_TRADE") for reason in reasons)
+    if no_trade:
+        action = "NO_TRADE"
+    elif reasons:
+        action = "WATCH"
+    else:
+        action = "ALERT"
+    if not reasons:
+        reasons.append("ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation")
+    return OpportunityRejection(
+        action=action,
+        reasons=list(dict.fromkeys(reasons + option_risks[:3] + option_missing[:2])),
+        expected_move_pct=expected_move,
+        implied_move_pct=implied_move,
+        estimated_edge_pct=edge,
+    )
+
+
 def likely_earnings_window(item: Analysis) -> bool:
     text = " ".join(news_item.title for news_item in item.news[:12]).lower()
     if any(keyword in text for keyword in ("earnings date", "reports earnings", "earnings report", "q1 earnings", "q2 earnings", "q3 earnings", "q4 earnings")):
@@ -4339,6 +4591,7 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
     context_call, context_put, context_bullish, context_bearish, context_risks = market_context_directional_scores(item)
     sector_adjustment, sector_bullish, sector_bearish, sector_risks = sector_relative_context(item)
     flow_adjustment, flow_bullish, flow_bearish, flow_notes = flow_persistence_context(item)
+    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
     bullish.extend(context_bullish)
     bullish.extend(sector_bullish)
     bullish.extend(flow_bullish)
@@ -4346,7 +4599,7 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
     bearish.extend(sector_bearish)
     bearish.extend(flow_bearish)
     missing = list(dict.fromkeys(chain_missing + vol_missing))
-    risks = list(dict.fromkeys(price_risks + chain_risks + vol_risks + context_risks + sector_risks + flow_notes))
+    risks = list(dict.fromkeys(price_risks + chain_risks + vol_risks + context_risks + sector_risks + flow_notes + rejection.reasons))
     institutional_missing = [
         "Options flow: call sweeps, put sweeps, block trades, unusual activity",
         "Dark pool prints",
@@ -4384,6 +4637,10 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
     coverage = max(0.0, available_inputs / 4)
     directional_gap = abs(call_score - put_score)
     confidence = clamp(35 + coverage * 35 + min(20, directional_gap * 0.35) - min(24, len(risks) * 3))
+    if rejection.action == "NO_TRADE":
+        confidence = min(confidence, 42.0)
+    elif rejection.action == "WATCH":
+        confidence = min(confidence, 68.0)
     direction = "CALL" if call_score >= put_score else "PUT"
     leading_score = max(call_score, put_score)
     risk_text = " ".join(risks[:2]) if risks else "No major practical-data risk fired, but the trade still requires trigger confirmation."
@@ -4392,6 +4649,8 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
         f"Confidence is {confidence:.0f}/100 because Atlas has price action, chain/volatility proxies, and catalyst context, "
         "but does not have live institutional flow or dealer-positioning feeds."
     )
+    if rejection.action != "ALERT":
+        summary += f" Rejection engine status: {rejection.action}."
     invalidation: list[str] = []
     if item.trade_brief and item.trade_brief.invalidation is not None:
         invalidation.append(f"Invalid below/above the trade invalidation level near {format_price(item.trade_brief.invalidation)}")
@@ -4399,6 +4658,7 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
         invalidation.append("Invalid if the entry trigger fails or reverses quickly after entry")
     if risk_text:
         invalidation.append(risk_text)
+    invalidation.extend(rejection.reasons[:2])
     return OptionsOpportunityScore(
         ticker=item.symbol,
         call_score=round(call_score, 1),
@@ -5160,11 +5420,13 @@ def run_pattern_scan(args: argparse.Namespace) -> int:
     if args.news or args.catalysts:
         print(f"Fetching recent headlines for {min(len(results), args.limit)} pattern candidates...")
         macro_news = fetch_macro_news() if args.catalysts else []
-        for item in results[: args.limit]:
+        deep_research_budget = min(len(results), max(args.limit, 25))
+        for research_index, item in enumerate(results[: args.limit]):
             try:
                 item.news = fetch_news(item.symbol, limit=40)
                 try:
-                    item.news = dedupe_news(fetch_deep_research_news(item.symbol, item.name) + item.news)
+                    if research_index < deep_research_budget:
+                        item.news = dedupe_news(fetch_deep_research_news(item.symbol, item.name) + item.news)
                 except Exception:
                     pass
             except Exception as exc:
@@ -5201,6 +5463,9 @@ def run_pattern_scan(args: argparse.Namespace) -> int:
 
     for item in results[: args.limit]:
         item.trade_brief = build_trade_brief(item, args.market_regime)
+        item.normalized_events = normalize_events_for_item(item)
+        item.opportunity_rejection = opportunity_rejection_engine(item)
+        item.options_opportunity = build_options_opportunity_score(item)
         item.final_trade_score = item.setup_score
     results.sort(key=lambda item: rank_score(item, args.mode), reverse=True)
     print()
@@ -5586,6 +5851,8 @@ def themed_left_panels(item: Analysis) -> str:
     option_risk = analyst_option_critique(item, brief)
     technical = technical_context_text(item, brief)
     opportunity = options_opportunity_text(item)
+    events = event_intelligence_text(item)
+    rejection = rejection_engine_text(item)
     execution = analyst_execution_opinion(item, brief)
     status, status_detail = entry_status(item, brief)
     entry_text = f"Entry status: {status}. {status_detail}\n\n{entry}\n\n{execution}"
@@ -5594,6 +5861,8 @@ def themed_left_panels(item: Analysis) -> str:
   {theme_panel("Entry Plan", entry_text)}
   {theme_panel("Trader Judgment", trader_text)}
   {theme_panel("Options Score", opportunity)}
+  {theme_panel("Event Intelligence", events)}
+  {theme_panel("Rejection Engine", rejection)}
   {theme_panel("Catalyst / Macro", catalyst)}
   {theme_panel("Option / Risk", option_risk)}
   {theme_panel("Technical Context", technical)}
@@ -5627,6 +5896,36 @@ def options_opportunity_text(item: Analysis) -> str:
         f"{compact_list('Bearish evidence', score.bearish_factors)}\n\n"
         f"{compact_list('Risk factors', score.risk_factors)}\n\n"
         f"{compact_list('Missing institutional data', score.missing_data)}"
+    )
+
+
+def event_intelligence_text(item: Analysis) -> str:
+    events = item.normalized_events if item.normalized_events is not None else normalize_events_for_item(item)
+    if not events:
+        return "No normalized catalyst event was available after filtering. Atlas should treat this as a technical setup only until a credible event appears."
+    lines = []
+    for event in events[:4]:
+        path = " -> ".join(event.transmission_path)
+        lines.append(
+            f"- {event.event_type} / {event.direction}: {event.headline} "
+            f"(confidence {event.confidence:.0f}, novelty {event.novelty_score:.0f}, urgency {event.urgency_score:.0f}). "
+            f"Transmission: {path}"
+        )
+    return "\n".join(lines)
+
+
+def rejection_engine_text(item: Analysis) -> str:
+    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
+    edge = format_pct(rejection.estimated_edge_pct) if rejection.estimated_edge_pct is not None else "-"
+    expected = format_pct(rejection.expected_move_pct) if rejection.expected_move_pct is not None else "-"
+    implied = format_pct(rejection.implied_move_pct) if rejection.implied_move_pct is not None else "-"
+    reasons = "\n".join(f"- {reason}" for reason in rejection.reasons[:7])
+    return (
+        f"Action: {rejection.action}\n\n"
+        f"- Expected move: {expected}\n"
+        f"- Current implied move: {implied}\n"
+        f"- Estimated edge: {edge}\n\n"
+        f"{reasons}"
     )
 
 
@@ -5776,6 +6075,9 @@ def trader_judgment_text(item: Analysis, brief: TradeBrief | None) -> str:
 def is_final_trade_candidate(item: Analysis) -> bool:
     brief = item.trade_brief
     if brief is None:
+        return False
+    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
+    if rejection.action == "NO_TRADE":
         return False
     if analyst_stance(item, brief).startswith("Pass"):
         return False
@@ -7921,11 +8223,13 @@ def run(args: argparse.Namespace) -> int:
                 "label": str(macro_shock.get("label") or "oil/geopolitical shock"),
             }
         print(f"Checking recent headlines for {min(len(results), args.keep)} candidates...")
-        for item in results[: args.keep]:
+        deep_research_budget = min(len(results), max(args.limit, 25))
+        for research_index, item in enumerate(results[: args.keep]):
             try:
                 item.news = fetch_news(item.symbol, limit=40)
                 try:
-                    item.news = dedupe_news(fetch_deep_research_news(item.symbol, item.name) + item.news)
+                    if research_index < deep_research_budget:
+                        item.news = dedupe_news(fetch_deep_research_news(item.symbol, item.name) + item.news)
                 except Exception:
                     pass
             except Exception as exc:
@@ -8016,6 +8320,8 @@ def run(args: argparse.Namespace) -> int:
     if args.mode == "trade":
         for item in results[: args.limit]:
             item.trade_brief = build_trade_brief(item, args.market_regime)
+            item.normalized_events = normalize_events_for_item(item)
+            item.opportunity_rejection = opportunity_rejection_engine(item)
             item.options_opportunity = build_options_opportunity_score(item)
             trader_score = float(real_money_trader_judgment(item, item.trade_brief)["score"])
             item.final_trade_score = min(item.trade_brief.confidence_score, trader_score)
