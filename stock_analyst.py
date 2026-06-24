@@ -5828,34 +5828,23 @@ def watchlist_preview_panel(rank: int, item: Analysis) -> str:
 def why_on_watchlist_text(item: Analysis) -> str:
     brief = item.trade_brief
     direction = item.setup_direction or "-"
-    setup = item.setup_label or item.rating or "setup"
-    setup_phrase = normalized_setup_phrase(setup)
     stance = analyst_stance(item, brief)
-    evidence = "; ".join((item.setup_notes or item.notes)[:4]) or "the scan found enough price/catalyst interest to keep it under review"
+    evidence = plain_setup_read(item)
     company_name = display_company_name(item.symbol, item.name)
     if brief:
         status, status_detail = entry_status(item, brief)
-        reward = ", ".join(
-            value
-            for value in (
-                format_price(brief.target_1),
-                format_price(brief.target_2),
-                format_price(brief.target_3),
-            )
-            if value != "-"
-        )
-        timeframe_support = ", ".join(brief.timeframe_supporting[:3]) or "limited timeframe confirmation"
-        timeframe_conflict = ", ".join(brief.timeframe_opposing[:2]) if brief.timeframe_opposing else "no major timeframe conflict from the available scan"
+        status_note = status_detail.split(".")[0].strip()
+        trigger = preview_level_text(item, brief.confirmation_level, "the listed entry trigger")
+        invalidation = format_price(brief.invalidation)
         return (
-            f"{company_name} is on the watchlist as a {direction} idea because Atlas found {article_phrase(setup_phrase)} with enough evidence to justify monitoring, "
-            f"not because it is automatically an entry. The current stance is {stance}, and the live execution status is {status}: {status_detail} "
-            f"The setup evidence is {evidence}. The cleaner part of the idea is that the scan sees {timeframe_support}; the part I would be careful with is {timeframe_conflict}. "
-            f"The planned reward path is {reward or 'not cleanly defined yet'}, with invalidation around {format_price(brief.invalidation)}. "
-            "My read is that this belongs on the list only as a conditional trade: it needs the trigger, option quality, and broader tape to line up before it deserves real attention."
+            f"{company_name} is here because it has a tradable {direction} idea developing, but I would still treat it as conditional. "
+            f"The short version: {evidence.strip()} Current stance: {stance}. {status_note}. "
+            f"I would want price to confirm near {trigger} before treating it seriously, and I would stop trusting the idea if it breaks the invalidation area near {invalidation}. "
+            "The point of keeping it on the list is not that it is a perfect trade right now; it is that the setup has enough potential to watch closely if the next move confirms."
         )
     return (
-        f"{company_name} is on the watchlist as a {direction} idea because Atlas found {article_phrase(setup_phrase)}. "
-        f"The current evidence is: {evidence}. A full trade brief was not available, so this should stay watch-only until the deeper details are populated."
+        f"{company_name} is here as a possible {direction} idea because the scan found enough movement and context to keep it on watch. "
+        f"The useful part is simple: {evidence} I would keep this watch-only until the fuller trade details are available."
     )
 
 
@@ -5897,53 +5886,84 @@ def supporting_sources_text(item: Analysis) -> str:
     brief = item.trade_brief
     opportunity = item.options_opportunity or build_options_opportunity_score(item)
     rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
-    topics = event_topics([clean_headline(news_item.title) for news_item in combined if news_item.title.strip()])
-    topic_text = human_join(topics[:4]) if topics else "no dominant catalyst theme"
-    catalyst_read = deep_catalyst_research_brief(item, combined[:8], macro_news, weak_catalyst=not bool(combined))
-    sector = SYMBOL_SECTORS.get(item.symbol.upper(), "the stock's sector")
+    catalyst_read = plain_catalyst_preview(item, combined, macro_news)
+    confirmation_read = plain_confirmation_read(item, brief, opportunity, rejection)
+    return "\n\n".join(part for part in (catalyst_read, confirmation_read) if part)
 
-    option_side = "calls" if opportunity.call_score >= opportunity.put_score else "puts"
-    option_score = max(opportunity.call_score, opportunity.put_score)
-    option_read = (
-        f"The options layer leans toward {option_side} with a {option_score:.0f}/100 side score and {opportunity.confidence:.0f}/100 confidence. "
-        f"That matters because a decent stock idea can still be a bad options trade if spreads, expiration, or implied move are not reasonable."
-    )
-    if opportunity.risk_factors:
-        option_read += " The main options/risk concern is " + "; ".join(opportunity.risk_factors[:2]) + "."
-    if opportunity.missing_data:
-        option_read += " Missing institutional data still limits conviction: " + "; ".join(opportunity.missing_data[:2]) + "."
 
-    risk_read = (
-        f"The rejection engine currently says {rejection.action}. "
-        f"Expected move is {format_pct(rejection.expected_move_pct) if rejection.expected_move_pct is not None else '-'}, "
-        f"implied move is {format_pct(rejection.implied_move_pct) if rejection.implied_move_pct is not None else '-'}, "
-        f"and estimated edge is {format_pct(rejection.estimated_edge_pct) if rejection.estimated_edge_pct is not None else '-'}."
-    )
-    if rejection.reasons:
-        risk_read += " The biggest reason to stay careful is " + "; ".join(rejection.reasons[:2]) + "."
+def plain_setup_read(item: Analysis) -> str:
+    notes = " ".join((item.setup_notes or item.notes)[:5]).lower()
+    direction = item.setup_direction or "TRADE"
+    if direction == "CALL":
+        if "dip" in notes or "oversold" in notes or "support" in notes:
+            return "price has pulled into an area where buyers may try to defend it, so the opportunity is a rebound attempt rather than a chase. "
+        if "breakout" in notes or "reclaim" in notes:
+            return "price is trying to reclaim strength, so the opportunity is a continuation attempt if buyers can hold control. "
+        return "the stock has enough upside structure to watch, but it still needs a cleaner entry before I would trust it. "
+    if "spike" in notes or "runup" in notes or "resistance" in notes or "rejection" in notes:
+        return "price has already made a sharp move into an area where sellers may start fading it, so the opportunity is a controlled pullback attempt. "
+    if "breakdown" in notes or "weak" in notes:
+        return "price is showing weakness that could continue if buyers fail to reclaim control. "
+    return "the stock has enough downside structure to watch, but it still needs confirmation before I would trust it. "
 
-    technical_read = ""
-    if brief:
-        support = ", ".join(brief.timeframe_supporting[:3]) or "not much clean timeframe agreement"
-        conflict = ", ".join(brief.timeframe_opposing[:2]) if brief.timeframe_opposing else "no major higher/lower-timeframe disagreement"
-        technical_read = (
-            f"Technically, the supporting case is {support}; the conflict is {conflict}. "
-            f"The setup only improves if price behavior confirms the listed trigger instead of drifting into the level without volume."
-        )
 
+def plain_catalyst_preview(item: Analysis, combined: list[NewsItem], macro_news: list[NewsItem]) -> str:
+    direction = item.setup_direction or "TRADE"
+    lead = clean_headline(combined[0].title) if combined else ""
+    macro_warning = oil_shock_trade_warning(item)
     if not combined:
-        catalyst_read = (
-            f"While scanning current headlines and macro context, I did not find a strong fresh catalyst cluster for {item.symbol}. "
-            f"That does not kill the setup, but it means the reason for being on the list is mostly chart/flow/risk-reward behavior rather than a clear external event. "
-            f"For {sector}, I would want stronger confirmation from price and volume before trusting it."
+        base = (
+            "I did not find a strong fresh news reason behind this one. That does not automatically make it bad, but it means I would lean more heavily on price action and volume confirmation before trusting the trade."
         )
     else:
-        catalyst_read = (
-            f"While scanning current headlines and macro context, the useful supporting theme was {topic_text}. "
-            f"{clean_preview_catalyst_read(catalyst_read, item.symbol)}"
+        base = (
+            f"The useful outside support is this: {lead}. "
+            f"My read is that this gives traders something to react to, but I still would not treat the headline as enough by itself."
         )
+    if macro_warning:
+        if direction == "CALL" and SYMBOL_SECTORS.get(item.symbol.upper()) != "energy":
+            base += " The broader tape is not friendly for ordinary calls while oil/geopolitical risk is elevated, so I would need stronger confirmation than usual."
+        elif direction == "CALL":
+            base += " The macro backdrop can help energy calls, but only if the stock confirms instead of opening extended and fading."
+        elif direction == "PUT":
+            base += " The broader risk-off backdrop makes the put idea easier to justify, especially if the stock starts rejecting higher prices."
+    return base
 
-    return "\n\n".join(part for part in (catalyst_read, technical_read, option_read, risk_read) if part)
+
+def plain_confirmation_read(
+    item: Analysis,
+    brief: TradeBrief | None,
+    opportunity: OptionsOpportunityScore,
+    rejection: OpportunityRejection,
+) -> str:
+    direction = item.setup_direction or "TRADE"
+    option_side = "calls" if opportunity.call_score >= opportunity.put_score else "puts"
+    if brief is None:
+        return "The missing piece is confirmation. I would not act on this until the entry plan and option contract are clear."
+    trigger = preview_level_text(item, brief.confirmation_level, "the entry trigger")
+    invalidation = format_price(brief.invalidation)
+    if rejection.action == "NO_TRADE":
+        quality = "The stock may be worth watching, but the current contract/risk setup is not clean enough yet."
+    elif rejection.action == "ALERT":
+        quality = "The setup is close enough to monitor, but I would still wait for the chart to confirm before entering."
+    else:
+        quality = "The setup is still in watch mode until the next move proves buyers or sellers are actually in control."
+    side_note = ""
+    if option_side.rstrip("s").upper() != direction:
+        side_note = " Options data is not fully lined up with the trade direction yet, so I would be extra selective with the contract."
+    return (
+        f"What supports the thesis is simple: the news gives the ticker attention, and the chart has a possible {direction.lower()} path if price confirms around {trigger}. "
+        f"What would weaken it is just as important: if price loses or reclaims the wrong side of {invalidation}, the idea no longer has the same edge. "
+        f"{quality}{side_note}"
+    )
+
+
+def preview_level_text(item: Analysis, level: float | None, fallback: str) -> str:
+    if level is None or item.price <= 0:
+        return fallback
+    if level < item.price * 0.55 or level > item.price * 1.45:
+        return fallback
+    return format_price(level)
 
 
 def full_trade_detail_panel(rank: int, item: Analysis) -> str:

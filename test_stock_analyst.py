@@ -1153,11 +1153,14 @@ class StockAnalystTests(unittest.TestCase):
         why = stock_analyst.why_on_watchlist_text(item)
         sources = stock_analyst.supporting_sources_text(item)
 
-        self.assertIn("not because it is automatically an entry", why)
-        self.assertIn("planned reward path", why)
-        self.assertIn("While scanning current headlines", sources)
-        self.assertIn("options layer leans toward calls", sources)
+        self.assertIn("tradable CALL idea developing", why)
+        self.assertIn("I would want price to confirm", why)
+        self.assertIn("useful outside support", sources)
+        self.assertIn("What supports the thesis is simple", sources)
         self.assertNotIn("After reviewing", sources)
+        self.assertNotIn("useful supporting theme", sources)
+        self.assertNotIn("options layer", sources.lower())
+        self.assertNotIn("rejection engine", sources.lower())
         self.assertNotIn("- Reuters:", sources)
         self.assertNotIn("- CNBC:", sources)
 
