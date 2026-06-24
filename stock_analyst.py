@@ -8382,15 +8382,16 @@ def report_dashboard_html() -> str:
     main {{
       min-height: 100vh;
       display: flex;
+      align-items: center;
       justify-content: center;
-      padding: max(72px, 15vh) 30px 34px;
+      padding: 30px;
     }}
     .shell {{
       width: min(820px, 100%);
       display: grid;
       align-content: start;
       justify-items: center;
-      gap: 26px;
+      gap: 82px;
     }}
     .brand {{
       display: grid;
@@ -8456,8 +8457,8 @@ def report_dashboard_html() -> str:
       white-space: nowrap;
     }}
     @media (max-width: 560px) {{
-      main {{ padding: 104px 30px 34px; }}
-      .shell {{ gap: 31px; }}
+      main {{ padding: 30px; }}
+      .shell {{ gap: 50px; }}
       .wordmark-image {{ width: min(100%, 560px); }}
       .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
       .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
