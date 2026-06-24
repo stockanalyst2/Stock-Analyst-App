@@ -398,6 +398,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("/healthz", document)
         self.assertIn("/stock_report.html", document)
         self.assertIn("reportPanel", document)
+        self.assertIn("reportOverlay", document)
         self.assertIn("reportFrame", document)
         self.assertIn("Close Latest Report", document)
         self.assertNotIn("/api/scan", document)

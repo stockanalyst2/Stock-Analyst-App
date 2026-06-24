@@ -8481,8 +8481,12 @@ def report_dashboard_html() -> str:
     }}
     .report-panel {{
       display: none;
+      position: fixed;
+      inset: 5vh 50%;
+      z-index: 20;
+      transform: translateX(-50%);
       width: min(1120px, calc(100vw - 60px));
-      height: min(72vh, 780px);
+      height: 90vh;
       border: 1px solid rgba(232, 232, 232, .50);
       border-radius: 6px;
       overflow: hidden;
@@ -8490,6 +8494,15 @@ def report_dashboard_html() -> str:
       box-shadow: 0 28px 90px rgba(0, 0, 0, .72);
     }}
     .report-panel.is-open {{ display: block; }}
+    .report-overlay {{
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 19;
+      background: rgba(0, 0, 0, .72);
+      backdrop-filter: blur(2px);
+    }}
+    .report-overlay.is-open {{ display: block; }}
     .report-frame {{
       display: block;
       width: 100%;
@@ -8508,8 +8521,9 @@ def report_dashboard_html() -> str:
       .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
       .status-line {{ font-size: 11px; letter-spacing: .18em; }}
       .report-panel {{
+        inset: 7vh 50%;
         width: calc(100vw - 24px);
-        height: 62vh;
+        height: 84vh;
         border-radius: 4px;
       }}
     }}
@@ -8533,15 +8547,18 @@ def report_dashboard_html() -> str:
         <iframe class="report-frame" id="reportFrame" title="Latest stock report"></iframe>
       </section>
     </section>
+    <div class="report-overlay" id="reportOverlay" aria-hidden="true"></div>
   </main>
   <script>
     const reportToggle = document.getElementById('reportToggle');
     const reportPanel = document.getElementById('reportPanel');
+    const reportOverlay = document.getElementById('reportOverlay');
     const reportFrame = document.getElementById('reportFrame');
 
     function toggleReport() {{
       const nextOpen = !reportPanel.classList.contains('is-open');
       reportPanel.classList.toggle('is-open', nextOpen);
+      reportOverlay.classList.toggle('is-open', nextOpen);
       reportToggle.setAttribute('aria-expanded', String(nextOpen));
       reportToggle.querySelector('.link-text').textContent = nextOpen ? 'Close Latest Report' : 'Open Latest Report';
       if (nextOpen && !reportFrame.src) {{
@@ -8562,6 +8579,7 @@ def report_dashboard_html() -> str:
       }}
     }}
     reportToggle.addEventListener('click', toggleReport);
+    reportOverlay.addEventListener('click', toggleReport);
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>
