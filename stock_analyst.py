@@ -5829,32 +5829,121 @@ def why_on_watchlist_text(item: Analysis) -> str:
     brief = item.trade_brief
     direction = item.setup_direction or "-"
     setup = item.setup_label or item.rating or "setup"
+    setup_phrase = normalized_setup_phrase(setup)
     stance = analyst_stance(item, brief)
-    evidence = "; ".join((item.setup_notes or item.notes)[:4]) or "the available data flagged enough price/catalyst interest to keep it under review"
+    evidence = "; ".join((item.setup_notes or item.notes)[:4]) or "the scan found enough price/catalyst interest to keep it under review"
+    company_name = display_company_name(item.symbol, item.name)
     if brief:
+        status, status_detail = entry_status(item, brief)
+        reward = ", ".join(
+            value
+            for value in (
+                format_price(brief.target_1),
+                format_price(brief.target_2),
+                format_price(brief.target_3),
+            )
+            if value != "-"
+        )
+        timeframe_support = ", ".join(brief.timeframe_supporting[:3]) or "limited timeframe confirmation"
+        timeframe_conflict = ", ".join(brief.timeframe_opposing[:2]) if brief.timeframe_opposing else "no major timeframe conflict from the available scan"
         return (
-            f"{item.symbol} is on the watchlist as a {direction} idea because Atlas found a {setup.lower()} with enough supporting evidence to monitor, "
-            f"but the trade is still conditional. Current stance: {stance}. The useful part of the setup is this: {evidence}. "
-            "I would treat this as a watchlist candidate first and only move toward execution if the full detail view confirms the entry, option quality, and risk/reward."
+            f"{company_name} is on the watchlist as a {direction} idea because Atlas found {article_phrase(setup_phrase)} with enough evidence to justify monitoring, "
+            f"not because it is automatically an entry. The current stance is {stance}, and the live execution status is {status}: {status_detail} "
+            f"The setup evidence is {evidence}. The cleaner part of the idea is that the scan sees {timeframe_support}; the part I would be careful with is {timeframe_conflict}. "
+            f"The planned reward path is {reward or 'not cleanly defined yet'}, with invalidation around {format_price(brief.invalidation)}. "
+            "My read is that this belongs on the list only as a conditional trade: it needs the trigger, option quality, and broader tape to line up before it deserves real attention."
         )
     return (
-        f"{item.symbol} is on the watchlist as a {direction} idea because Atlas found a {setup.lower()}. "
+        f"{company_name} is on the watchlist as a {direction} idea because Atlas found {article_phrase(setup_phrase)}. "
         f"The current evidence is: {evidence}. A full trade brief was not available, so this should stay watch-only until the deeper details are populated."
     )
+
+
+def article_phrase(text: str) -> str:
+    cleaned = text.strip()
+    if not cleaned:
+        return "a setup"
+    first_word = cleaned.split()[0].lower()
+    if first_word in {"a", "an", "the"}:
+        return cleaned
+    article = "an" if cleaned[0].lower() in {"a", "e", "i", "o", "u"} else "a"
+    return f"{article} {cleaned}"
+
+
+def normalized_setup_phrase(setup: str) -> str:
+    phrase = setup.strip().lower()
+    grade_match = re.fullmatch(r"([a-d])\s+(.+)", phrase)
+    if grade_match:
+        return f"grade {grade_match.group(1).upper()} {grade_match.group(2)}"
+    return phrase
+
+
+def clean_preview_catalyst_read(text: str, symbol: str) -> str:
+    cleaned = re.sub(
+        rf"After reviewing [^.]+?, the story around {re.escape(symbol)} is mainly about ",
+        f"The current news flow around {symbol} is mainly about ",
+        text,
+    )
+    cleaned = re.sub(r"\s*Most relevant current item: .*?(?=\s+Macro override:|\s+Trade read:|\s+PUT confirmation:|\s+CALL confirmation:|\s+What would weaken|$)", " ", cleaned)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned)
+    return cleaned
 
 
 def supporting_sources_text(item: Analysis) -> str:
     company_news = relevant_company_news(item.news, item) or item.news
     macro_news = relevant_macro_news(item.macro_news or [], item.symbol)
-    combined = dedupe_news(company_news + macro_news)
+    research_news = select_research_news(item, company_news, macro_news, limit=8)
+    combined = dedupe_news(research_news + company_news + macro_news)
+    brief = item.trade_brief
+    opportunity = item.options_opportunity or build_options_opportunity_score(item)
+    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
+    topics = event_topics([clean_headline(news_item.title) for news_item in combined if news_item.title.strip()])
+    topic_text = human_join(topics[:4]) if topics else "no dominant catalyst theme"
+    catalyst_read = deep_catalyst_research_brief(item, combined[:8], macro_news, weak_catalyst=not bool(combined))
+    sector = SYMBOL_SECTORS.get(item.symbol.upper(), "the stock's sector")
+
+    option_side = "calls" if opportunity.call_score >= opportunity.put_score else "puts"
+    option_score = max(opportunity.call_score, opportunity.put_score)
+    option_read = (
+        f"The options layer leans toward {option_side} with a {option_score:.0f}/100 side score and {opportunity.confidence:.0f}/100 confidence. "
+        f"That matters because a decent stock idea can still be a bad options trade if spreads, expiration, or implied move are not reasonable."
+    )
+    if opportunity.risk_factors:
+        option_read += " The main options/risk concern is " + "; ".join(opportunity.risk_factors[:2]) + "."
+    if opportunity.missing_data:
+        option_read += " Missing institutional data still limits conviction: " + "; ".join(opportunity.missing_data[:2]) + "."
+
+    risk_read = (
+        f"The rejection engine currently says {rejection.action}. "
+        f"Expected move is {format_pct(rejection.expected_move_pct) if rejection.expected_move_pct is not None else '-'}, "
+        f"implied move is {format_pct(rejection.implied_move_pct) if rejection.implied_move_pct is not None else '-'}, "
+        f"and estimated edge is {format_pct(rejection.estimated_edge_pct) if rejection.estimated_edge_pct is not None else '-'}."
+    )
+    if rejection.reasons:
+        risk_read += " The biggest reason to stay careful is " + "; ".join(rejection.reasons[:2]) + "."
+
+    technical_read = ""
+    if brief:
+        support = ", ".join(brief.timeframe_supporting[:3]) or "not much clean timeframe agreement"
+        conflict = ", ".join(brief.timeframe_opposing[:2]) if brief.timeframe_opposing else "no major higher/lower-timeframe disagreement"
+        technical_read = (
+            f"Technically, the supporting case is {support}; the conflict is {conflict}. "
+            f"The setup only improves if price behavior confirms the listed trigger instead of drifting into the level without volume."
+        )
+
     if not combined:
-        return "No strong external source cluster is attached yet. That means this ticker should be treated mainly as a technical/watchlist idea until credible catalyst confirmation appears."
-    lines: list[str] = []
-    for news_item in combined[:5]:
-        source = news_item.source or "Market feed"
-        title = news_item.title or "Untitled item"
-        lines.append(f"- {source}: {title}")
-    return "\n".join(lines)
+        catalyst_read = (
+            f"While scanning current headlines and macro context, I did not find a strong fresh catalyst cluster for {item.symbol}. "
+            f"That does not kill the setup, but it means the reason for being on the list is mostly chart/flow/risk-reward behavior rather than a clear external event. "
+            f"For {sector}, I would want stronger confirmation from price and volume before trusting it."
+        )
+    else:
+        catalyst_read = (
+            f"While scanning current headlines and macro context, the useful supporting theme was {topic_text}. "
+            f"{clean_preview_catalyst_read(catalyst_read, item.symbol)}"
+        )
+
+    return "\n\n".join(part for part in (catalyst_read, technical_read, option_read, risk_read) if part)
 
 
 def full_trade_detail_panel(rank: int, item: Analysis) -> str:

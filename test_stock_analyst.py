@@ -1050,6 +1050,117 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("&lt;script&gt;", row)
         self.assertIn("&lt;b&gt;unsafe&lt;/b&gt;", secondary)
 
+    def test_watchlist_preview_uses_analyst_synthesis_not_source_list(self):
+        item = stock_analyst.Analysis(
+            symbol="AMD",
+            name="Advanced Micro Devices",
+            price=120,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=None,
+            volatility=None,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=None,
+            sma_50=None,
+            sma_200=None,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=["controlled 5-day spike"],
+            news=[
+                stock_analyst.NewsItem(
+                    "AMD gains as AI data center demand and chip orders improve",
+                    "",
+                    "",
+                    "Reuters",
+                )
+            ],
+            macro_news=[
+                stock_analyst.NewsItem(
+                    "Semiconductor shares wobble as export controls and China tensions stay in focus",
+                    "",
+                    "",
+                    "CNBC",
+                )
+            ],
+            setup_direction="CALL",
+            setup_label="B reversal",
+        )
+        item.trade_brief = stock_analyst.TradeBrief(
+            thesis="Test",
+            pattern="Reversal",
+            pattern_status="forming",
+            confirmation_level=122,
+            measured_move=130,
+            invalidation=115,
+            stop_loss=115,
+            target_1=124,
+            target_2=128,
+            target_3=132,
+            risk_reward=1.8,
+            market_structure="higher low attempt",
+            timeframe_supporting=["4H reclaim", "15M higher low"],
+            timeframe_opposing=["daily extended"],
+            alignment_score=70,
+            indicator_analysis="constructive",
+            volume_analysis="improving",
+            relative_strength="firm",
+            support_resistance="near support",
+            volume_profile="adequate",
+            liquidity_analysis="liquid",
+            options_flow="unknown",
+            order_flow="unknown",
+            catalyst_analysis="AI demand",
+            market_environment="mixed",
+            event_risk="moderate",
+            bull_case="",
+            base_case="",
+            bear_case="",
+            confidence_score=68,
+            setup_grade="B",
+            take_reasons=["buyers are defending the pullback"],
+            avoid_reasons=["daily chart is stretched"],
+            final_recommendation="Watch only",
+        )
+        item.options_opportunity = stock_analyst.OptionsOpportunityScore(
+            ticker="AMD",
+            call_score=72,
+            put_score=41,
+            confidence=64,
+            bullish_factors=["AI demand"],
+            bearish_factors=["export controls"],
+            missing_data=["dealer positioning unavailable"],
+            risk_factors=["event risk elevated"],
+            invalidation_conditions=["loss of support"],
+            summary="Options read is constructive but conditional.",
+        )
+        item.opportunity_rejection = stock_analyst.OpportunityRejection(
+            action="WATCH",
+            reasons=["needs confirmation"],
+            expected_move_pct=0.05,
+            implied_move_pct=0.04,
+            estimated_edge_pct=0.01,
+        )
+
+        why = stock_analyst.why_on_watchlist_text(item)
+        sources = stock_analyst.supporting_sources_text(item)
+
+        self.assertIn("not because it is automatically an entry", why)
+        self.assertIn("planned reward path", why)
+        self.assertIn("While scanning current headlines", sources)
+        self.assertIn("options layer leans toward calls", sources)
+        self.assertNotIn("After reviewing", sources)
+        self.assertNotIn("- Reuters:", sources)
+        self.assertNotIn("- CNBC:", sources)
+
     def test_filters_reject_low_price_and_downtrend(self):
         args = argparse.Namespace(
             mode="invest",
