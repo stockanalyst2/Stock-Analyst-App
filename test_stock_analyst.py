@@ -2,6 +2,7 @@ import argparse
 import datetime as dt
 import tempfile
 import unittest
+from unittest import mock
 
 import stock_analyst
 
@@ -593,6 +594,160 @@ class StockAnalystTests(unittest.TestCase):
         self.assertTrue(any("Options flow" in item for item in score.missing_data))
         self.assertTrue(any("Dealer positioning" in item for item in score.missing_data))
         self.assertIn("available data only", score.summary)
+
+    def test_earnings_iv_inflation_reduces_directional_option_quality(self):
+        option = stock_analyst.OptionContract(
+            contract_symbol="TEST260717C00100000",
+            side="CALL",
+            strike=100,
+            expiration=dt.datetime.now().astimezone().date() + dt.timedelta(days=24),
+            bid=4.8,
+            ask=5.2,
+            last_price=5.0,
+            volume=1500,
+            open_interest=2000,
+            implied_volatility=1.35,
+        )
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=0.04,
+            volatility=0.35,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=55,
+            sma_50=95,
+            sma_200=90,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[stock_analyst.NewsItem("Test Co reports earnings next week", "", "")],
+            setup_score=78,
+            setup_notes=["breakout", "volume expansion"],
+            return_20d=0.05,
+            volume_ratio=1.3,
+            setup_direction="CALL",
+            option=option,
+            catalyst_score=70,
+        )
+
+        _score, missing, risks = stock_analyst.option_chain_quality(option, item)
+
+        self.assertTrue(any("Earnings/IV inflation" in risk for risk in risks))
+        self.assertNotIn("Live implied volatility for earnings-IV check", missing)
+
+    def test_sector_relative_weakness_reduces_bullish_confidence(self):
+        item = stock_analyst.Analysis(
+            symbol="NVDA",
+            name="NVIDIA Corporation",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=0.10,
+            volatility=0.30,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=58,
+            sma_50=96,
+            sma_200=88,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_score=80,
+            setup_notes=["breakout"],
+            return_20d=-0.10,
+            volume_ratio=1.2,
+            setup_direction="CALL",
+            catalyst_score=70,
+        )
+        sector_series = stock_analyst.PriceSeries(
+            symbol="SMH",
+            dates=[],
+            opens=[],
+            highs=[],
+            lows=[],
+            closes=[100.0] * 59 + [94.0],
+            volumes=[],
+        )
+
+        with mock.patch("stock_analyst.fetch_price_series", return_value=sector_series):
+            adjustment, _bullish, bearish, risks = stock_analyst.sector_relative_context(item)
+
+        self.assertLess(adjustment, 0)
+        self.assertTrue(any("SMH sector tape is weak" in risk for risk in risks))
+        self.assertTrue(any("underperforming SMH" in factor for factor in bearish))
+
+    def test_bad_contract_quality_penalizes_real_money_judgment(self):
+        option = stock_analyst.OptionContract(
+            contract_symbol="TEST260626C00130000",
+            side="CALL",
+            strike=130,
+            expiration=dt.datetime.now().astimezone().date() + dt.timedelta(days=3),
+            bid=0.40,
+            ask=0.80,
+            last_price=0.60,
+            volume=5,
+            open_interest=12,
+            implied_volatility=1.4,
+        )
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=0.08,
+            volatility=0.32,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=55,
+            sma_50=95,
+            sma_200=90,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_score=82,
+            setup_notes=["breakout", "volume expansion"],
+            return_20d=0.06,
+            volume_ratio=1.4,
+            setup_direction="CALL",
+            option=option,
+            catalyst_score=78,
+        )
+        brief = stock_analyst.build_trade_brief(item, {"available": False, "label": "test"})
+
+        judgment = stock_analyst.real_money_trader_judgment(item, brief)
+
+        self.assertTrue(any("contract quality is poor" in reason for reason in judgment["reasons"]))
 
     def test_tradingview_chart_url_uses_exchange_prefix(self):
         self.assertIn("NASDAQ%3AMSFT", stock_analyst.tradingview_chart_url("MSFT"))

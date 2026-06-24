@@ -322,6 +322,15 @@ SYMBOL_SECTORS = {
     "BA": "industrial", "CAT": "industrial", "DE": "industrial", "GE": "industrial", "LMT": "industrial", "RTX": "industrial", "HON": "industrial", "UPS": "industrial", "FDX": "industrial",
     "LLY": "healthcare", "UNH": "healthcare", "MRNA": "healthcare", "PFE": "healthcare", "JNJ": "healthcare", "ABBV": "healthcare", "TMO": "healthcare", "ISRG": "healthcare", "VRTX": "healthcare", "AMGN": "healthcare",
 }
+SECTOR_BENCHMARKS = {
+    "energy": "XLE",
+    "semis": "SMH",
+    "software": "IGV",
+    "financials": "XLF",
+    "consumer": "XLY",
+    "industrial": "XLI",
+    "healthcare": "XLV",
+}
 SYMBOL_ALIASES = {
     "AAPL": ("apple",),
     "MSFT": ("microsoft",),
@@ -4015,6 +4024,12 @@ def option_spread_pct(option: OptionContract | None) -> float | None:
     return (option.ask - option.bid) / mid
 
 
+def option_days_to_expiration(option: OptionContract | None) -> int | None:
+    if option is None:
+        return None
+    return (option.expiration - dt.datetime.now().astimezone().date()).days
+
+
 def option_trade_plan(item: Analysis, target_pct: float = 0.20, stop_pct: float = 0.25) -> str:
     direction = item.setup_direction or "CALL"
     levels = target_profit_levels(item)
@@ -4033,7 +4048,42 @@ def option_trade_plan(item: Analysis, target_pct: float = 0.20, stop_pct: float 
     )
 
 
-def option_chain_quality(option: OptionContract | None) -> tuple[float, list[str], list[str]]:
+def likely_earnings_window(item: Analysis) -> bool:
+    text = " ".join(news_item.title for news_item in item.news[:12]).lower()
+    if any(keyword in text for keyword in ("earnings date", "reports earnings", "earnings report", "q1 earnings", "q2 earnings", "q3 earnings", "q4 earnings")):
+        return True
+    if any(keyword in text for keyword in ("earnings", "guidance", "quarterly results")):
+        return True
+    return False
+
+
+def earnings_iv_adjustment(item: Analysis) -> tuple[float, list[str], list[str]]:
+    option = item.option
+    if option is None:
+        return 0.0, ["Earnings date / IV event calendar"], []
+    risks: list[str] = []
+    missing: list[str] = []
+    adjustment = 0.0
+    earnings_window = likely_earnings_window(item)
+    high_iv = option.implied_volatility is not None and option.implied_volatility >= 0.85
+    very_high_iv = option.implied_volatility is not None and option.implied_volatility >= 1.20
+    if option.implied_volatility is None:
+        missing.append("Live implied volatility for earnings-IV check")
+    if not earnings_window:
+        missing.append("Confirmed next earnings date")
+    if earnings_window and high_iv:
+        adjustment -= 12.0 if very_high_iv else 8.0
+        risks.append("Earnings/IV inflation detected; this may be a volatility trade, not a clean directional long-option setup")
+    elif earnings_window:
+        adjustment -= 4.0
+        risks.append("Earnings risk is nearby or active; directional entries need extra confirmation")
+    elif very_high_iv:
+        adjustment -= 6.0
+        risks.append("IV is very rich even without a confirmed earnings window")
+    return adjustment, missing, risks
+
+
+def option_chain_quality(option: OptionContract | None, item: Analysis | None = None) -> tuple[float, list[str], list[str]]:
     if option is None:
         return 30.0, ["Live option chain unavailable"], ["No live contract attached"]
     score = 50.0
@@ -4077,11 +4127,103 @@ def option_chain_quality(option: OptionContract | None) -> tuple[float, list[str
     if option.implied_volatility is None:
         missing.append("Implied volatility")
     elif option.implied_volatility > 1.2:
-        score -= 10
+        score -= 16
         risks.append("Implied volatility is very high")
+    elif option.implied_volatility > 0.85:
+        score -= 8
+        risks.append("Implied volatility is elevated")
     elif option.implied_volatility < 0.25:
         score += 5
+    dte = option_days_to_expiration(option)
+    if dte is None:
+        missing.append("Days to expiration")
+    elif dte < 7:
+        score -= 20
+        risks.append("Expiration is too close for the short-swing plan")
+    elif dte < 14:
+        score -= 8
+        risks.append("Expiration is close; theta risk is high")
+    elif dte <= 45:
+        score += 8
+    else:
+        score -= 4
+        risks.append("Expiration may be too far out for the intended short swing")
+    if item is not None and item.price > 0:
+        moneyness = abs(option.strike - item.price) / item.price
+        if moneyness <= 0.03:
+            score += 8
+        elif moneyness <= 0.08:
+            score += 2
+        else:
+            score -= 12
+            risks.append("Strike is far from spot for a short-term directional trade")
+    earnings_adjustment, earnings_missing, earnings_risks = earnings_iv_adjustment(item) if item is not None else (0.0, [], [])
+    score += earnings_adjustment
+    missing.extend(earnings_missing)
+    risks.extend(earnings_risks)
     return clamp(score), missing, risks
+
+
+def sector_relative_context(item: Analysis) -> tuple[float, list[str], list[str], list[str]]:
+    sector = SYMBOL_SECTORS.get(item.symbol.upper(), "")
+    benchmark = SECTOR_BENCHMARKS.get(sector)
+    if not benchmark:
+        return 0.0, [], [], ["Sector benchmark unavailable"]
+    try:
+        series = fetch_price_series(benchmark, days=80)
+    except Exception:
+        return 0.0, [], [], [f"Sector benchmark data unavailable for {benchmark}"]
+    sector_return = pct_change(series.closes, 20)
+    if sector_return is None or item.return_20d is None:
+        return 0.0, [], [], [f"Sector-relative 20-day return unavailable for {benchmark}"]
+    relative = item.return_20d - sector_return
+    direction = item.setup_direction or "CALL"
+    bullish: list[str] = []
+    bearish: list[str] = []
+    risks: list[str] = []
+    adjustment = 0.0
+    if direction == "CALL":
+        if sector_return < -0.03:
+            adjustment -= 10.0
+            risks.append(f"{benchmark} sector tape is weak, reducing confidence in bullish follow-through")
+        if relative > 0.03:
+            adjustment += 7.0
+            bullish.append(f"Stock is outperforming {benchmark} over 20 days")
+        elif relative < -0.03:
+            adjustment -= 7.0
+            bearish.append(f"Stock is underperforming {benchmark} over 20 days")
+    elif direction == "PUT":
+        if sector_return > 0.03:
+            adjustment -= 8.0
+            risks.append(f"{benchmark} sector tape is strong, reducing confidence in bearish follow-through")
+        if relative < -0.03:
+            adjustment += 7.0
+            bearish.append(f"Stock is underperforming {benchmark} over 20 days")
+        elif relative > 0.03:
+            adjustment -= 7.0
+            bullish.append(f"Stock is outperforming {benchmark} over 20 days")
+    return adjustment, bullish, bearish, risks
+
+
+def flow_persistence_context(item: Analysis) -> tuple[float, list[str], list[str], list[str]]:
+    option = item.option
+    missing = ["Options-flow persistence history"]
+    bullish: list[str] = []
+    bearish: list[str] = []
+    risks: list[str] = []
+    adjustment = 0.0
+    if option and option.volume is not None and option.open_interest is not None and option.open_interest > 0:
+        vol_oi = option.volume / option.open_interest
+        if vol_oi >= 1.5:
+            risks.append("Single-session option volume is high versus open interest, but persistence is unconfirmed")
+            adjustment -= 4.0
+        elif vol_oi >= 0.35:
+            if option.side == "CALL":
+                bullish.append("Contract volume is active versus open interest")
+            else:
+                bearish.append("Contract volume is active versus open interest")
+            adjustment += 2.0
+    return adjustment, bullish, bearish, risks + missing
 
 
 def volatility_quality(item: Analysis) -> tuple[float, list[str], list[str]]:
@@ -4192,13 +4334,19 @@ def market_context_directional_scores(item: Analysis) -> tuple[float, float, lis
 
 def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
     price_call, price_put, bullish, bearish, price_risks = directional_price_action_scores(item)
-    chain_score, chain_missing, chain_risks = option_chain_quality(item.option)
+    chain_score, chain_missing, chain_risks = option_chain_quality(item.option, item)
     vol_score, vol_missing, vol_risks = volatility_quality(item)
     context_call, context_put, context_bullish, context_bearish, context_risks = market_context_directional_scores(item)
+    sector_adjustment, sector_bullish, sector_bearish, sector_risks = sector_relative_context(item)
+    flow_adjustment, flow_bullish, flow_bearish, flow_notes = flow_persistence_context(item)
     bullish.extend(context_bullish)
+    bullish.extend(sector_bullish)
+    bullish.extend(flow_bullish)
     bearish.extend(context_bearish)
+    bearish.extend(sector_bearish)
+    bearish.extend(flow_bearish)
     missing = list(dict.fromkeys(chain_missing + vol_missing))
-    risks = list(dict.fromkeys(price_risks + chain_risks + vol_risks + context_risks))
+    risks = list(dict.fromkeys(price_risks + chain_risks + vol_risks + context_risks + sector_risks + flow_notes))
     institutional_missing = [
         "Options flow: call sweeps, put sweeps, block trades, unusual activity",
         "Dark pool prints",
@@ -4224,6 +4372,8 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
         + vol_score * weights["volatility"]
         + context_put * weights["context"]
     )
+    call_score += sector_adjustment + flow_adjustment
+    put_score += sector_adjustment + flow_adjustment
     available_inputs = 4
     if item.option is None or item.option.estimated:
         available_inputs -= 1
@@ -4233,7 +4383,7 @@ def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
         available_inputs -= 1
     coverage = max(0.0, available_inputs / 4)
     directional_gap = abs(call_score - put_score)
-    confidence = clamp(35 + coverage * 35 + min(20, directional_gap * 0.35) - min(18, len(risks) * 3))
+    confidence = clamp(35 + coverage * 35 + min(20, directional_gap * 0.35) - min(24, len(risks) * 3))
     direction = "CALL" if call_score >= put_score else "PUT"
     leading_score = max(call_score, put_score)
     risk_text = " ".join(risks[:2]) if risks else "No major practical-data risk fired, but the trade still requires trigger confirmation."
@@ -5535,6 +5685,17 @@ def real_money_trader_judgment(item: Analysis, brief: TradeBrief | None) -> dict
     sector = SYMBOL_SECTORS.get(item.symbol.upper(), "")
     spread = option_spread_pct(item.option)
     shock = macro_oil_shock(item.macro_news or [])
+    contract_score, _contract_missing, contract_risks = option_chain_quality(item.option, item)
+
+    if contract_score < 45:
+        score -= 18
+        reasons.append("The stock setup may be interesting, but the selected option contract quality is poor.")
+    elif contract_score < 60:
+        score -= 8
+        reasons.append("The selected option contract is only average quality; fills and theta need extra care.")
+    for risk in contract_risks[:2]:
+        if risk not in reasons:
+            reasons.append(risk)
 
     if shock.get("active") and direction == "CALL" and sector != "energy":
         score -= 35
