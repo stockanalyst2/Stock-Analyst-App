@@ -8360,7 +8360,7 @@ def report_dashboard_html() -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ATLAS</title>
-  <link rel="icon" href="/atlas_wordmark.svg">
+  <link rel="icon" href="/atlas_wordmark.jpg">
   <style>
     :root {{
       color-scheme: dark;
@@ -8386,11 +8386,11 @@ def report_dashboard_html() -> str:
       padding: max(72px, 15vh) 30px 34px;
     }}
     .shell {{
-      width: min(530px, 100%);
+      width: min(820px, 100%);
       display: grid;
       align-content: start;
       justify-items: center;
-      gap: 28px;
+      gap: 26px;
     }}
     .brand {{
       display: grid;
@@ -8399,14 +8399,13 @@ def report_dashboard_html() -> str:
     }}
     .wordmark-image {{
       display: block;
-      width: min(100%, 530px);
+      width: min(100%, 760px);
       height: auto;
       object-fit: contain;
-      filter: drop-shadow(0 10px 24px rgba(255,255,255,.06));
     }}
     a {{ color: inherit; text-decoration: none; }}
     .report-link {{
-      width: 100%;
+      width: min(100%, 604px);
       min-height: 71px;
       border: 1px solid var(--line);
       border-radius: 4px;
@@ -8459,7 +8458,7 @@ def report_dashboard_html() -> str:
     @media (max-width: 560px) {{
       main {{ padding: 104px 30px 34px; }}
       .shell {{ gap: 31px; }}
-      .wordmark-image {{ width: min(100%, 514px); }}
+      .wordmark-image {{ width: min(100%, 560px); }}
       .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
       .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
     }}
@@ -8469,7 +8468,7 @@ def report_dashboard_html() -> str:
   <main>
     <section class="shell" aria-label="ATLAS home">
       <div class="brand">
-        <img class="wordmark-image" src="/atlas_wordmark.svg" alt="ATLAS - Autonomous Trading &amp; Logistical Assessment System">
+        <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
       </div>
       <a class="report-link" href="/stock_report.html" aria-label="Open latest report">
         <span class="menu-icon" aria-hidden="true"><span></span></span>
