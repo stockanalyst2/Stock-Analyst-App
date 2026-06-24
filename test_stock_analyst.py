@@ -390,6 +390,7 @@ class StockAnalystTests(unittest.TestCase):
         document = stock_analyst.report_dashboard_html()
 
         self.assertIn("<title>ATLAS</title>", document)
+        self.assertIn("/atlas_wordmark_reference.jpg", document)
         self.assertIn("Autonomous Trading &amp; Logistical Assessment System", document)
         self.assertIn("Open Latest Report", document)
         self.assertIn("/stock_report.html", document)
