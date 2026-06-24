@@ -8455,6 +8455,7 @@ def report_dashboard_html() -> str:
     }}
     .tab {{
       border: 0;
+      border-left: 1px solid rgba(226, 226, 232, .62);
       background: transparent;
       color: var(--muted);
       padding: 0;
@@ -8465,6 +8466,7 @@ def report_dashboard_html() -> str:
       white-space: nowrap;
       cursor: pointer;
     }}
+    .tab:first-child {{ border-left: 0; }}
     .tab.is-active {{ color: #f1f1f5; }}
     .content {{
       min-height: calc(100vh - 236px);
@@ -8526,14 +8528,14 @@ def report_dashboard_html() -> str:
       <button class="profile-button" type="button" aria-label="Account"></button>
     </header>
     <nav class="tabs" aria-label="ATLAS sections">
-      <button class="tab is-active" type="button" data-panel="watchlist">Current Watchlist</button>
-      <button class="tab" type="button" data-panel="market">Market Report</button>
-      <button class="tab" type="button" data-panel="research">Research assistant</button>
+      <button class="tab is-active" type="button" data-panel="watchlist">Watchlist</button>
+      <button class="tab" type="button" data-panel="market">Report</button>
+      <button class="tab" type="button" data-panel="research">Research</button>
     </nav>
     <section class="content">
       <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
       <section class="placeholder-panel" id="marketPanel">Market Report</section>
-      <section class="placeholder-panel" id="researchPanel">Research assistant</section>
+      <section class="placeholder-panel" id="researchPanel">Research</section>
       <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
     </section>
   </main>
