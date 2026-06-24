@@ -3,37 +3,59 @@
   <desc id="desc">Autonomous Trading and Logistical Assessment System</desc>
   <defs>
     <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f1f1f1"/>
-      <stop offset="0.38" stop-color="#bdbdbd"/>
-      <stop offset="0.70" stop-color="#f7f7f7"/>
-      <stop offset="1" stop-color="#858585"/>
+      <stop offset="0" stop-color="#eeeeee"/>
+      <stop offset="0.42" stop-color="#a8a8a8"/>
+      <stop offset="0.58" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#7d7d7d"/>
     </linearGradient>
-    <filter id="softGlow" x="-10%" y="-40%" width="120%" height="180%">
-      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#ffffff" flood-opacity=".10"/>
+    <filter id="glow" x="-12%" y="-45%" width="124%" height="190%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#ffffff" flood-opacity=".11"/>
     </filter>
   </defs>
 
-  <g fill="none" stroke="url(#metal)" stroke-width="24" stroke-linecap="butt" stroke-linejoin="miter" filter="url(#softGlow)">
+  <g fill="url(#metal)" filter="url(#glow)">
     <!-- A -->
-    <path d="M80 108 L132 34 L184 108"/>
+    <polygon points="35,112 64,112 132,35 103,35"/>
+    <polygon points="160,112 190,112 122,35 93,35"/>
+
     <!-- T -->
-    <path d="M230 42 H356"/>
-    <path d="M293 42 V109"/>
+    <rect x="244" y="39" width="130" height="24"/>
+    <rect x="297" y="39" width="24" height="73"/>
+
     <!-- L -->
-    <path d="M424 42 V109 H528"/>
+    <rect x="430" y="39" width="24" height="73"/>
+    <rect x="430" y="88" width="122" height="24"/>
+
     <!-- A -->
-    <path d="M578 108 L630 34 L682 108"/>
+    <polygon points="592,112 621,112 689,35 660,35"/>
+    <polygon points="717,112 747,112 679,35 650,35"/>
+
     <!-- S -->
-    <path d="M830 42 H737 C713 42 700 53 700 70 C700 87 713 98 737 98 H800 C824 98 837 109 837 126 C837 143 824 154 800 154 H693"/>
+    <path d="M878 39
+             L774 39
+             C742 39 722 55 722 78
+             C722 101 742 116 774 116
+             L831 116
+             C846 116 855 121 855 130
+             C855 139 846 144 831 144
+             L724 144
+             L724 120
+             L831 120
+             C834 120 836 119 836 117
+             C836 115 834 114 831 114
+             L774 114
+             C729 114 698 91 698 58
+             C698 25 729 15 774 15
+             L878 15 Z"/>
   </g>
 
-  <text x="460" y="166"
+  <text x="460" y="168"
         text-anchor="middle"
         fill="#c9c9c9"
         font-family="Arial, Helvetica, sans-serif"
         font-size="17"
         font-weight="400"
-        letter-spacing="6.2">
+        letter-spacing="6">
     AUTONOMOUS TRADING &amp; LOGISTICAL ASSESSMENT SYSTEM
   </text>
 </svg>
