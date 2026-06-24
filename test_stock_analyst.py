@@ -177,9 +177,9 @@ class StockAnalystTests(unittest.TestCase):
         judgment = stock_analyst.real_money_trader_judgment(item, brief)
         self.assertTrue(judgment["veto"])
         self.assertIn("risk-off tape", " ".join(judgment["reasons"]))
-        banner = stock_analyst.macro_report_banner([item])
-        self.assertIn("Critical macro override", banner)
-        self.assertIn("risk-off oil shock", banner)
+        sources = stock_analyst.supporting_sources_text(item)
+        self.assertIn("Macro alert", sources)
+        self.assertNotIn("Critical macro override", sources)
 
     def test_expanded_news_summary_explains_major_catalysts(self):
         item = stock_analyst.Analysis(
