@@ -8354,97 +8354,154 @@ def normalize_on_demand_symbol(raw_symbol: str) -> str:
 
 
 def report_dashboard_html() -> str:
-    generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
-    auto_minutes = auto_scan_minutes()
-    auto_status = f"Every {auto_minutes} min" if auto_minutes else "Manual"
     return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Atlas AI</title>
-  <link rel="icon" href="/atlas_ai_wordmark.jpg">
+  <title>ATLAS</title>
   <style>
     :root {{
       color-scheme: dark;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --bg: #000;
-      --line: #202020;
-      --muted: #777;
-      --text: #f1f1f1;
+      --line: rgba(232, 232, 232, .76);
+      --muted: rgba(220, 220, 220, .66);
+      --text: #ededed;
     }}
     * {{ box-sizing: border-box; }}
-    body {{ margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); }}
-    main {{ min-height: 100vh; display: grid; place-items: center; padding: 28px; }}
-    .app {{ width: min(980px, 100%); display: grid; justify-items: center; gap: 30px; }}
-    .atlas-wordmark {{ width: min(1000px, 100%); height: auto; display: block; object-fit: contain; }}
-    .tagline {{ margin: -10px 0 0; color: #777; text-align: center; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; }}
+    html, body {{ min-height: 100%; }}
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(255,255,255,.045), transparent 24%),
+        #000;
+      color: var(--text);
+      overflow-x: hidden;
+    }}
+    main {{
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: max(72px, 15vh) 30px 34px;
+    }}
+    .shell {{
+      width: min(530px, 100%);
+      display: grid;
+      align-content: start;
+      justify-items: center;
+      gap: 28px;
+    }}
+    .brand {{
+      display: grid;
+      justify-items: center;
+      gap: 13px;
+      width: 100%;
+    }}
+    .wordmark {{
+      margin: 0;
+      color: #cfcfcf;
+      font-size: clamp(54px, 12vw, 88px);
+      font-weight: 500;
+      line-height: .82;
+      letter-spacing: .22em;
+      text-indent: .22em;
+      text-transform: uppercase;
+      transform: scaleY(.72);
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.45),
+        0 10px 26px rgba(255,255,255,.10);
+    }}
+    .tagline {{
+      margin: 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: clamp(9px, 2.4vw, 12px);
+      font-weight: 500;
+      letter-spacing: .34em;
+      line-height: 1.8;
+      text-transform: uppercase;
+    }}
     a {{ color: inherit; text-decoration: none; }}
-    .controls {{ width: min(520px, 100%); display: grid; gap: 14px; justify-items: center; }}
-    .actions {{ width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }}
-    button, .button {{ min-height: 52px; border: 1px solid #2d2d2d; border-radius: 0; background: #050505; color: #dcdcdc; font: inherit; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; cursor: pointer; }}
-    .primary {{ background: #d8d8d8; color: #050505; border-color: #d8d8d8; }}
-    button:hover, .button:hover {{ border-color: #777; background: #101010; }}
-    .primary:hover {{ background: #f2f2f2; border-color: #f2f2f2; }}
-    button:disabled {{ opacity: .55; cursor: wait; }}
-    .status {{ display: none; width: 100%; border: 1px solid var(--line); background: #050505; padding: 12px; color: #bdbdbd; line-height: 1.4; text-align: center; }}
-    .status.is-visible {{ display: block; }}
-    .meta {{ display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; color: var(--muted); font-size: 11px; letter-spacing: .10em; text-transform: uppercase; }}
-    .note {{ color: #555; font-size: 11px; text-align: center; letter-spacing: .06em; }}
-    @media (max-width: 820px) {{
-      main {{ padding: 22px 14px; }}
-      .app {{ gap: 24px; padding-top: 16vh; }}
-      .atlas-wordmark {{ width: min(100%, 720px); }}
-      .tagline {{ font-size: 11px; letter-spacing: .12em; }}
-      .actions {{ grid-template-columns: 1fr; }}
+    .report-link {{
+      width: 100%;
+      min-height: 71px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      align-items: center;
+      background: rgba(8, 8, 8, .72);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.08),
+        0 0 32px rgba(255,255,255,.035);
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }}
+    .report-link:hover {{
+      border-color: #fff;
+      background: rgba(18, 18, 18, .86);
+      transform: translateY(-1px);
+    }}
+    .menu-icon {{
+      position: relative;
+      width: 32px;
+      height: 24px;
+      margin-left: 27px;
+    }}
+    .menu-icon::before,
+    .menu-icon::after,
+    .menu-icon span {{
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 32px;
+      height: 3px;
+      border-radius: 10px;
+      background: #dedede;
+      box-shadow: 0 0 12px rgba(255,255,255,.22);
+    }}
+    .menu-icon::before {{ top: 0; }}
+    .menu-icon span {{ top: 10px; }}
+    .menu-icon::after {{ bottom: 1px; }}
+    .link-text {{
+      justify-self: end;
+      padding-right: 29px;
+      color: #dedede;
+      font-size: clamp(12px, 3.2vw, 16px);
+      font-weight: 500;
+      letter-spacing: .34em;
+      line-height: 1.2;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }}
+    @media (max-width: 560px) {{
+      main {{ padding: 104px 30px 34px; }}
+      .shell {{ gap: 31px; }}
+      .wordmark {{
+        font-size: 58px;
+        letter-spacing: .19em;
+        text-indent: .19em;
+      }}
+      .tagline {{ letter-spacing: .28em; }}
+      .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
+      .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
     }}
   </style>
 </head>
 <body>
   <main>
-    <section class="app">
-      <img class="atlas-wordmark" src="/atlas_ai_wordmark.jpg" alt="ATLAS AI">
-      <div class="tagline">Market scanner</div>
-      <div class="controls">
-        <div class="actions">
-          <button class="primary" type="button" id="scanButton">Run scanner</button>
-          <a class="button" href="/stock_report.html">Open latest report</a>
-        </div>
-        <div class="status" id="scanStatus"></div>
-        <div class="meta">
-          <span>Auto scan: {html.escape(auto_status)}</span>
-          <span>Updated: {html.escape(generated)}</span>
-        </div>
+    <section class="shell" aria-label="ATLAS home">
+      <div class="brand">
+        <h1 class="wordmark">ATLAS</h1>
+        <p class="tagline">Autonomous Trading &amp; Logistical Assessment System</p>
       </div>
-      <div class="note">Manual Robinhood execution only. Confirm the trigger and option spread before placing a trade.</div>
+      <a class="report-link" href="/stock_report.html" aria-label="Open latest report">
+        <span class="menu-icon" aria-hidden="true"><span></span></span>
+        <span class="link-text">Open Latest Report</span>
+      </a>
     </section>
   </main>
-  <script>
-    const scanButton = document.getElementById('scanButton');
-    const scanStatus = document.getElementById('scanStatus');
-
-    function setStatus(element, message) {{
-      element.innerHTML = message;
-      element.classList.add('is-visible');
-    }}
-
-    async function runScanner() {{
-      scanButton.disabled = true;
-      setStatus(scanStatus, 'Running the full scanner. This usually takes 3-6 minutes with deeper news research.');
-      try {{
-        const response = await fetch('/api/scan');
-        const payload = await response.json();
-        if (!response.ok || !payload.ok) throw new Error(payload.error || 'Scanner failed.');
-        setStatus(scanStatus, `Full scanner finished. <a href="${{payload.report_url}}">Open report</a>.`);
-      }} catch (error) {{
-        setStatus(scanStatus, `Could not run scanner: ${{error.message}}`);
-      }} finally {{
-        scanButton.disabled = false;
-      }}
-    }}
-
-    scanButton.addEventListener('click', runScanner);
-  </script>
 </body>
 </html>"""
 

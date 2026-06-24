@@ -389,10 +389,12 @@ class StockAnalystTests(unittest.TestCase):
     def test_dashboard_html_exposes_app_controls(self):
         document = stock_analyst.report_dashboard_html()
 
-        self.assertIn("Atlas", document)
-        self.assertIn("/api/scan", document)
+        self.assertIn("<title>ATLAS</title>", document)
+        self.assertIn("Autonomous Trading &amp; Logistical Assessment System", document)
+        self.assertIn("Open Latest Report", document)
         self.assertIn("/stock_report.html", document)
-        self.assertIn("/atlas_ai_wordmark.jpg", document)
+        self.assertNotIn("/api/scan", document)
+        self.assertNotIn("/atlas_ai_wordmark.jpg", document)
 
     def test_app_command_builders_use_expected_outputs(self):
         script = stock_analyst.Path("/tmp/stock_analyst.py")
