@@ -8855,12 +8855,24 @@ def default_server_port() -> int:
         return 8765
 
 
+def parse_server_port(value: str | int | None) -> int:
+    if value is None:
+        return default_server_port()
+    text = str(value).strip()
+    if text in {"$PORT", "${PORT}", ""}:
+        return default_server_port()
+    try:
+        return int(text)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"invalid port: {text}") from exc
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Rank individual stocks using transparent market metrics.")
     parser.add_argument("symbols", nargs="*", help="Ticker symbols to analyze, for example AAPL MSFT NVDA")
     parser.add_argument("--serve", action="store_true", help="Start the private web app/dashboard server")
     parser.add_argument("--host", default="127.0.0.1", help="Host for --serve")
-    parser.add_argument("--port", type=int, default=default_server_port(), help="Port for --serve")
+    parser.add_argument("--port", type=parse_server_port, default=default_server_port(), help="Port for --serve")
     parser.add_argument("--watchlist", choices=sorted(WATCHLISTS), help="Optional quick list; if omitted and no symbols are passed, screen --universe")
     parser.add_argument("--universe", choices=["liquid", "broad"], default="liquid", help="Use familiar liquid options names or the broad common-stock market")
     parser.add_argument("--mode", choices=["invest", "trade"], default="trade", help="Use trade for short-term catalyst-backed setups or invest for longer-term scoring")

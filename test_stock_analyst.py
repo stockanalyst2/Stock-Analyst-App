@@ -381,6 +381,20 @@ class StockAnalystTests(unittest.TestCase):
         self.assertTrue(args.serve)
         self.assertEqual(args.port, 8765)
 
+    def test_literal_render_port_token_is_accepted(self):
+        original_port = stock_analyst.os.environ.get("PORT")
+        try:
+            stock_analyst.os.environ["PORT"] = "12345"
+            args = stock_analyst.parse_args(["--serve", "--port", "$PORT"])
+            self.assertEqual(args.port, 12345)
+            args = stock_analyst.parse_args(["--serve", "--port", "${PORT}"])
+            self.assertEqual(args.port, 12345)
+        finally:
+            if original_port is None:
+                stock_analyst.os.environ.pop("PORT", None)
+            else:
+                stock_analyst.os.environ["PORT"] = original_port
+
     def test_on_demand_symbol_validation(self):
         self.assertEqual(stock_analyst.normalize_on_demand_symbol("brk.b"), "BRK.B")
         with self.assertRaises(ValueError):
