@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python3 stock_analyst.py --serve --host 0.0.0.0"
+    startCommand: "python3 stock_analyst.py --serve --host 0.0.0.0 --port $PORT"
     healthCheckPath: /healthz
     envVars:
       - key: STOCK_ANALYST_PASSWORD

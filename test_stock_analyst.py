@@ -1245,6 +1245,76 @@ class StockAnalystTests(unittest.TestCase):
         self.assertLess(stock_analyst.real_money_trader_judgment(item, brief)["score"], 62)
         self.assertFalse(stock_analyst.is_final_trade_candidate(item))
 
+    def test_watch_only_setup_can_still_enter_report(self):
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=60,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=0.12,
+            return_6m=0.05,
+            return_3m=0.03,
+            volatility=0.3,
+            max_drawdown=-0.12,
+            sharpe_like=None,
+            rsi=50,
+            sma_50=98,
+            sma_200=90,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_direction="CALL",
+        )
+        item.trade_brief = stock_analyst.TradeBrief(
+            thesis="watch setup",
+            pattern="base",
+            pattern_status="forming",
+            confirmation_level=101,
+            measured_move=106,
+            invalidation=96,
+            stop_loss=96,
+            target_1=104,
+            target_2=108,
+            target_3=112,
+            risk_reward=1.0,
+            market_structure="mixed",
+            timeframe_supporting=[],
+            timeframe_opposing=[],
+            alignment_score=55,
+            indicator_analysis="mixed",
+            volume_analysis="mixed",
+            relative_strength="mixed",
+            support_resistance="mixed",
+            volume_profile="mixed",
+            liquidity_analysis="usable",
+            options_flow="unknown",
+            order_flow="unknown",
+            catalyst_analysis="mixed",
+            market_environment="mixed",
+            event_risk="normal",
+            bull_case="",
+            base_case="",
+            bear_case="",
+            confidence_score=55,
+            setup_grade="C",
+            take_reasons=[],
+            avoid_reasons=[],
+            final_recommendation="Watch only",
+        )
+
+        with mock.patch("stock_analyst.entry_status", return_value=("Watch only", "not ready")), \
+            mock.patch("stock_analyst.analyst_stance", return_value="Watch only"):
+            self.assertTrue(stock_analyst.is_report_candidate(item))
+            self.assertFalse(stock_analyst.is_final_trade_candidate(item))
+
     def test_entry_status_confirms_when_trigger_quality_aligns(self):
         item = stock_analyst.Analysis(
             symbol="TEST",

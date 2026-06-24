@@ -6053,6 +6053,19 @@ def is_final_trade_candidate(item: Analysis) -> bool:
     return not bool(judgment.get("veto")) and float(judgment.get("score") or 0.0) >= 62.0
 
 
+def is_report_candidate(item: Analysis) -> bool:
+    brief = item.trade_brief
+    if brief is None:
+        return False
+    status, _detail = entry_status(item, brief)
+    if status in {"Avoid / invalidated", "No trade"}:
+        return False
+    stance = analyst_stance(item, brief)
+    if stance.startswith("Pass"):
+        return False
+    return status in {"Watch only", "Trigger forming", "Starter entry active", "Confirmed entry"}
+
+
 def entry_status(item: Analysis, brief: TradeBrief | None) -> tuple[str, str]:
     if brief is None:
         return "No trade", "Trade brief is unavailable, so entry cannot be evaluated."
@@ -8329,10 +8342,10 @@ def run(args: argparse.Namespace) -> int:
             trader_score = float(real_money_trader_judgment(item, item.trade_brief)["score"])
             item.final_trade_score = min(item.trade_brief.confidence_score, trader_score)
         before = min(len(results), args.limit)
-        results = [item for item in results[: args.limit] if is_final_trade_candidate(item)]
+        results = [item for item in results[: args.limit] if is_report_candidate(item)]
         removed = before - len(results)
         if removed:
-            print(f"Filtered out {removed} setups that failed the final real-money quality screen.")
+            print(f"Filtered out {removed} setups that were not report-worthy after the final quality screen.")
         results.sort(key=lambda item: rank_score(item, args.mode), reverse=True)
     print()
     print_table(results, args.limit)
