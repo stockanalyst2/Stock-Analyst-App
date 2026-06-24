@@ -30,6 +30,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
+from zoneinfo import ZoneInfo
 
 
 WATCHLISTS = {
@@ -6171,16 +6172,18 @@ def load_alert_state() -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return {"sent": [], "observed": {}}
+        return {"sent": [], "observed": {}, "heartbeat_dates": []}
     if not isinstance(payload, dict):
-        payload = {"sent": payload, "observed": {}}
+        payload = {"sent": payload, "observed": {}, "heartbeat_dates": []}
     sent = payload.get("sent") or []
     observed = payload.get("observed") or {}
+    heartbeat_dates = payload.get("heartbeat_dates") or []
     if not isinstance(observed, dict):
         observed = {}
     return {
         "sent": [str(key) for key in sent if str(key).strip()],
         "observed": {str(key): value for key, value in observed.items() if isinstance(value, dict)},
+        "heartbeat_dates": [str(value) for value in heartbeat_dates if str(value).strip()],
     }
 
 
@@ -6188,11 +6191,13 @@ def save_alert_state(state: dict[str, Any]) -> None:
     path = alert_state_path()
     sent = [str(key) for key in state.get("sent", []) if str(key).strip()]
     observed = state.get("observed") or {}
+    heartbeat_dates = [str(value) for value in state.get("heartbeat_dates", []) if str(value).strip()]
     path.write_text(
         json.dumps(
             {
                 "sent": sorted(set(sent))[-500:],
                 "observed": observed if isinstance(observed, dict) else {},
+                "heartbeat_dates": sorted(set(heartbeat_dates))[-30:],
             },
             indent=2,
         ),
@@ -6325,15 +6330,55 @@ def send_test_alert() -> bool:
 
 
 SCAN_LOCK = threading.Lock()
+MARKET_TIMEZONE = ZoneInfo("America/New_York")
+
+
+def market_now(now: dt.datetime | None = None) -> dt.datetime:
+    current = now or dt.datetime.now(dt.timezone.utc)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=dt.timezone.utc)
+    return current.astimezone(MARKET_TIMEZONE)
 
 
 def in_market_alert_window(now: dt.datetime | None = None) -> bool:
-    current = now or dt.datetime.now().astimezone()
+    current = market_now(now)
     if current.weekday() >= 5:
         return False
     start = current.replace(hour=9, minute=25, second=0, microsecond=0)
     end = current.replace(hour=16, minute=10, second=0, microsecond=0)
     return start <= current <= end
+
+
+def market_open_heartbeat_due(now: dt.datetime | None = None) -> bool:
+    current = market_now(now)
+    if current.weekday() >= 5:
+        return False
+    start = current.replace(hour=9, minute=30, second=0, microsecond=0)
+    end = current.replace(hour=9, minute=45, second=0, microsecond=0)
+    return start <= current <= end
+
+
+def send_market_open_heartbeat(now: dt.datetime | None = None) -> bool:
+    if not telegram_configured() or not market_open_heartbeat_due(now):
+        return False
+    current = market_now(now)
+    today = current.date().isoformat()
+    state = load_alert_state()
+    sent_dates = set(str(value) for value in state.get("heartbeat_dates", []))
+    if today in sent_dates:
+        return False
+    message = "Atlas online - market scan active"
+    try:
+        if not send_telegram_message(message):
+            return False
+    except Exception as exc:
+        print(f"Market-open heartbeat failed: {exc}", file=sys.stderr, flush=True)
+        return False
+    sent_dates.add(today)
+    state["heartbeat_dates"] = sorted(sent_dates)
+    save_alert_state(state)
+    print("Market-open heartbeat sent.", flush=True)
+    return True
 
 
 def auto_scan_minutes() -> int:
@@ -6374,6 +6419,7 @@ def run_scheduled_scan_once() -> None:
 def scheduled_scan_loop(minutes: int) -> None:
     while True:
         if in_market_alert_window():
+            send_market_open_heartbeat()
             run_scheduled_scan_once()
         time.sleep(max(60, minutes * 60))
 

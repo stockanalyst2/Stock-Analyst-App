@@ -1410,6 +1410,30 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.analyst_stance = original_stance
             stock_analyst.entry_status = original_status
 
+    def test_market_open_heartbeat_uses_new_york_time_window(self):
+        before_open = dt.datetime(2026, 6, 24, 13, 29, tzinfo=dt.timezone.utc)
+        at_open = dt.datetime(2026, 6, 24, 13, 30, tzinfo=dt.timezone.utc)
+        after_window = dt.datetime(2026, 6, 24, 13, 46, tzinfo=dt.timezone.utc)
+
+        self.assertFalse(stock_analyst.market_open_heartbeat_due(before_open))
+        self.assertTrue(stock_analyst.market_open_heartbeat_due(at_open))
+        self.assertFalse(stock_analyst.market_open_heartbeat_due(after_window))
+
+    def test_market_open_heartbeat_sends_once_per_day(self):
+        send_time = dt.datetime(2026, 6, 24, 13, 31, tzinfo=dt.timezone.utc)
+        state: dict[str, object] = {"sent": [], "observed": {}, "heartbeat_dates": []}
+        sent_messages: list[str] = []
+
+        with mock.patch("stock_analyst.telegram_configured", return_value=True), \
+            mock.patch("stock_analyst.load_alert_state", side_effect=lambda: dict(state)), \
+            mock.patch("stock_analyst.save_alert_state", side_effect=lambda payload: state.update(payload)), \
+            mock.patch("stock_analyst.send_telegram_message", side_effect=lambda message: sent_messages.append(message) or True):
+            self.assertTrue(stock_analyst.send_market_open_heartbeat(send_time))
+            self.assertFalse(stock_analyst.send_market_open_heartbeat(send_time))
+
+        self.assertEqual(sent_messages, ["Atlas online - market scan active"])
+        self.assertEqual(state["heartbeat_dates"], ["2026-06-24"])
+
 
 if __name__ == "__main__":
     unittest.main()
