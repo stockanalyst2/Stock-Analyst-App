@@ -8477,7 +8477,10 @@ def report_dashboard_html() -> str:
       text-shadow: 0 0 14px rgba(255, 77, 77, .28);
     }}
     @media (max-width: 560px) {{
-      main {{ padding: 30px; }}
+      main {{
+        align-items: flex-start;
+        padding: max(96px, 14vh) 30px 30px;
+      }}
       .shell {{ gap: 22px; }}
       .wordmark-image {{ width: min(100%, 560px); margin-bottom: 28px; }}
       .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
