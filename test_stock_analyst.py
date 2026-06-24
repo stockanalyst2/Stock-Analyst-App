@@ -1354,7 +1354,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertEqual(status, "Avoid / invalidated")
         self.assertIn("vetoed", detail)
 
-    def test_alert_candidates_require_watch_to_entry_transition(self):
+    def test_alert_candidates_notify_new_report_additions(self):
         item = stock_analyst.Analysis(
             symbol="TEST",
             name="Test Co",
@@ -1385,10 +1385,14 @@ class StockAnalystTests(unittest.TestCase):
         original_stance = stock_analyst.analyst_stance
         original_status = stock_analyst.entry_status
         try:
-            stock_analyst.analyst_stance = lambda _item, _brief: "Actionable on trigger"
-            stock_analyst.entry_status = lambda _item, _brief: ("Confirmed entry", "aligned")
+            stock_analyst.analyst_stance = lambda _item, _brief: "Watch only"
+            stock_analyst.entry_status = lambda _item, _brief: ("Trigger forming", "aligned")
 
-            self.assertEqual(stock_analyst.alert_candidates_from_transitions([item], {}), [])
+            candidates = stock_analyst.alert_candidates_from_transitions([item], {})
+            self.assertEqual(candidates, [(item, "Watch only", "Trigger forming")])
+            self.assertEqual(stock_analyst.format_trade_alert(item, "Watch only", "Trigger forming", "stock_report.html"), "TEST added to report (Watch only)")
+            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Starter entry active", "stock_report.html"), "TEST added to report (Potential entry)")
+            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Confirmed entry", "stock_report.html"), "TEST added to report (Enter now)")
 
             prior = {
                 "TEST:CALL": {
@@ -1398,9 +1402,7 @@ class StockAnalystTests(unittest.TestCase):
                     "status": "Trigger forming",
                 }
             }
-            candidates = stock_analyst.alert_candidates_from_transitions([item], prior)
-
-            self.assertEqual(candidates, [(item, "Actionable on trigger", "Confirmed entry")])
+            self.assertEqual(stock_analyst.alert_candidates_from_transitions([item], prior), [])
         finally:
             stock_analyst.analyst_stance = original_stance
             stock_analyst.entry_status = original_status

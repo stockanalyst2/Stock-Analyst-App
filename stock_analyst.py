@@ -6259,12 +6259,8 @@ def report_public_url(output: Path | str) -> str:
 
 
 def alert_key(item: Analysis, stance: str) -> str:
-    option = item.option
-    option_key = "-"
-    if option:
-        option_key = f"{option.expiration.isoformat()}:{option.strike:.2f}:{option.side}"
     today = dt.datetime.now().astimezone().date().isoformat()
-    return f"{today}:{item.symbol}:{item.setup_direction}:{stance}:{option_key}"
+    return f"{today}:report-add:{item.symbol}:{item.setup_direction or '-'}"
 
 
 def observed_alert_key(item: Analysis) -> str:
@@ -6315,40 +6311,34 @@ def alert_candidates_from_transitions(
         brief = item.trade_brief
         stance = analyst_stance(item, brief)
         status, _detail = entry_status(item, brief)
-        if stance.startswith("Pass") or not is_enter_now_state(stance, status):
-            continue
         prior = previous.get(observed_alert_key(item))
         if not prior:
-            continue
-        prior_stance = str(prior.get("stance") or "")
-        prior_status = str(prior.get("status") or "")
-        if is_watch_or_wait_state(prior_stance, prior_status):
             candidates.append((item, stance, status))
     limit = max(1, int(os.environ.get("STOCK_ANALYST_ALERT_LIMIT", "5") or "5"))
     return candidates[:limit]
 
 
+def alert_notification_label(stance: str, status: str) -> str:
+    if status == "Confirmed entry":
+        return "Enter now"
+    if status == "Starter entry active":
+        return "Potential entry"
+    if stance.startswith("Watch"):
+        return "Watch only"
+    if stance.startswith("Wait"):
+        return "Wait"
+    if stance.startswith("Early watch"):
+        return "Early watch"
+    if stance.startswith("Actionable"):
+        return "Actionable on trigger"
+    if status:
+        return status
+    return stance or "Added"
+
+
 def format_trade_alert(item: Analysis, stance: str, status: str, report_url: str) -> str:
-    option = item.option
-    option_line = "Option: verify chain manually"
-    if option:
-        bid_ask = format_bid_ask(option)
-        option_line = f"Option: {option.side} {option.strike:g} exp {option.expiration.isoformat()} bid/ask {bid_ask}"
-    grade = item.trade_brief.setup_grade if item.trade_brief else score_grade(rank_score(item, "trade"))
-    company = display_company_name(item.symbol, item.name)
-    return "\n".join(
-        [
-            f"ENTER NOW alert: {item.symbol} {item.setup_direction or ''}".strip(),
-            company,
-            f"Grade: {grade}",
-            f"Stance: {stance}",
-            f"Entry status: {status}",
-            f"Price: ${item.price:.2f}",
-            option_line,
-            f"Report: {report_url}",
-            "Manual execution only. Confirm trigger and limit price in Robinhood before placing anything.",
-        ]
-    )
+    label = alert_notification_label(stance, status)
+    return f"{item.symbol} added to report ({label})"
 
 
 def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
@@ -6378,9 +6368,9 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
 def send_test_alert() -> bool:
     generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
     return send_telegram_message(
-        "Stock Analyst test alert\n"
+        "Atlas test alert\n"
         f"Time: {generated}\n"
-        "If you got this, phone notifications are connected. Trade alerts only send when a watched/waiting setup upgrades into an entry condition."
+        "If you got this, phone notifications are connected. Atlas will notify when a new ticker is added to the final report."
     )
 
 
