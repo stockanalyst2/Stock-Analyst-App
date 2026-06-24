@@ -5669,26 +5669,11 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-title a {{ color: #eeeeee; text-decoration: none; }}
     .headline-title a:hover {{ text-decoration: underline; }}
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
-    .chart-card {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }}
-    .chart-section {{ min-width: 0; }}
-    .chart-section + .chart-section {{ margin-top: 0; }}
-    .chart-head {{ display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }}
-    .chart-title {{ margin: 0 0 10px; color: #eeeeee; font-size: 13px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
-    .chart-meta {{ font-size: 12px; color: #9b9b9b; }}
-    .chart-svg {{ width: 100%; height: 430px; display: block; cursor: zoom-in; border: 1px solid #202020; border-radius: 8px; background: #050505; }}
-    .plotly-chart {{ width: 100%; height: 430px; cursor: zoom-in; border: 1px solid #202020; border-radius: 8px; background: #050505; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
-    .modal {{ position: fixed; inset: 0; z-index: 30; display: none; align-items: center; justify-content: center; padding: 22px; background: rgba(0, 0, 0, .82); }}
-    .modal.is-open {{ display: flex; }}
-    .modal-panel {{ width: min(1120px, 96vw); max-height: 92vh; overflow: auto; border: 1px solid #333333; border-radius: 8px; background: #0b0b0b; padding: 14px; box-shadow: 0 28px 80px rgba(0, 0, 0, .6); }}
-    .modal-head {{ display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; color: #eeeeee; font-weight: 800; }}
-    .modal-close {{ border: 1px solid #333333; border-radius: 999px; background: #171717; color: #eeeeee; padding: 6px 10px; cursor: pointer; }}
-    .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 680px; cursor: default; }}
-    @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} .chart-card {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 26px 14px 44px; }} .report-hero {{ gap: 12px; }} .report-logo {{ width: min(300px, 78vw); }} .report-subtitle {{ font-size: 10px; letter-spacing: .11em; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-summary {{ padding: 17px 14px; }} .setup-top {{ padding: 18px 14px 22px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} .chart-svg, .plotly-chart {{ height: 320px; }} .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 420px; }} }}
+    @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 26px 14px 44px; }} .report-hero {{ gap: 12px; }} .report-logo {{ width: min(300px, 78vw); }} .report-subtitle {{ font-size: 10px; letter-spacing: .11em; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-summary {{ padding: 17px 14px; }} .setup-top {{ padding: 18px 14px 22px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
     @media (max-width: 520px) {{ .setup-summary-main {{ align-items: flex-start; }} .direction {{ margin-top: 1px; }} .vital-grid {{ grid-template-columns: 1fr; }} .setup-summary-actions {{ align-self: flex-start; }} }}
   </style>
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 </head>
 <body>
   <main>
@@ -5715,20 +5700,8 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     {failed_html}
     <p class="small">Atlas is a screening tool, not personalized financial advice. It prioritizes real backing behind a move: company headlines, major market/geopolitical news, catalyst strength, liquidity, options availability, and chart context. Price data and headlines are fetched at run time and may be delayed or unavailable.</p>
   </main>
-  <div class="modal" id="chartModal" aria-hidden="true">
-    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <div id="modalTitle">Chart preview</div>
-        <button type="button" class="modal-close" id="modalClose">Close</button>
-      </div>
-      <div class="modal-chart" id="modalChart"></div>
-    </div>
-  </div>
   <script>
     const cards = Array.from(document.querySelectorAll('.setup-card'));
-    const chartModal = document.getElementById('chartModal');
-    const modalChart = document.getElementById('modalChart');
-    const modalTitle = document.getElementById('modalTitle');
 
     function setCollapsed(card, collapsed) {{
       card.classList.toggle('is-collapsed', collapsed);
@@ -5750,33 +5723,11 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
         setCollapsed(card, !card.classList.contains('is-collapsed'));
         return;
       }}
-      const chart = event.target.closest('.chart-svg, .plotly-chart');
-      if (chart) {{
-        const card = chart.closest('.setup-card');
-        const title = card ? `${{card.dataset.symbol}} ${{card.dataset.direction}} chart` : 'Chart preview';
-        modalTitle.textContent = title;
-        modalChart.replaceChildren(chart.cloneNode(true));
-        chartModal.classList.add('is-open');
-        chartModal.setAttribute('aria-hidden', 'false');
-        const clonedPlot = modalChart.querySelector('.plotly-chart');
-        if (clonedPlot && window.Plotly && chart.dataset.plotlyPayload) {{
-          const payload = JSON.parse(chart.dataset.plotlyPayload);
-          Plotly.newPlot(clonedPlot, payload.data, payload.layout, payload.config);
-        }}
-      }}
-    }});
-
-    function closeModal() {{
-      chartModal.classList.remove('is-open');
-      chartModal.setAttribute('aria-hidden', 'true');
-      modalChart.replaceChildren();
-    }}
-    document.getElementById('modalClose').addEventListener('click', closeModal);
-    chartModal.addEventListener('click', (event) => {{
-      if (event.target === chartModal) closeModal();
     }});
     document.addEventListener('keydown', (event) => {{
-      if (event.key === 'Escape') closeModal();
+      if (event.key === 'Escape') {{
+        for (const card of cards) setCollapsed(card, true);
+      }}
     }});
   </script>
 </body>
@@ -5818,7 +5769,6 @@ def report_block(rank: int, item: Analysis) -> str:
   <div class="setup-body">
     <div class="setup-top">
       {detail_panel(rank, item)}
-      {chart_card(rank, item)}
     </div>
   </div>
 </article>"""
