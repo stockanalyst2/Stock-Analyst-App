@@ -43,6 +43,7 @@
     .setup-body { border-top: 0; }
     .setup-top { display: grid; grid-template-columns: 1fr; gap: 28px; padding: 26px 22px 30px; align-items: start; }
     .setup-details { display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: 18px; align-content: start; }
+    .watchlist-preview { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .setup-heading, .setup-actions { display: none; }
     .toggle-card { border: 1px solid #3a3a3a; border-radius: 999px; padding: 7px 12px; background: #050505; color: #d0d0d0; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: .12em; }
     .toggle-card:hover { border-color: #777777; background: #101010; }
@@ -71,6 +72,8 @@
     .theme-body p:last-child { margin-bottom: 0; }
     .theme-body ul { margin: 0; padding-left: 17px; }
     .theme-body li + li { margin-top: 5px; }
+    .read-more-link { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; padding: 0 16px; text-decoration: none; justify-self: start; }
+    .read-more-link:hover { border-color: #777777; background: #101010; }
     .option-plan { color: #d0d0d0; line-height: 1.4; }
     .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
     .detail { border: 1px solid #242424; border-radius: 8px; padding: 13px; background: #030303; }
@@ -115,19 +118,26 @@
   <main>
     <h1>Current Watchlist</h1>
     
+    <section class="macro-banner" aria-label="Critical macro override">
+      <div class="macro-banner-kicker">Critical macro override</div>
+      <div class="macro-banner-title">Iran/oil risk-off shock</div>
+      <p>Iran imposes mandatory insurance on ships transiting Strait of Hormuz, with fees likely to follow - Lloyd&#x27;s List</p>
+      <p>The scanner is treating this as a risk-off oil shock. Normal CALL setups are downgraded unless they show unusually strong relative strength and catalyst support; energy CALLs and non-energy PUTs receive more favorable macro treatment. This is the kind of market-wide event that can override a clean chart.</p>
+    </section>
+    
     <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
     </section>
     <section class="setups">
-      <article class="setup-card is-collapsed" data-symbol="SHOP" data-grade="C" data-direction="CALL" data-search="shop shopify inc. call c watch reversal controlled 5-day dip rsi washed out but not broken reversal volume present falling wedge compression is shopify (shop) one of the most promising long-term stocks to buy according to analysts? shop vs. wix: which e-commerce stock is in a better position now? shopify moves toward vape ban opendoor is cutting nearly 250 positions in india as it builds leaner ai-driven teams in america. what this means for open stock. cloudflare collaborates with leading browsers to develop a privacy-first protocol for the global internet catalyst summary / research brief: after reviewing finance, fool, mediapost, the story around shop is mainly about shopify moves toward vape ban. the ai/cloud angle comes down to monetization versus capex drag. main themes: new product or platform activity, ai strategy, spending, or demand. my read: ai/cloud monetization versus capex risk. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
+      <article class="setup-card is-collapsed" data-symbol="GE" data-grade="C" data-direction="PUT" data-search="ge ge aerospace put c a reversal controlled 5-day spike meaningful 20-day runup near 20-day resistance zone stretched above 20-day mean stretched above 50-day mean rejection volume present near major 252-day resistance 15m trend rejection wolfspeed stock jumps as ai and ge aerospace deals stoke momentum - stockstotrade ge aerospace taps us china deal for long term engine revenue - yahoo finance ge aerospace stock at $292: iran conflict compressed the multiple but overvaluation persists - tikr.com lightning round: buy ge aerospace, says jim cramer - cnbc cramer&#x27;s lightning round: buy ge aerospace - cnbc catalyst summary / research brief: after reviewing bloomberg, cnbc, the story around ge is mainly about ge aerospace tops profit estimates, plans $7 billion buyback. estimate, margin, and guidance sensitivity are in play. macro/geopolitical stress is active in the tape and can override single-name strength. main themes: earnings, guidance, or margin pressure, middle east or geopolitical risk, trade-policy or supply-chain pressure. my read: fresh earnings/guidance pressure on the forward estimate path, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. for ge, the key read is whether it changes orders, backlog, defense/aerospace demand, input costs, or delivery timelines. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape, rates and inflation expectations remain part of the market backdrop, trade-policy and supply-chain risk can still pressure sentiment, and ai and data-center spending remain major drivers of risk appetite. most relevant current item: treasury yields, dollar rise on war rhetoric, u.s. data -- market talk - moomoo. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
-        <div class="summary-symbol">SHOP</div>
-        <div class="summary-company">Shopify Inc.</div>
+        <div class="summary-symbol">GE</div>
+        <div class="summary-company">GE Aerospace</div>
       </div>
-      <div class="direction call">CALL</div>
+      <div class="direction put">PUT</div>
     </div>
     <div class="setup-summary-actions">
       <button type="button" class="toggle-card">Expand</button>
@@ -135,75 +145,28 @@
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Watch</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$107.68</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-26</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Definitive falling wedge</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $101.81-$104.16 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (107.98) and 111.58 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $101.81 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 111.71 underlying.</li><li>Risk line: control risk around 100.44; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 100.44.</li></ul></div>
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>GE is on the watchlist as a PUT idea because Atlas found a a reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Watch only - option spread is the issue. The useful part of the setup is this: controlled 5-day spike; meaningful 20-day runup; near 20-day resistance zone; stretched above 20-day mean. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
   </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (60/100). Expiration is too close for the short-swing plan Risk/reward is extremely poor; the trade needs a much better entry. Multiple higher/lower timeframes are fighting the trade.</p></div>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>StocksToTrade: Wolfspeed Stock Jumps As AI And GE Aerospace Deals Stoke Momentum - StocksToTrade</li><li>Yahoo Finance: GE Aerospace Taps US China Deal For Long Term Engine Revenue - Yahoo Finance</li><li>TIKR.com: GE Aerospace Stock at $292: Iran Conflict Compressed the Multiple but Overvaluation Persists - TIKR.com</li><li>Bloomberg: GE Aerospace Tops Profit Estimates, Plans $7 Billion Buyback - Bloomberg.com</li><li>Bloomberg: GE Aerospace Outlook Outpaces Estimates on Resilient Air Travel - Bloomberg.com</li></ul></div>
   </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors PUT at 67/100 using available data only. Confidence is 50/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: PUT</li><li>Call score: 63/100</li><li>Put score: 67/100</li><li>Confidence: 50/100</li></ul><p>Bullish evidence: controlled 5-day dip; RSI washed out but not broken; reversal volume present; Strong catalyst alignment; Contract volume is active versus open interest.</p><p>Bearish evidence: Price is below falling intermediate/long-term moving averages.</p><p>Risk factors: Expiration is too close for the short-swing plan; Realized volatility is elevated enough to increase whipsaw risk; Sector benchmark unavailable; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>LEGAL_REGULATORY / BEARISH: Shopify Moves Toward Vape Ban (confidence 66, novelty 65, urgency 70). Transmission: legal/regulatory event -&gt; risk premium -&gt; earnings uncertainty -&gt; SHOP</li><li>PRODUCT_TECH / BULLISH: Loox launches Reviewers.com, the first product sampling platform built exclusively for Shopify brands (confidence 64, novelty 55, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SHOP</li><li>PRODUCT_TECH / BULLISH: What Shopify (SHOP)&#x27;s US$5 Billion Buyback and AI Commerce Push Means For Shareholders (confidence 63, novelty 50, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SHOP</li><li>PRODUCT_TECH / BULLISH: Shopify (SHOP) Backs Management At 2026 Meeting As Shareholders Reject AI Policy (confidence 61, novelty 45, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SHOP</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 6.0%</li><li>Current implied move: 1.4%</li><li>Estimated edge: 3.5%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is useful but not dominant. It gives the setup a reason to stay on watch, but it is not strong enough for me to ignore a bad entry. Catalyst summary / research brief: After reviewing Finance, Fool, Mediapost, the story around SHOP is mainly about Shopify Moves Toward Vape Ban. The AI/cloud angle comes down to monetization versus capex drag. Main themes: new product or platform activity, AI strategy, spending, or demand. My read: AI/cloud monetization versus capex risk. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 0.56:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Definitive falling wedge. mixed structure. controlled 5-day dip; RSI washed out but not broken; reversal volume present; falling wedge compression</p><p>Key evidence: controlled 5-day dip; RSI washed out but not broken; reversal volume present; falling wedge compression</p><p>Supporting timeframes: Weekly bullish. Opposing timeframes: Monthly bearish, Daily bearish, 15m bearish</p><p>Support/resistance read: Key 20-session support is near $102.32; key 20-session resistance is near $124.62. Wider 60-session range is $94.00 to $137.30. Target 1 is 111.71, Target 2 is 115.74, Target 3 is 119.77, and invalidation is near 100.44.</p></div>
-  </details>
-</div>
+  <a class="read-more-link" href="stock_detail_GE.html">Read More</a>
 </section>
     </div>
   </div>
 </article>
-<article class="setup-card is-collapsed" data-symbol="AMZN" data-grade="C" data-direction="CALL" data-search="amzn amazon.com, inc. call c a reversal controlled 5-day dip meaningful 20-day pullback rsi washed out but not broken near 20-day support zone above 200-day trend green reversal day reversal volume present amazon: i&#x27;m buying the free cash flow collapse - seeking alpha amazon: you aren&#x27;t bullish enough - seeking alpha amazon.com (amzn) is down 5.4% after $10 billion missouri ai data center bet - has the bull case changed? - simplywall.st amazon.com (amzn) gains 3% after announcing $10 billion missouri data center investment - yahoo finance forget amd: amazon declares war on nvidia by selling its own ai chips - 24/7 wall st. catalyst summary / research brief: after reviewing 24/7 wall st., cnbc, finance, fool, retail insight network, seeking alpha, the story around amzn is mainly about corning shares jump 4% after company strikes deal to power amazon ai data centers in u.s. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. macro/geopolitical stress is active in the tape and can override single-name strength. main themes: deal, contract, or licensing activity, ai strategy, spending, or demand, cloud or data-center demand, chip-sector momentum, middle east or geopolitical risk. my read: ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and deal/contract visibility around demand, backlog, or strategic validation, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. for amzn, the key read is whether it changes consumer demand, pricing power, margin pressure, or discretionary spending. macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and ai and data-center spending remain major drivers of risk appetite. most relevant current item: when trade policy turns contentious: tariffs, currency devaluation, and other trade barriers - britannica. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
+<article class="setup-card is-collapsed" data-symbol="AMD" data-grade="C" data-direction="PUT" data-search="amd advanced micro devices, inc. put c watch reversal controlled 5-day spike stretched above 50-day mean red rejection day rising wedge compression chip stocks surge after-hours on micron’s record quarter the real price of broadcom stock is hidden two years out arm holdings vs advanced micro devices: one winner of the ai data center showdown micron, alphabet, builders firstsource, sunrun, wendy’s, and more stocks that explain today’s market 5-star analyst sets jaw-dropping amd stock price target catalyst summary / research brief: after reviewing 247wallst, finance, tradingview, the story around amd is mainly about ai chip stocks stage rebound: nvidia, amd lead recovery ahead of micron earnings shock. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. main themes: earnings, guidance, or margin pressure, ai strategy, spending, or demand, cloud or data-center demand, chip-sector momentum, trade-policy or supply-chain pressure. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta. for amd, the key read is whether investors see the story as durable growth or as a spending/valuation risk. macro/geopolitical overlay: rates and inflation expectations remain part of the market backdrop, trade-policy and supply-chain risk can still pressure sentiment, and ai and data-center spending remain major drivers of risk appetite. most relevant current item: dow jones futures rise as micron jumps on earnings, lifting sandisk, ai stocks; fed inflation data due. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
-        <div class="summary-symbol">AMZN</div>
-        <div class="summary-company">Amazon.com, Inc.</div>
+        <div class="summary-symbol">AMD</div>
+        <div class="summary-company">Advanced Micro Devices, Inc.</div>
       </div>
-      <div class="direction call">CALL</div>
+      <div class="direction put">PUT</div>
     </div>
     <div class="setup-summary-actions">
       <button type="button" class="toggle-card">Expand</button>
@@ -211,75 +174,28 @@
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Starter entry active</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$234.11</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-29</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Support reclaim / double-bottom candidate</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Starter entry active. Price is near the intended starter zone; use the listed confirmation rules and size smaller.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $231.08-$236.42 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (232.79) and 245.73 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $231.08 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 240.29 underlying.</li><li>Risk line: control risk around 229.36; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 229.36.</li></ul></div>
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>AMD is on the watchlist as a PUT idea because Atlas found a watch reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Early watch - needs a better entry. The useful part of the setup is this: controlled 5-day spike; stretched above 50-day mean; red rejection day; rising wedge compression. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
   </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Real-money acceptable on trigger (80/100). Expiration is too close for the short-swing plan Risk/reward is below the preferred 2:1 threshold. Multiple higher/lower timeframes are fighting the trade.</p></div>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>247Wallst: Arm Holdings vs Advanced Micro Devices: One Winner of The AI Data Center Showdown</li><li>Finance: AI Chip Stocks Stage Rebound: Nvidia, AMD Lead Recovery Ahead of Micron Earnings Shock</li><li>Finance: AMD Gets a Big Agentic AI Boost</li><li>Finance: AMD and Arm Emerge as Key Winners in the Next AI Wave</li><li>Finance: Dow Jones Futures Rise As Micron Jumps On Earnings, Lifting Sandisk, AI Stocks; Fed Inflation Data Due</li></ul></div>
   </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 88/100 using available data only. Confidence is 61/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 88/100</li><li>Put score: 64/100</li><li>Confidence: 61/100</li></ul><p>Bullish evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; Strong catalyst alignment; Contract volume is active versus open interest.</p><p>Bearish evidence: 20-day relative trend is negative.</p><p>Risk factors: Expiration is too close for the short-swing plan; Sector benchmark data unavailable for XLY; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation; Implied volatility.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>CONTRACT_WIN / BULLISH: Corning shares jump 4% after company strikes deal to power Amazon AI data centers in U.S. - CNBC (confidence 72, novelty 45, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; AMZN</li><li>PRODUCT_TECH / BULLISH: Amazon.com (AMZN) Is Down 5.4% After $10 Billion Missouri AI Data Center Bet - Has The Bull Case Changed? - simplywall.st (confidence 66, novelty 65, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; AMZN</li><li>PRODUCT_TECH / BULLISH: Amazon.com (AMZN) Gains 3% After Announcing $10 Billion Missouri Data Center Investment - Yahoo Finance (confidence 64, novelty 55, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; AMZN</li><li>PRODUCT_TECH / BULLISH: Forget AMD: Amazon Declares War on Nvidia by Selling Its Own AI Chips - 24/7 Wall St. (confidence 63, novelty 50, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; AMZN</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 5.0%</li><li>Current implied move: 0.8%</li><li>Estimated edge: 3.4%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing 24/7 Wall St., CNBC, Finance, Fool, Retail Insight Network, Seeking Alpha, the story around AMZN is mainly about Corning shares jump 4% after company strikes deal to power Amazon AI data centers in U.S. The AI/cloud angle comes down to monetization versus capex drag. The deal/customer-demand angle gives traders a concrete repricing hook around future revenue. Macro/geopolitical stress is active in the tape and can override single-name strength. Main themes: deal, contract, or licensing activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum, Middle East or geopolitical risk. My read: AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover, and deal/contract visibility around demand, backlog, or strategic validation, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. For AMZN, the key read is whether it changes consumer demand, pricing power, margin pressure, or discretionary spending. Macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and AI and data-center spending remain major drivers of risk appetite. Most relevant current item: When trade policy turns contentious: Tariffs, currency devaluation, and other trade barriers - Britannica. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 1.30:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Support reclaim / double-bottom candidate. lower highs and lower lows. controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; above 200-day trend; green reversal day; reversal volume present</p><p>Key evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; above 200-day trend</p><p>Supporting timeframes: Monthly bullish. Opposing timeframes: Weekly bearish, Daily bearish, 15m bearish</p><p>Support/resistance read: Key 20-session support is near $232.24; key 20-session resistance is near $274.75. Wider 60-session range is $199.14 to $278.56. Target 1 is 240.29, Target 2 is 246.47, Target 3 is 252.66, and invalidation is near 229.36.</p></div>
-  </details>
-</div>
+  <a class="read-more-link" href="stock_detail_AMD.html">Read More</a>
 </section>
     </div>
   </div>
 </article>
-<article class="setup-card is-collapsed" data-symbol="AAPL" data-grade="C" data-direction="CALL" data-search="aapl apple inc. call c b reversal meaningful 20-day pullback rsi washed out but not broken near 20-day support zone near 50-day mean support above 200-day trend apple stock polishing new buy zone with all-time high in sight uk tribunal greenlights $4bn class action over apple icloud google-parent alphabet to join dow jones industrial average, replacing verizon 2 unpopular stocks that deserve a second chance and 1 facing headwinds big tech&#x27;s $2.7 trillion ai bill comes due: chart of the day catalyst summary / research brief: after reviewing 247wallst, finance, fool, stocktwits, thestreet, trefis, the story around aapl is mainly about bank of america resets apple stock forecast after siri ai shift. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. main themes: deal, contract, or licensing activity, ai strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. my read: ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and deal/contract visibility around demand, backlog, or strategic validation. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
+<article class="setup-card is-collapsed" data-symbol="ABNB" data-grade="C" data-direction="PUT" data-search="abnb airbnb, inc. put c a reversal controlled 5-day spike meaningful 20-day runup rsi elevated but not euphoric near 20-day resistance zone stretched above 20-day mean near major 252-day resistance 15m trend rejection 15m lower-high confirmation abnb.ar | airbnb inc. cedear stock price, quotes and news - wsj airbnb stock surges after earnings beat. it wants to be the amazon of travel. - barron&#x27;s airbnb shares pop 15% on better-than-expected earnings and revenue - cnbc airbnb (abnb) gives modest summer outlook, warns growth may not keep up - bloomberg.com airbnb issues disappointing revenue guidance for second quarter - cnbc catalyst summary / research brief: after reviewing barchart.com, barron&#x27;s, benzinga, bloomberg, cnbc, finance, the story around abnb is mainly about airbnb stock surges after earnings beat. it wants to be the amazon of travel. - barron&#x27;s. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. macro/geopolitical stress is active in the tape and can override single-name strength. main themes: earnings, guidance, or margin pressure, ai strategy, spending, or demand, middle east or geopolitical risk, short-term momentum from recent news flow. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. for abnb, the key read is whether it changes consumer demand, pricing power, margin pressure, or discretionary spending. macro/geopolitical overlay: rates and inflation expectations remain part of the market backdrop, trade-policy and supply-chain risk can still pressure sentiment, and ai and data-center spending remain major drivers of risk appetite. most relevant current item: dow jones futures rise as micron jumps on earnings, lifting sandisk, ai stocks; fed inflation data due. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
-        <div class="summary-symbol">AAPL</div>
-        <div class="summary-company">Apple Inc.</div>
+        <div class="summary-symbol">ABNB</div>
+        <div class="summary-company">Airbnb, Inc.</div>
       </div>
-      <div class="direction call">CALL</div>
+      <div class="direction put">PUT</div>
     </div>
     <div class="setup-summary-actions">
       <button type="button" class="toggle-card">Expand</button>
@@ -287,75 +203,28 @@
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$294.30</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-29</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Support reclaim / double-bottom candidate</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $285.94-$292.55 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (297.01) and 302.42 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $285.94 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 300.26 underlying.</li><li>Risk line: control risk around 284.60; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 284.60.</li></ul></div>
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>ABNB is on the watchlist as a PUT idea because Atlas found a a reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Watch only - option spread is the issue. The useful part of the setup is this: controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
   </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (58/100). Expiration is too close for the short-swing plan Risk/reward is weak enough that I would not chase it. Volume confirmation is light, so follow-through is less trustworthy.</p></div>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>Barron&#x27;s: Airbnb Stock Surges After Earnings Beat. It Wants to Be the Amazon of Travel. - Barron&#x27;s</li><li>CNBC: Airbnb shares pop 15% on better-than-expected earnings and revenue - CNBC</li><li>CNBC: Airbnb issues disappointing revenue guidance for second quarter - CNBC</li><li>CNBC: Airbnb shares rise on revenue beat, stronger-than-expected forecast - CNBC</li><li>CNBC: Airbnb tops revenue estimates, but Middle East cancellations rise due to Iran war - CNBC</li></ul></div>
   </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 75/100 using available data only. Confidence is 55/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 75/100</li><li>Put score: 57/100</li><li>Confidence: 55/100</li></ul><p>Bullish evidence: meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; Price is above rising intermediate/long-term moving averages; Strong catalyst alignment.</p><p>Bearish evidence: none flagged.</p><p>Risk factors: Expiration is too close for the short-swing plan; Sector benchmark unavailable; Single-session option volume is high versus open interest, but persistence is unconfirmed; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>PRODUCT_TECH / BULLISH: UK tribunal greenlights $4bn class action over Apple iCloud (confidence 66, novelty 65, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; AAPL</li><li>PRODUCT_TECH / BULLISH: 1 Striking Reason This Trillion-Dollar Cloud Pioneer Is a Better Artificial Intelligence (AI) Buy Than Apple Right Now (confidence 64, novelty 55, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; AAPL</li><li>PRODUCT_TECH / BULLISH: BofA Says Apple’s (AAPL) New Siri Strategy Could Strengthen its AI Position (confidence 63, novelty 50, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; AAPL</li><li>EARNINGS_GUIDANCE / BULLISH: Bank of America resets Apple stock forecast after Siri AI shift (confidence 61, novelty 45, urgency 70). Transmission: earnings/guidance update -&gt; forward estimates -&gt; valuation/positioning -&gt; AAPL</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 3.9%</li><li>Current implied move: 0.5%</li><li>Estimated edge: 2.1%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing 247Wallst, Finance, Fool, Stocktwits, Thestreet, Trefis, the story around AAPL is mainly about Bank of America resets Apple stock forecast after Siri AI shift. The AI/cloud angle comes down to monetization versus capex drag. The deal/customer-demand angle gives traders a concrete repricing hook around future revenue. Main themes: deal, contract, or licensing activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover, and deal/contract visibility around demand, backlog, or strategic validation. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 0.61:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Support reclaim / double-bottom candidate. mixed structure. meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; near 50-day mean support; above 200-day trend</p><p>Key evidence: meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; near 50-day mean support; above 200-day trend</p><p>Supporting timeframes: Monthly bullish. Opposing timeframes: Weekly bearish, 15m bearish</p><p>Support/resistance read: Key 20-session support is near $287.38; key 20-session resistance is near $317.40. Wider 60-session range is $245.51 to $317.40. Target 1 is 300.26, Target 2 is 306.22, Target 3 is 312.18, and invalidation is near 284.60.</p></div>
-  </details>
-</div>
+  <a class="read-more-link" href="stock_detail_ABNB.html">Read More</a>
 </section>
     </div>
   </div>
 </article>
-<article class="setup-card is-collapsed" data-symbol="TSLA" data-grade="C" data-direction="CALL" data-search="tsla tesla, inc. call c b reversal controlled 5-day dip meaningful 20-day pullback rsi washed out but not broken near 20-day support zone elon musk loses trillionaire status as spacex stock falls forget wall street analysts: history says spacex will reach this price target within the next year spacex extends rebound as analysts highlight potential tesla tie-up (spcx) elon musk loses trillionaire status after wall street slump spacex stock, tesla woes cost elon musk his trillionaire status catalyst summary / research brief: after reviewing finance, fool, stocktwits, the story around tsla is mainly about natpower and tesla strike 25 gwh european battery storage deal. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. main themes: deal, contract, or licensing activity, ai strategy, spending, or demand, cloud or data-center demand, cost control or capital-spending concerns. my read: ai/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation. for tsla, the key read is whether it changes consumer demand, pricing power, margin pressure, or discretionary spending. macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and ai and data-center spending remain major drivers of risk appetite. most relevant current item: when trade policy turns contentious: tariffs, currency devaluation, and other trade barriers - britannica. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
+<article class="setup-card is-collapsed" data-symbol="MU" data-grade="C" data-direction="PUT" data-search="mu micron technology, inc. put c watch reversal controlled 5-day spike meaningful 20-day runup stretched above 50-day mean red rejection day bearish engulfing attempt chip stocks surge after-hours on micron’s record quarter dow jones futures rise as micron jumps on earnings, lifting sandisk, ai stocks; fed inflation data due the memory chip crunch is paying off for this u.s. company stock market today, june 24: micron surges after hours as nasdaq stems losses update: us equity indexes mixed as technology gives up intraday gains, crude oil sinks catalyst summary / research brief: after reviewing 247wallst, finance, proactiveinvestors, qz, stocktwits, tradingview, the story around mu is mainly about mu stock surges 11% after-hours - micron’s q3 revenue jumps 346% on incessant memory demand. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. main themes: earnings, guidance, or margin pressure, ai strategy, spending, or demand, chip-sector momentum, trade-policy or supply-chain pressure, rates and inflation expectations. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta. for mu, the key read is whether investors see the story as durable growth or as a spending/valuation risk. macro/geopolitical overlay: rates and inflation expectations remain part of the market backdrop, trade-policy and supply-chain risk can still pressure sentiment, and ai and data-center spending remain major drivers of risk appetite. most relevant current item: dow jones futures rise as micron jumps on earnings, lifting sandisk, ai stocks; fed inflation data due. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
-        <div class="summary-symbol">TSLA</div>
-        <div class="summary-company">Tesla, Inc.</div>
+        <div class="summary-symbol">MU</div>
+        <div class="summary-company">Micron Technology, Inc.</div>
       </div>
-      <div class="direction call">CALL</div>
+      <div class="direction put">PUT</div>
     </div>
     <div class="setup-summary-actions">
       <button type="button" class="toggle-card">Expand</button>
@@ -363,220 +232,21 @@
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Starter entry active</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$381.61</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-29</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Support reclaim / double-bottom candidate</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Starter entry active. Price is near the intended starter zone; use the listed confirmation rules and size smaller.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $378.25-$386.99 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (405.05) and 414.75 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $378.25 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 396.21 underlying.</li><li>Risk line: control risk around 373.33; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 373.33.</li></ul></div>
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>MU is on the watchlist as a PUT idea because Atlas found a watch reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Early watch - needs a better entry. The useful part of the setup is this: controlled 5-day spike; meaningful 20-day runup; stretched above 50-day mean; red rejection day. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
   </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Real-money acceptable on trigger (90/100). Expiration is too close for the short-swing plan Risk/reward is below the preferred 2:1 threshold.</p></div>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>Stocktwits: MU Stock Surges 11% After-Hours — Micron’s Q3 Revenue Jumps 346% On Incessant Memory Demand</li><li>Finance: Dow Jones Futures Rise As Micron Jumps On Earnings, Lifting Sandisk, AI Stocks; Fed Inflation Data Due</li><li>Fool: Stock Market Today, June 24: Amazon Gains as Investors Monitor Strong Prime Day Demand and AI Shopping Activity</li><li>Finance: Market Fear Index Slips as AI Worries Ease</li><li>247Wallst: Cantor’s CJ Muse Says a 2027 Memory Squeeze Could Power Micron’s Earnings Through 2028</li></ul></div>
   </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 69/100 using available data only. Confidence is 50/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 69/100</li><li>Put score: 67/100</li><li>Confidence: 50/100</li></ul><p>Bullish evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; Strong catalyst alignment.</p><p>Bearish evidence: Price is below falling intermediate/long-term moving averages; 20-day relative trend is negative.</p><p>Risk factors: Expiration is too close for the short-swing plan; Sector benchmark data unavailable for XLY; Single-session option volume is high versus open interest, but persistence is unconfirmed; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>MARKET_NEWS / BULLISH: SpaceX Is Down 32% From Its High. 4 Reasons Why a Merger with Tesla Would Make SpaceX a Better Long-Term Buy. (confidence 66, novelty 65, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; TSLA</li><li>CONTRACT_WIN / BULLISH: NatPower and Tesla Strike 25 GWh European Battery Storage Deal (confidence 64, novelty 55, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; TSLA</li><li>PRODUCT_TECH / BULLISH: Tesla Quietly Files Megapod Trademark — An AI Data Center Play That Could See Elon Musk Challenging Nvidia&#x27;s Dominance (confidence 63, novelty 50, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; TSLA</li><li>GEOPOLITICAL / VOLATILITY: When trade policy turns contentious: Tariffs, currency devaluation, and other trade barriers - Britannica (confidence 61, novelty 45, urgency 70). Transmission: geopolitical stress -&gt; risk appetite -&gt; sector rotation -&gt; TSLA</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 6.2%</li><li>Current implied move: 1.3%</li><li>Estimated edge: 4.5%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is useful but not dominant. It gives the setup a reason to stay on watch, but it is not strong enough for me to ignore a bad entry. Catalyst summary / research brief: After reviewing Finance, Fool, Stocktwits, the story around TSLA is mainly about NatPower and Tesla Strike 25 GWh European Battery Storage Deal. The AI/cloud angle comes down to monetization versus capex drag. The deal/customer-demand angle gives traders a concrete repricing hook around future revenue. Main themes: deal, contract, or licensing activity, AI strategy, spending, or demand, cloud or data-center demand, cost control or capital-spending concerns. My read: AI/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation. For TSLA, the key read is whether it changes consumer demand, pricing power, margin pressure, or discretionary spending. Macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and AI and data-center spending remain major drivers of risk appetite. Most relevant current item: When trade policy turns contentious: Tariffs, currency devaluation, and other trade barriers - Britannica. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 1.76:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Support reclaim / double-bottom candidate. lower highs and lower lows. controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone</p><p>Key evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone</p><p>Supporting timeframes: Monthly bullish. Opposing timeframes: Weekly bearish</p><p>Support/resistance read: Key 20-session support is near $380.15; key 20-session resistance is near $445.60. Wider 60-session range is $337.24 to $453.40. Target 1 is 396.21, Target 2 is 410.82, Target 3 is 425.42, and invalidation is near 373.33.</p></div>
-  </details>
-</div>
+  <a class="read-more-link" href="stock_detail_MU.html">Read More</a>
 </section>
     </div>
   </div>
 </article>
-<article class="setup-card is-collapsed" data-symbol="SLB" data-grade="C" data-direction="CALL" data-search="slb schlumberger limited call c b reversal controlled 5-day dip meaningful 20-day pullback rsi deeply oversold near 20-day support zone above 200-day trend reversal volume present near major 60-day support iran is preparing oil tolls. these companies can build workarounds. jim cramer on slb: “it is by far the best there is” slb- among the 12 best american oil stocks to buy now slb (slb) stock after recent pullback could the valuation gap be an opportunity slb (slb) stock could be 21.7% undervalued after digital marketplace launch catalyst summary / research brief: after reviewing barchart, finance, reuters, the new york times, the story around slb is mainly about stocks dip, treasury yields jump as oil pushes higher. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: deal, contract, or licensing activity, new product or platform activity, ai strategy, spending, or demand, oil-price sensitivity, middle east or geopolitical risk. my read: ai/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for slb, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
-  <div class="setup-summary">
-    <div class="setup-summary-main">
-      <div>
-        <div class="summary-symbol">SLB</div>
-        <div class="summary-company">Schlumberger Limited</div>
-      </div>
-      <div class="direction call">CALL</div>
-    </div>
-    <div class="setup-summary-actions">
-      <button type="button" class="toggle-card">Expand</button>
-    </div>
-  </div>
-  <div class="setup-body">
-    <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$47.79</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-26</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Support reclaim / double-bottom candidate</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $47.00-$48.09 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (47.95) and 50.22 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $47.00 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 49.33 underlying.</li><li>Risk line: control risk around 46.52; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 46.52.</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (54/100). The stock setup may be interesting, but the selected option contract quality is poor. Bid/ask spread is usable but not clean Contract volume is thin</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 57/100 using available data only. Confidence is 42/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds. Rejection engine status: NO_TRADE.</p><ul><li>Preferred side: CALL</li><li>Call score: 57/100</li><li>Put score: 49/100</li><li>Confidence: 42/100</li></ul><p>Bullish evidence: controlled 5-day dip; meaningful 20-day pullback; RSI deeply oversold; Strong catalyst alignment.</p><p>Bearish evidence: 20-day relative trend is negative.</p><p>Risk factors: RSI is washed out; chasing puts is lower quality; Bid/ask spread is usable but not clean; Contract volume is thin; Open interest is thin; Expiration is too close for the short-swing plan.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>PRODUCT_TECH / BULLISH: SLB (SLB) Stock Could Be 21.7% Undervalued After Digital Marketplace Launch (confidence 66, novelty 65, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SLB</li><li>PRODUCT_TECH / BULLISH: SLB Expands Digital Reach With New AI Marketplace Platform (confidence 64, novelty 55, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SLB</li><li>PRODUCT_TECH / VOLATILITY: Jim Cramer Points to SLB for Critical Insights Into International Oil Production (confidence 63, novelty 50, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SLB</li><li>PRODUCT_TECH / BULLISH: SLB Launches Digital Marketplace to Scale AI and Digital Innovation Across Energy (confidence 61, novelty 45, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; SLB</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: NO_TRADE</p><ul><li>Expected move: 5.7%</li><li>Current implied move: 0.9%</li><li>Estimated edge: 1.9%</li></ul><ul><li>NO_TRADE: option contract quality is too weak</li><li>Bid/ask spread is usable but not clean</li><li>Contract volume is thin</li><li>Open interest is thin</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing Barchart, Finance, Reuters, The New York Times, the story around SLB is mainly about Stocks dip, Treasury yields jump as oil pushes higher. The AI/cloud angle comes down to monetization versus capex drag. The deal/customer-demand angle gives traders a concrete repricing hook around future revenue. Macro/geopolitical stress is active in the tape and can override single-name strength. Rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. Oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. Main themes: deal, contract, or licensing activity, new product or platform activity, AI strategy, spending, or demand, oil-price sensitivity, Middle East or geopolitical risk. My read: AI/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. For SLB, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. Macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. Most relevant current item: Stocks dip, Treasury yields jump as oil pushes higher. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The spread is acceptable but not perfect, so limit orders matter. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 1.21:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Support reclaim / double-bottom candidate. lower highs and lower lows. controlled 5-day dip; meaningful 20-day pullback; RSI deeply oversold; near 20-day support zone; above 200-day trend; reversal volume present; near major 60-day support</p><p>Key evidence: controlled 5-day dip; meaningful 20-day pullback; RSI deeply oversold; near 20-day support zone; above 200-day trend</p><p>Supporting timeframes: No clear higher/lower timeframe support from available data. Opposing timeframes: Weekly bearish, Daily bearish</p><p>Support/resistance read: Key 20-session support is near $47.24; key 20-session resistance is near $58.82. Wider 60-session range is $47.07 to $58.82. Target 1 is 49.33, Target 2 is 50.87, Target 3 is 52.41, and invalidation is near 46.52.</p></div>
-  </details>
-</div>
-</section>
-    </div>
-  </div>
-</article>
-<article class="setup-card is-collapsed" data-symbol="NVDA" data-grade="C" data-direction="CALL" data-search="nvda nvidia corporation call c a reversal controlled 5-day dip meaningful 20-day pullback rsi washed out but not broken near 20-day support zone above 200-day trend falling wedge compression nvidia stock is falling on a good day for intel and other chip stocks - barron&#x27;s nvidia stock falls as tech selloff catches up with chips - barron&#x27;s nvidia takes no. 1 spot in data center ethernet switching by revenue in q1: idc - seeking alpha nvidia just claimed a new ai crown. that means nvda stock investors have a new reason to buy. - barchart.com nvidia stock (nvda) opinions on ai infrastructure advancements - quiver quantitative catalyst summary / research brief: after reviewing barchart.com, barron&#x27;s, finance, fool, investorshub, quiver quantitative, the story around nvda is mainly about nvidia takes no. 1 spot in data center ethernet switching by revenue in q1: idc. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. macro/geopolitical stress is active in the tape and can override single-name strength. main themes: earnings, guidance, or margin pressure, ai strategy, spending, or demand, cloud or data-center demand, chip-sector momentum, trade-policy or supply-chain pressure. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. for nvda, the key read is whether investors see the story as durable growth or as a spending/valuation risk. macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and ai and data-center spending remain major drivers of risk appetite. most relevant current item: market strategist says ai selloff is ‘just profit-taking,’ not a broken story. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
-  <div class="setup-summary">
-    <div class="setup-summary-main">
-      <div>
-        <div class="summary-symbol">NVDA</div>
-        <div class="summary-company">NVIDIA Corporation</div>
-      </div>
-      <div class="direction call">CALL</div>
-    </div>
-    <div class="setup-summary-actions">
-      <button type="button" class="toggle-card">Expand</button>
-    </div>
-  </div>
-  <div class="setup-body">
-    <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$200.04</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-29</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Definitive falling wedge</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $198.34-$202.93 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (208.65) and 213.99 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $198.34 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 205.89 underlying.</li><li>Risk line: control risk around 196.61; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 196.61.</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Watch only - catalyst support is not strong enough</p><p>Watch only until quality improves (54/100). Expiration is too close for the short-swing plan Risk/reward is below the preferred 2:1 threshold. Catalyst support is not strong enough to carry a weak entry.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 73/100 using available data only. Confidence is 53/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 73/100</li><li>Put score: 61/100</li><li>Confidence: 53/100</li></ul><p>Bullish evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; Neutral catalyst.</p><p>Bearish evidence: 20-day relative trend is negative.</p><p>Risk factors: Expiration is too close for the short-swing plan; Sector benchmark data unavailable for SMH; Single-session option volume is high versus open interest, but persistence is unconfirmed; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>PRODUCT_TECH / BULLISH: Nvidia Stock Is Falling on a Good Day for Intel and Other Chip Stocks - Barron&#x27;s (confidence 77, novelty 65, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; NVDA</li><li>PRODUCT_TECH / BULLISH: Nvidia Stock Falls as Tech Selloff Catches Up With Chips - Barron&#x27;s (confidence 75, novelty 55, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; NVDA</li><li>EARNINGS_GUIDANCE / BULLISH: Nvidia takes No. 1 spot in data center ethernet switching by revenue in Q1: IDC - Seeking Alpha (confidence 73, novelty 50, urgency 70). Transmission: earnings/guidance update -&gt; forward estimates -&gt; valuation/positioning -&gt; NVDA</li><li>PRODUCT_TECH / BULLISH: Nvidia Just Claimed a New AI Crown. That Means NVDA Stock Investors Have a New Reason to Buy. - Barchart.com (confidence 61, novelty 45, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; NVDA</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 3.9%</li><li>Current implied move: 0.9%</li><li>Estimated edge: 2.7%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is thin or mixed. I would be careful about forcing a trade here because the news is not strong enough to carry the setup on its own. Catalyst summary / research brief: After reviewing Barchart.com, Barron&#x27;s, Finance, Fool, Investorshub, Quiver Quantitative, the story around NVDA is mainly about Nvidia takes No. 1 spot in data center ethernet switching by revenue in Q1: IDC. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Macro/geopolitical stress is active in the tape and can override single-name strength. Main themes: earnings, guidance, or margin pressure, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum, trade-policy or supply-chain pressure. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. For NVDA, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Market Strategist Says AI Selloff Is ‘Just Profit-Taking,’ Not a Broken Story. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 1.71:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Definitive falling wedge. mixed structure. controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; above 200-day trend; falling wedge compression</p><p>Key evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; above 200-day trend</p><p>Supporting timeframes: Monthly bullish. Opposing timeframes: Weekly bearish, 15m bearish</p><p>Support/resistance read: Key 20-session support is near $199.34; key 20-session resistance is near $232.28. Wider 60-session range is $164.27 to $236.54. Target 1 is 205.89, Target 2 is 211.74, Target 3 is 217.59, and invalidation is near 196.61.</p></div>
-  </details>
-</div>
-</section>
-    </div>
-  </div>
-</article>
-<article class="setup-card is-collapsed" data-symbol="MPC" data-grade="C" data-direction="CALL" data-search="mpc marathon petroleum corporation call c a reversal rsi washed out but not broken near 20-day support zone near 50-day mean support above 200-day trend green reversal day falling wedge compression bullish engulfing attempt 15m trend reclaim 15m higher-low confirmation california group sues gas station owners for allegedly using ai to boost prices (mpc:nyse) - seeking alpha final trade: cvx, cat, xly, mpc - cnbc ftse 100 today: stocks fall as boe holds rates, two mpc members push for hike - investing.com will rbi raise rates in august? mpc members say more data is needed - cnbc tv18 commissioner speaks out on shreveport mayor’s plan to restructure the mpc - ksla catalyst summary / research brief: after reviewing cnbc, reuters, seeking alpha, the story around mpc is mainly about marathon petroleum outlines $700m refining investment for 2026 amid 20% year-over-year reduction, with focus on margin optimization and capita.... estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: earnings, guidance, or margin pressure, ai strategy, spending, or demand, oil-price sensitivity, rates and inflation expectations. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for mpc, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
+<article class="setup-card is-collapsed" data-symbol="MPC" data-grade="C" data-direction="CALL" data-search="mpc marathon petroleum corporation call c a reversal controlled 5-day dip rsi washed out but not broken near 20-day support zone near 50-day mean support above 200-day trend 3-day stabilization falling wedge compression bullish engulfing attempt california group sues gas station owners for allegedly using ai to boost prices (mpc:nyse) - seeking alpha final trade: cvx, cat, xly, mpc - cnbc ftse 100 today: stocks fall as boe holds rates, two mpc members push for hike - investing.com will rbi raise rates in august? mpc members say more data is needed - cnbc tv18 check out marathon petroleum corp&#x27;s stock price (mpc) in real time - cnbc catalyst summary / research brief: after reviewing cnbc, reuters, seeking alpha, the story around mpc is mainly about marathon petroleum outlines $700m refining investment for 2026 amid 20% year-over-year reduction, with focus on margin optimization and capita.... estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: earnings, guidance, or margin pressure, ai strategy, spending, or demand, oil-price sensitivity, rates and inflation expectations. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for mpc, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. energy calls have direct crude-supply backing here, but i still would not chase an extended open. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
@@ -591,225 +261,26 @@
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Watch</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$248.52</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-07-17</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Definitive falling wedge</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $237.09-$242.57 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (247.29) and 249.67 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $237.09 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 254.98 underlying.</li><li>Risk line: control risk around 235.26; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 235.26.</li></ul></div>
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>MPC is on the watchlist as a CALL idea because Atlas found a a reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Early watch - needs a better entry. The useful part of the setup is this: controlled 5-day dip; RSI washed out but not broken; near 20-day support zone; near 50-day mean support. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
   </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (52/100). Contract volume is thin Earnings risk is nearby or active; directional entries need extra confirmation Risk/reward is extremely poor; the trade needs a much better entry.</p></div>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>Seeking Alpha: California group sues gas station owners for allegedly using AI to boost prices (MPC:NYSE) - Seeking Alpha</li><li>Seeking Alpha: Marathon Petroleum outlines $700M refining investment for 2026 amid 20% year-over-year reduction, with focus on margin optimization and capital returns (NYSE:MPC) - Seeking Alpha</li><li>Finance: Marathon Petroleum (MPC) Faces A New Oil Reality As The Strait Of Hormuz Reopens</li><li>Finance: Treasury Yields Slip Amid Middle East Conflict Lull</li><li>Finance: Treasury Yields Fall, Dollar Strengthens as Oil Prices Slip</li></ul></div>
   </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 79/100 using available data only. Confidence is 54/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 79/100</li><li>Put score: 56/100</li><li>Confidence: 54/100</li></ul><p>Bullish evidence: RSI washed out but not broken; near 20-day support zone; near 50-day mean support; Price is above rising intermediate/long-term moving averages; Catalyst support.</p><p>Bearish evidence: none flagged.</p><p>Risk factors: Contract volume is thin; Earnings risk is nearby or active; directional entries need extra confirmation; Volume confirmation is light; Sector benchmark data unavailable for XLE; Options-flow persistence history.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity; Dark pool prints.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>PRODUCT_TECH / BULLISH: California group sues gas station owners for allegedly using AI to boost prices (MPC:NYSE) - Seeking Alpha (confidence 77, novelty 65, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; MPC</li><li>EARNINGS_GUIDANCE / BULLISH: Marathon Petroleum outlines $700M refining investment for 2026 amid 20% year-over-year reduction, with focus on margin optimization and capital returns (NYSE:MPC) - Seeking Alpha (confidence 75, novelty 55, urgency 70). Transmission: earnings/guidance update -&gt; forward estimates -&gt; valuation/positioning -&gt; MPC</li><li>GEOPOLITICAL / VOLATILITY: Marathon Petroleum (MPC) Faces A New Oil Reality As The Strait Of Hormuz Reopens (confidence 63, novelty 50, urgency 70). Transmission: geopolitical stress -&gt; oil/supply risk -&gt; cash-flow expectations -&gt; MPC</li><li>GEOPOLITICAL / VOLATILITY: US Equity Futures Edge Slightly Higher Pre-Bell as Tech Stocks Rebound, Oil Prices Decline (confidence 61, novelty 45, urgency 70). Transmission: geopolitical stress -&gt; oil/supply risk -&gt; cash-flow expectations -&gt; MPC</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 4.1%</li><li>Current implied move: 3.6%</li><li>Estimated edge: -1.9%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Contract volume is thin</li><li>Earnings risk is nearby or active; directional entries need extra confirmation</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is useful but not dominant. It gives the setup a reason to stay on watch, but it is not strong enough for me to ignore a bad entry. Catalyst summary / research brief: After reviewing CNBC, Reuters, Seeking Alpha, the story around MPC is mainly about Marathon Petroleum outlines $700M refining investment for 2026 amid 20% year-over-year reduction, with focus on margin optimization and capita.... Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. Oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. Main themes: earnings, guidance, or margin pressure, AI strategy, spending, or demand, oil-price sensitivity, rates and inflation expectations. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. For MPC, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. Macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. Most relevant current item: Stocks dip, Treasury yields jump as oil pushes higher. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The spread is acceptable but not perfect, so limit orders matter. Expiration gives a more reasonable swing window than a near-dated gamble. The current risk/reward is only 0.49:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Definitive falling wedge. lower highs and lower lows. RSI washed out but not broken; near 20-day support zone; near 50-day mean support; above 200-day trend; green reversal day; falling wedge compression; bullish engulfing attempt; 15m trend reclaim; 15m higher-low confirmation</p><p>Key evidence: RSI washed out but not broken; near 20-day support zone; near 50-day mean support; above 200-day trend; green reversal day</p><p>Supporting timeframes: Monthly bullish, 15m bullish. Opposing timeframes: Weekly bearish</p><p>Support/resistance read: Key 20-session support is near $238.28; key 20-session resistance is near $272.46. Wider 60-session range is $210.64 to $272.46. Target 1 is 254.98, Target 2 is 261.44, Target 3 is 267.90, and invalidation is near 235.26.</p></div>
-  </details>
-</div>
+  <a class="read-more-link" href="stock_detail_MPC.html">Read More</a>
 </section>
     </div>
   </div>
 </article>
-<article class="setup-card is-collapsed" data-symbol="CVX" data-grade="C" data-direction="CALL" data-search="cvx chevron corporation call c a reversal controlled 5-day dip meaningful 20-day pullback rsi washed out but not broken near 20-day support zone above 200-day trend green reversal day near major 60-day support bullish candle rejection 15m higher-low confirmation final trade: cvx, cat, xly, mpc - cnbc chevron-microsoft sign 20-year deal to power $7b texas data center project (cvx:nyse) - seeking alpha chevron just secured a major 20-year contract to supply power for microsoft’s $7 billion data center in texas. what that means for cvx stock. - barchart.com chevron (cvx) enters ai data center power with 20 year microsoft deal - simplywall.st chevron (nyse: cvx) to power microsoft data center with natural gas, boosting ge vernova (nyse: gev) and caterpillar (nyse: cat) - foreignpolicyjournal.com catalyst summary / research brief: after reviewing barchart.com, cnbc, reuters, seeking alpha, stocktwits, simplywall.st, the story around cvx is mainly about chevron-microsoft sign 20-year deal to power $7b texas data center project (cvx:nyse). the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. regulatory/legal overhang keeps buyer conviction conditional. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: regulatory or public scrutiny, deal, contract, or licensing activity, ai strategy, spending, or demand, cloud or data-center demand, oil-price sensitivity. my read: ai/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation, and regulatory/legal overhang on the multiple, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for cvx, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
+<article class="setup-card is-collapsed" data-symbol="JPM" data-grade="C" data-direction="PUT" data-search="jpm jpmorgan chase &amp; co. put c b reversal meaningful 20-day runup near 20-day resistance zone stretched above 20-day mean red rejection day near major 252-day resistance 15m lower-high confirmation jpmorgan and goldman raise dividends after fed stress tests jpmorganchase announces 2026 dodd-frank act stress test results here’s why jpmorgan (jpm) is among the 10 all-time high stocks with legs to rally further jpmorganchase regulatory capital update big banks pass fed stress test, paving way for payouts catalyst summary / research brief: after reviewing finance, reuters, the new york times, thestreet, the story around jpm is mainly about stocks dip, treasury yields jump as oil pushes higher. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: deal, contract, or licensing activity, earnings, guidance, or margin pressure, ai strategy, spending, or demand, oil-price sensitivity, middle east or geopolitical risk. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for jpm, the key read is whether this changes underwriting, advisory revenue, fee income, credit sensitivity, trading activity, or capital-markets appetite. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape, rates and inflation expectations remain part of the market backdrop, and ai and data-center spending remain major drivers of risk appetite. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
-        <div class="summary-symbol">CVX</div>
-        <div class="summary-company">Chevron Corporation</div>
-      </div>
-      <div class="direction call">CALL</div>
-    </div>
-    <div class="setup-summary-actions">
-      <button type="button" class="toggle-card">Expand</button>
-    </div>
-  </div>
-  <div class="setup-body">
-    <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$175.98</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-26</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Hammer/rejection candle</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $171.37-$175.33 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (175.06) and 176.40 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $171.37 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 180.00 underlying.</li><li>Risk line: control risk around 170.78; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 170.78.</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (58/100). Expiration is too close for the short-swing plan Risk/reward is weak enough that I would not chase it. Volume confirmation is light, so follow-through is less trustworthy.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 80/100 using available data only. Confidence is 57/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 80/100</li><li>Put score: 57/100</li><li>Confidence: 57/100</li></ul><p>Bullish evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; Catalyst support.</p><p>Bearish evidence: 20-day relative trend is negative.</p><p>Risk factors: Expiration is too close for the short-swing plan; Volume confirmation is light; Sector benchmark data unavailable for XLE; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>CONTRACT_WIN / BULLISH: Chevron-Microsoft sign 20-year deal to power $7B Texas data center project (CVX:NYSE) - Seeking Alpha (confidence 77, novelty 65, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; CVX</li><li>CONTRACT_WIN / VOLATILITY: Chevron Looks Fully Valued As An Iran Deal Could Send Oil Lower (Rating Downgrade) (CVX) - Seeking Alpha (confidence 71, novelty 40, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; CVX</li><li>CONTRACT_WIN / BULLISH: Chevron Just Secured a Major 20-Year Contract to Supply Power for Microsoft’s $7 Billion Data Center in Texas. What That Means for CVX Stock. - Barchart.com (confidence 64, novelty 55, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; CVX</li><li>CONTRACT_WIN / BULLISH: Chevron (CVX) Enters AI Data Center Power With 20 Year Microsoft Deal - simplywall.st (confidence 63, novelty 50, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; CVX</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 2.7%</li><li>Current implied move: 0.3%</li><li>Estimated edge: 1.7%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is useful but not dominant. It gives the setup a reason to stay on watch, but it is not strong enough for me to ignore a bad entry. Catalyst summary / research brief: After reviewing Barchart.com, CNBC, Reuters, Seeking Alpha, Stocktwits, simplywall.st, the story around CVX is mainly about Chevron-Microsoft sign 20-year deal to power $7B Texas data center project (CVX:NYSE). The AI/cloud angle comes down to monetization versus capex drag. The deal/customer-demand angle gives traders a concrete repricing hook around future revenue. Regulatory/legal overhang keeps buyer conviction conditional. Macro/geopolitical stress is active in the tape and can override single-name strength. Rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. Oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. Main themes: regulatory or public scrutiny, deal, contract, or licensing activity, AI strategy, spending, or demand, cloud or data-center demand, oil-price sensitivity. My read: AI/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation, and regulatory/legal overhang on the multiple, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. For CVX, the key read is whether the news changes crude, service demand, production, or cash-flow expectations. Macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. Most relevant current item: Stocks dip, Treasury yields jump as oil pushes higher. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 0.77:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Hammer/rejection candle. lower highs and lower lows. controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; above 200-day trend; green reversal day; near major 60-day support; bullish candle rejection; 15m higher-low confirmation</p><p>Key evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone; above 200-day trend</p><p>Supporting timeframes: No clear higher/lower timeframe support from available data. Opposing timeframes: Monthly bearish, Weekly bearish, Daily bearish</p><p>Support/resistance read: Key 20-session support is near $172.23; key 20-session resistance is near $192.69. Wider 60-session range is $172.23 to $214.71. Target 1 is 180.00, Target 2 is 183.17, Target 3 is 186.34, and invalidation is near 170.78.</p></div>
-  </details>
-</div>
-</section>
-    </div>
-  </div>
-</article>
-<article class="setup-card is-collapsed" data-symbol="COIN" data-grade="C" data-direction="CALL" data-search="coin coinbase global, inc. call c b reversal controlled 5-day dip meaningful 20-day pullback rsi washed out but not broken near 20-day support zone why coinbase (coin) is down 6.6% after launching ai tools and tokenized pre-ipo futures - and what&#x27;s next here&#x27;s why coinbase global, inc. (coin) fell more than broader market ice &amp; okx are getting ready to drink coinbase’s tokenized milkshake allium raises $40m as crypto data sector consolidates coinbase bets on ai trading with pre-ipo of openai, anthropic? catalyst summary / research brief: after reviewing barchart, finance, proactiveinvestors, the story around coin is mainly about coinbase (coin) launches sec-registered ai investment advisor for coinbase one subscribers. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. macro/geopolitical stress is active in the tape and can override single-name strength. main themes: earnings, guidance, or margin pressure, new product or platform activity, ai strategy, spending, or demand, ipo-related sentiment, middle east or geopolitical risk. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and ipo/dealmaking sensitivity in fee income and risk appetite. trade read: keep this as a call setup only if the tape confirms the headline with volume and level control. call confirmation: dip absorption, a higher low, or a reclaim with volume. no confirmation, no trade. what would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.">
-  <div class="setup-summary">
-    <div class="setup-summary-main">
-      <div>
-        <div class="summary-symbol">COIN</div>
-        <div class="summary-company">Coinbase Global, Inc.</div>
-      </div>
-      <div class="direction call">CALL</div>
-    </div>
-    <div class="setup-summary-actions">
-      <button type="button" class="toggle-card">Expand</button>
-    </div>
-  </div>
-  <div class="setup-body">
-    <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$158.18</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-26</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Support reclaim / double-bottom candidate</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early CALL reversal, not a breakout chase.</li><li>Starter zone: $147.14-$150.54 on a bought flush, strong lower wick, or quick higher-low attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (164.84) and 176.48 are add/confirmation levels if the reversal starts working.</li><li>Invalid: price slices through $147.14 and cannot reclaim it quickly.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if buyers defend the current zone, print a higher low, or reclaim short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 166.23 underlying.</li><li>Risk line: control risk around 144.12; downgrade if price loses the defended zone and cannot quickly reclaim it or price trades through 144.12.</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (50/100). Expiration is too close for the short-swing plan Risk/reward is extremely poor; the trade needs a much better entry. Volume confirmation is light, so follow-through is less trustworthy.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 65/100 using available data only. Confidence is 49/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 66/100</li><li>Put score: 64/100</li><li>Confidence: 49/100</li></ul><p>Bullish evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; Catalyst support; Contract volume is active versus open interest.</p><p>Bearish evidence: Price is below falling intermediate/long-term moving averages; 20-day relative trend is negative.</p><p>Risk factors: Expiration is too close for the short-swing plan; Realized volatility is elevated enough to increase whipsaw risk; Sector benchmark unavailable; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>PRODUCT_TECH / BULLISH: Why Coinbase (COIN) Is Down 6.6% After Launching AI Tools And Tokenized Pre-IPO Futures - And What&#x27;s Next (confidence 66, novelty 65, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; COIN</li><li>PRODUCT_TECH / BULLISH: Coinbase Bets on AI Trading With Pre-IPO of OpenAI, Anthropic? (confidence 64, novelty 55, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; COIN</li><li>MARKET_NEWS / BULLISH: Coinbase Is Offering Pre-IPO Perpetual Futures on OpenAI and Anthropic. That’s Better News for COIN Stock Than It Is for You. (confidence 63, novelty 50, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; COIN</li><li>PRODUCT_TECH / BULLISH: Coinbase Global Comes Closer To ‘Everything Exchange’ With Latest Product Launches (confidence 61, novelty 45, urgency 70). Transmission: product/technology news -&gt; growth narrative -&gt; multiple/earnings expectations -&gt; COIN</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 7.8%</li><li>Current implied move: 1.7%</li><li>Estimated edge: 5.7%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is useful but not dominant. It gives the setup a reason to stay on watch, but it is not strong enough for me to ignore a bad entry. Catalyst summary / research brief: After reviewing Barchart, Finance, Proactiveinvestors, the story around COIN is mainly about Coinbase (COIN) Launches SEC-Registered AI Investment Advisor for Coinbase One Subscribers. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Macro/geopolitical stress is active in the tape and can override single-name strength. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, IPO-related sentiment, Middle East or geopolitical risk. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and IPO/dealmaking sensitivity in fee income and risk appetite. Trade read: keep this as a CALL setup only if the tape confirms the headline with volume and level control. CALL confirmation: dip absorption, a higher low, or a reclaim with volume. No confirmation, no trade. What would weaken the trade: the headlines fail to produce buying volume, the stock loses the listed dip zone, or new macro/news flow turns risk-off.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 0.57:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Support reclaim / double-bottom candidate. higher highs and higher lows. controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone</p><p>Key evidence: controlled 5-day dip; meaningful 20-day pullback; RSI washed out but not broken; near 20-day support zone</p><p>Supporting timeframes: No clear higher/lower timeframe support from available data. Opposing timeframes: Monthly bearish, Weekly bearish, Daily bearish</p><p>Support/resistance read: Key 20-session support is near $147.88; key 20-session resistance is near $195.59. Wider 60-session range is $147.88 to $222.35. Target 1 is 166.23, Target 2 is 174.28, Target 3 is 182.33, and invalidation is near 144.12.</p></div>
-  </details>
-</div>
-</section>
-    </div>
-  </div>
-</article>
-<article class="setup-card is-collapsed" data-symbol="WFC" data-grade="D" data-direction="PUT" data-search="wfc wells fargo &amp; company put d watch reversal meaningful 20-day runup rsi elevated but not euphoric near 20-day resistance zone near major 60-day resistance curis (cris) stock faces mixed analyst target changes over execution and pipeline risk dear asml stock fans, mark your calendars for july 15 merrill lynch hires 3 father-son advisory teams with more than $1 billion in assets bank of america sees interest rates exploding higher soon: play it safe with 4 dividend giants wells fargo (wfc) stock after regulatory scrutiny and recent pullback in 2026 catalyst summary / research brief: after reviewing finance, reuters, the new york times, the story around wfc is mainly about stocks dip, treasury yields jump as oil pushes higher. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. regulatory/legal overhang keeps buyer conviction conditional. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: regulatory or public scrutiny, deal, contract, or licensing activity, oil-price sensitivity, middle east or geopolitical risk, rates and inflation expectations. my read: deal/contract visibility around demand, backlog, or strategic validation, and regulatory/legal overhang on the multiple, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for wfc, the key read is whether this changes underwriting, advisory revenue, fee income, credit sensitivity, trading activity, or capital-markets appetite. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
-  <div class="setup-summary">
-    <div class="setup-summary-main">
-      <div>
-        <div class="summary-symbol">WFC</div>
-        <div class="summary-company">Wells Fargo &amp; Company</div>
+        <div class="summary-symbol">JPM</div>
+        <div class="summary-company">JPMorgan Chase &amp; Co.</div>
       </div>
       <div class="direction put">PUT</div>
     </div>
@@ -819,63 +290,45 @@
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Watch only</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$84.13</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-26</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Resistance rejection / double-top candidate</div>
-</div>
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>JPM is on the watchlist as a PUT idea because Atlas found a b reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Actionable on trigger. The useful part of the setup is this: meaningful 20-day runup; near 20-day resistance zone; stretched above 20-day mean; red rejection day. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
+  </details>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>Finance: JPMorganChase Regulatory Capital Update</li><li>Finance: Dow Jones Futures Rise As Micron Jumps On Earnings, Lifting Sandisk, AI Stocks; Fed Inflation Data Due</li><li>Finance: Treasury Yields Slip Amid Middle East Conflict Lull</li><li>Finance: Treasury Yields Fall, Dollar Strengthens as Oil Prices Slip</li><li>Finance: Treasury Yields, Dollar Rise as U.S.-Iran Talks Stumble Along</li></ul></div>
+  </details>
+  <a class="read-more-link" href="stock_detail_JPM.html">Read More</a>
+</section>
+    </div>
   </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Watch only. The setup is interesting, but the trade quality is not strong enough for entry yet.</p><ul><li>Bias: early PUT fade, not a breakdown chase.</li><li>Starter zone: $85.51-$87.52 on rejection, long upper wick, or quick lower-high attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (83.84) and 81.95 are add/confirmation levels if the fade starts working.</li><li>Invalid: price breaks through $87.52 and holds above it.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if sellers reject the bounce, print a lower high, or lose short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 82.00 underlying.</li><li>Risk line: control risk around 87.81; downgrade if price reclaims the rejection zone and starts holding above it or price trades through 87.81.</li></ul></div>
+</article>
+<article class="setup-card is-collapsed" data-symbol="INTC" data-grade="D" data-direction="PUT" data-search="intc intel corporation put d a reversal controlled 5-day spike meaningful 20-day runup rsi elevated but not euphoric stretched above 20-day mean stretched above 50-day mean red rejection day intc stock: intel surges as trump reveals apple partnership - barron&#x27;s 4 stocks to watch on tuesday: pfe, intc, fdx, ttwo (sp500:) - seeking alpha intel (intc) advanced packaging could support ai data center growth, mizuho says - yahoo finance intc, arm, amd stocks gain today — bernstein supercharges ai chip bull case - stocktwits why is intc stock jumping over 5% in overnight trading? - tradingview catalyst summary / research brief: after reviewing barron&#x27;s, bloomberg, finance, fool, seeking alpha, stocktwits, the story around intc is mainly about intc stock: intel surges as trump reveals apple partnership - barron&#x27;s. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. main themes: deal, contract, or licensing activity, earnings, guidance, or margin pressure, new product or platform activity, ai strategy, spending, or demand, cloud or data-center demand. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and deal/contract visibility around demand, backlog, or strategic validation, and rates/inflation pressure on multiples, demand, and credit beta. for intc, the key read is whether investors see the story as durable growth or as a spending/valuation risk. macro/geopolitical overlay: rates and inflation expectations remain part of the market backdrop, trade-policy and supply-chain risk can still pressure sentiment, and ai and data-center spending remain major drivers of risk appetite. most relevant current item: dow jones futures rise as micron jumps on earnings, lifting sandisk, ai stocks; fed inflation data due. macro override: iran imposes mandatory insurance on ships transiting strait of hormuz, with fees likely to follow - lloyd&#x27;s list. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
+  <div class="setup-summary">
+    <div class="setup-summary-main">
+      <div>
+        <div class="summary-symbol">INTC</div>
+        <div class="summary-company">Intel Corporation</div>
+      </div>
+      <div class="direction put">PUT</div>
+    </div>
+    <div class="setup-summary-actions">
+      <button type="button" class="toggle-card">Expand</button>
+    </div>
+  </div>
+  <div class="setup-body">
+    <div class="setup-top">
+      <section class="watchlist-preview">
+  <details class="theme-panel" open>
+    <summary>Why is it on the list?</summary>
+    <div class="theme-body"><p>INTC is on the watchlist as a PUT idea because Atlas found a a reversal with enough supporting evidence to monitor, but the trade is still conditional. Current stance: Early watch - needs a better entry. The useful part of the setup is this: controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; stretched above 20-day mean. I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward.</p></div>
   </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Early watch - needs a better entry</p><p>Watch only until quality improves (50/100). Expiration is too close for the short-swing plan Risk/reward is extremely poor; the trade needs a much better entry. Volume confirmation is light, so follow-through is less trustworthy.</p></div>
+  <details class="theme-panel" open>
+    <summary>What other sources are supporting the thesis?</summary>
+    <div class="theme-body"><ul><li>Barron&#x27;s: INTC Stock: Intel Surges as Trump Reveals Apple Partnership - Barron&#x27;s</li><li>Yahoo Finance: Intel (INTC) Advanced Packaging Could Support AI Data Center Growth, Mizuho Says - Yahoo Finance</li><li>Stocktwits: INTC, ARM, AMD Stocks Gain Today — Bernstein Supercharges AI Chip Bull Case - Stocktwits</li><li>Finance: Dow Jones Futures Rise As Micron Jumps On Earnings, Lifting Sandisk, AI Stocks; Fed Inflation Data Due</li><li>Fool: Stock Market Today, June 24: Amazon Gains as Investors Monitor Strong Prime Day Demand and AI Shopping Activity</li></ul></div>
   </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors CALL at 67/100 using available data only. Confidence is 49/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds.</p><ul><li>Preferred side: CALL</li><li>Call score: 67/100</li><li>Put score: 65/100</li><li>Confidence: 50/100</li></ul><p>Bullish evidence: 20-day relative trend is positive.</p><p>Bearish evidence: meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; Catalyst support; Contract volume is active versus open interest.</p><p>Risk factors: Expiration is too close for the short-swing plan; Volume confirmation is light; Sector benchmark data unavailable for XLF; Options-flow persistence history; ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation.</p><p>Missing institutional data: Implied volatility; Live implied volatility for earnings-IV check; Confirmed next earnings date; Live implied volatility; Options flow: call sweeps, put sweeps, block trades, unusual activity.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>GEOPOLITICAL / VOLATILITY: Stocks dip, Treasury yields jump as oil pushes higher - Reuters (confidence 70, novelty 35, urgency 70). Transmission: geopolitical stress -&gt; risk appetite -&gt; sector rotation -&gt; WFC</li><li>LEGAL_REGULATORY / BEARISH: Wells Fargo (WFC) Stock After Regulatory Scrutiny And Recent Pullback In 2026 (confidence 66, novelty 65, urgency 70). Transmission: legal/regulatory event -&gt; risk premium -&gt; earnings uncertainty -&gt; WFC</li><li>CONTRACT_WIN / BEARISH: Wells Fargo Ordered to Pay Former Broker $3 Million in Arbitration Dispute, but Will Also Collect $1 Million (confidence 64, novelty 55, urgency 70). Transmission: deal/contract signal -&gt; future revenue visibility -&gt; demand validation -&gt; WFC</li><li>GEOPOLITICAL / VOLATILITY: Treasury Yields Fall, Dollar Strengthens as Oil Prices Slip (confidence 63, novelty 50, urgency 70). Transmission: geopolitical stress -&gt; risk appetite -&gt; sector rotation -&gt; WFC</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: ALERT</p><ul><li>Expected move: 2.9%</li><li>Current implied move: 0.3%</li><li>Estimated edge: 1.9%</li></ul><ul><li>ALERT: practical data does not trigger a rejection rule; entry still requires chart confirmation</li><li>Expiration is too close for the short-swing plan</li><li>Implied volatility</li><li>Live implied volatility for earnings-IV check</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is useful but not dominant. It gives the setup a reason to stay on watch, but it is not strong enough for me to ignore a bad entry. Catalyst summary / research brief: After reviewing Finance, Reuters, The New York Times, the story around WFC is mainly about Stocks dip, Treasury yields jump as oil pushes higher. The deal/customer-demand angle gives traders a concrete repricing hook around future revenue. Regulatory/legal overhang keeps buyer conviction conditional. Macro/geopolitical stress is active in the tape and can override single-name strength. Rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. Oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. Main themes: regulatory or public scrutiny, deal, contract, or licensing activity, oil-price sensitivity, Middle East or geopolitical risk, rates and inflation expectations. My read: deal/contract visibility around demand, backlog, or strategic validation, and regulatory/legal overhang on the multiple, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. For WFC, the key read is whether this changes underwriting, advisory revenue, fee income, credit sensitivity, trading activity, or capital-markets appetite. Macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. Most relevant current item: Stocks dip, Treasury yields jump as oil pushes higher. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is only 0.58:1, so I would wait for a better entry instead of accepting a weak payout profile.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Resistance rejection / double-top candidate. higher highs and higher lows. meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; near major 60-day resistance</p><p>Key evidence: meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; near major 60-day resistance</p><p>Supporting timeframes: No clear higher/lower timeframe support from available data. Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish, 15m bullish</p><p>Support/resistance read: Key 20-session support is near $75.18; key 20-session resistance is near $87.08. Wider 60-session range is $72.78 to $87.08. Target 1 is 82.00, Target 2 is 80.43, Target 3 is 78.87, and invalidation is near 87.81.</p></div>
-  </details>
-</div>
+  <a class="read-more-link" href="stock_detail_INTC.html">Read More</a>
 </section>
     </div>
   </div>

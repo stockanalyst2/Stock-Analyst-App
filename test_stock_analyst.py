@@ -473,6 +473,48 @@ class StockAnalystTests(unittest.TestCase):
         self.assertNotIn("refreshReport", document)
         self.assertNotIn("resetFilters", document)
 
+    def test_write_report_creates_read_more_detail_page(self):
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=None,
+            volatility=None,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=None,
+            sma_50=None,
+            sma_200=None,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_direction="CALL",
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = stock_analyst.Path(temp_dir) / "stock_report.html"
+
+            stock_analyst.write_report([item], output, "balanced", [])
+
+            report = output.read_text()
+            detail = (stock_analyst.Path(temp_dir) / "stock_detail_TEST.html").read_text()
+
+        self.assertIn("stock_detail_TEST.html", report)
+        self.assertIn("Read More", report)
+        self.assertIn("Back to Watchlist", detail)
+        self.assertIn("Entry Plan", detail)
+        self.assertIn("Trader Judgment", detail)
+
     def test_target_profit_levels_include_runner_goals(self):
         item = stock_analyst.Analysis(
             symbol="TEST",
@@ -985,7 +1027,12 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn('class="summary-company"', row)
         self.assertIn('class="setup-card is-collapsed"', row)
         self.assertIn('class="toggle-card">Expand</button>', row)
-        self.assertNotIn('class="theme-panel" open', row)
+        self.assertIn("Why is it on the list?", row)
+        self.assertIn("What other sources are supporting the thesis?", row)
+        self.assertIn("Read More", row)
+        self.assertIn("stock_detail_BAD.html", row)
+        self.assertNotIn("Entry Plan", row)
+        self.assertNotIn("Trader Judgment", row)
         self.assertIn("&lt;script&gt;", row)
         self.assertIn("&lt;b&gt;unsafe&lt;/b&gt;", secondary)
 

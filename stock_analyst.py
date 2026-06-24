@@ -5602,6 +5602,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .setup-body {{ border-top: 0; }}
     .setup-top {{ display: grid; grid-template-columns: 1fr; gap: 28px; padding: 26px 22px 30px; align-items: start; }}
     .setup-details {{ display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: 18px; align-content: start; }}
+    .watchlist-preview {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
     .setup-heading, .setup-actions {{ display: none; }}
     .toggle-card {{ border: 1px solid #3a3a3a; border-radius: 999px; padding: 7px 12px; background: #050505; color: #d0d0d0; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: .12em; }}
     .toggle-card:hover {{ border-color: #777777; background: #101010; }}
@@ -5630,6 +5631,8 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .theme-body p:last-child {{ margin-bottom: 0; }}
     .theme-body ul {{ margin: 0; padding-left: 17px; }}
     .theme-body li + li {{ margin-top: 5px; }}
+    .read-more-link {{ display: inline-flex; min-height: 42px; align-items: center; justify-content: center; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; padding: 0 16px; text-decoration: none; justify-self: start; }}
+    .read-more-link:hover {{ border-color: #777777; background: #101010; }}
     .option-plan {{ color: #d0d0d0; line-height: 1.4; }}
     .detail-grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
     .detail {{ border: 1px solid #242424; border-radius: 8px; padding: 13px; background: #030303; }}
@@ -5718,6 +5721,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 </html>
 """
     output.write_text(document, encoding="utf-8")
+    write_detail_pages(results, output.parent)
 
 
 def report_block(rank: int, item: Analysis) -> str:
@@ -5752,13 +5756,58 @@ def report_block(rank: int, item: Analysis) -> str:
   </div>
   <div class="setup-body">
     <div class="setup-top">
-      {detail_panel(rank, item)}
+      {watchlist_preview_panel(rank, item)}
     </div>
   </div>
 </article>"""
 
 
-def detail_panel(rank: int, item: Analysis) -> str:
+def detail_page_filename(item: Analysis) -> str:
+    safe_symbol = re.sub(r"[^A-Za-z0-9_-]+", "_", item.symbol.upper()).strip("_")
+    return f"stock_detail_{safe_symbol or 'ticker'}.html"
+
+
+def watchlist_preview_panel(rank: int, item: Analysis) -> str:
+    return f"""<section class="watchlist-preview">
+  {theme_panel("Why is it on the list?", why_on_watchlist_text(item), open_panel=True)}
+  {theme_panel("What other sources are supporting the thesis?", supporting_sources_text(item), open_panel=True)}
+  <a class="read-more-link" href="{html.escape(detail_page_filename(item))}">Read More</a>
+</section>"""
+
+
+def why_on_watchlist_text(item: Analysis) -> str:
+    brief = item.trade_brief
+    direction = item.setup_direction or "-"
+    setup = item.setup_label or item.rating or "setup"
+    stance = analyst_stance(item, brief)
+    evidence = "; ".join((item.setup_notes or item.notes)[:4]) or "the available data flagged enough price/catalyst interest to keep it under review"
+    if brief:
+        return (
+            f"{item.symbol} is on the watchlist as a {direction} idea because Atlas found a {setup.lower()} with enough supporting evidence to monitor, "
+            f"but the trade is still conditional. Current stance: {stance}. The useful part of the setup is this: {evidence}. "
+            "I would treat this as a watchlist candidate first and only move toward execution if the separate trade detail page confirms the entry, option quality, and risk/reward."
+        )
+    return (
+        f"{item.symbol} is on the watchlist as a {direction} idea because Atlas found a {setup.lower()}. "
+        f"The current evidence is: {evidence}. A full trade brief was not available, so this should stay watch-only until the deeper details are populated."
+    )
+
+
+def supporting_sources_text(item: Analysis) -> str:
+    company_news = relevant_company_news(item.news, item) or item.news
+    macro_news = relevant_macro_news(item.macro_news or [], item.symbol)
+    combined = dedupe_news(company_news + macro_news)
+    if not combined:
+        return "No strong external source cluster is attached yet. That means this ticker should be treated mainly as a technical/watchlist idea until credible catalyst confirmation appears."
+    lines: list[str] = []
+    for news_item in combined[:5]:
+        source = news_item.source or "Market feed"
+        title = news_item.title or "Untitled item"
+        lines.append(f"- {source}: {title}")
+    return "\n".join(lines)
+
+
+def full_trade_detail_panel(rank: int, item: Analysis) -> str:
     option = item.option
     brief = item.trade_brief
     grade = brief.setup_grade if brief else score_grade(rank_score(item, "trade"))
@@ -5775,6 +5824,97 @@ def detail_panel(rank: int, item: Analysis) -> str:
   </div>
   {themed_left_panels(item)}
 </section>"""
+
+
+def write_detail_pages(results: list[Analysis], output_dir: Path) -> None:
+    for rank, item in enumerate(results, start=1):
+        detail_path = output_dir / detail_page_filename(item)
+        detail_path.write_text(detail_page_html(rank, item), encoding="utf-8")
+
+
+def detail_page_html(rank: int, item: Analysis) -> str:
+    direction = item.setup_direction or "-"
+    direction_class = direction.lower()
+    company_name = display_company_name(item.symbol, item.name)
+    brief = item.trade_brief
+    status, _status_detail = entry_status(item, brief)
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{html.escape(item.symbol)} Trade Details</title>
+  <style>
+    :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; background: #000000; color: #eeeeee; }}
+    body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.035), transparent 34%); }}
+    main {{ position: relative; max-width: 1080px; margin: 0 auto; padding: 28px 18px 60px; }}
+    a {{ color: inherit; }}
+    .back-link {{ display: inline-flex; min-height: 38px; align-items: center; border: 1px solid #333333; border-radius: 999px; padding: 0 14px; color: #d0d0d0; text-decoration: none; font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }}
+    .hero {{ display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin: 26px 0 22px; }}
+    .symbol {{ font-size: clamp(42px, 10vw, 76px); line-height: .9; font-weight: 950; letter-spacing: .01em; }}
+    .company {{ margin-top: 10px; color: #9b9b9b; font-size: 15px; font-weight: 700; }}
+    .direction {{ border-radius: 999px; padding: 9px 14px; font-weight: 950; font-size: 12px; letter-spacing: .12em; }}
+    .direction.call {{ background: rgba(34,197,94,.16); color: #86efac; border: 1px solid rgba(34,197,94,.34); }}
+    .direction.put {{ background: rgba(248,113,113,.16); color: #fca5a5; border: 1px solid rgba(248,113,113,.34); }}
+    .status-card {{ border: 1px solid #262626; border-radius: 10px; background: #050505; padding: 16px; margin-bottom: 18px; }}
+    .status-label {{ color: #888888; font-size: 10px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }}
+    .status-value {{ margin-top: 8px; font-size: 22px; font-weight: 900; }}
+    .section-grid {{ display: grid; gap: 14px; }}
+    .setup-details {{ display: grid; grid-template-columns: minmax(230px, 320px) minmax(0, 1fr); gap: 14px; align-items: start; }}
+    .vital-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
+    .detail {{ border: 1px solid #242424; border-radius: 8px; padding: 13px; background: #030303; }}
+    .detail-label {{ color: #868686; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }}
+    .detail-value {{ margin-top: 6px; font-size: 18px; font-weight: 850; overflow-wrap: anywhere; }}
+    .theme-stack {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }}
+    .theme-panel, .secondary-analysis {{ border: 1px solid #242424; border-radius: 8px; background: #030303; overflow: hidden; }}
+    .theme-panel summary, .secondary-analysis summary {{ cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 14px 15px; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; list-style: none; }}
+    .theme-panel summary::-webkit-details-marker, .secondary-analysis summary::-webkit-details-marker {{ display: none; }}
+    .theme-panel summary::after, .secondary-analysis summary::after {{ content: "Expand"; color: #8f8f8f; font-size: 9px; letter-spacing: .08em; }}
+    .theme-panel[open] summary::after, .secondary-analysis[open] summary::after {{ content: "Collapse"; }}
+    .theme-body, .secondary-body {{ border-top: 1px solid #202020; padding: 15px; color: #d6d6d6; font-size: 13px; line-height: 1.55; }}
+    .theme-body p, .secondary-body p {{ margin: 0 0 10px; color: #d6d6d6; }}
+    .theme-body p:last-child, .secondary-body p:last-child {{ margin-bottom: 0; }}
+    .theme-body ul, .secondary-body ul {{ margin: 0; padding-left: 17px; }}
+    .rationale {{ border: 1px solid #262626; border-radius: 8px; padding: 12px; background: #101010; color: #d6d6d6; line-height: 1.5; }}
+    .rationale strong, .signals strong {{ display: block; color: #eeeeee; margin-bottom: 5px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }}
+    .signals {{ border: 1px solid #262626; border-radius: 8px; padding: 12px; background: #101010; color: #d6d6d6; line-height: 1.5; }}
+    .trade-brief {{ display: grid; gap: 10px; margin-top: 14px; }}
+    .brief-title {{ color: #eeeeee; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }}
+    .brief-grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
+    .brief-section {{ border: 1px solid #262626; border-radius: 8px; padding: 11px; background: #0d0d0d; color: #d0d0d0; font-size: 12px; line-height: 1.45; }}
+    .brief-section.full {{ grid-column: 1 / -1; }}
+    .brief-section strong {{ color: #eeeeee; display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }}
+    .brief-section ul {{ margin: 0; padding-left: 16px; }}
+    .brief-section.recommendation.reject {{ border-color: #7f1d1d; color: #fecaca; }}
+    .brief-section.recommendation.watch {{ border-color: #854d0e; color: #fde68a; }}
+    .brief-section.recommendation.action {{ border-color: #14532d; color: #bbf7d0; }}
+    @media (max-width: 820px) {{ .setup-details, .theme-stack, .brief-grid {{ grid-template-columns: 1fr; }} .hero {{ align-items: center; }} }}
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back-link" href="stock_report.html">Back to Watchlist</a>
+    <header class="hero">
+      <div>
+        <div class="symbol">{html.escape(item.symbol)}</div>
+        <div class="company">{html.escape(company_name)}</div>
+      </div>
+      <div class="direction {html.escape(direction_class)}">{html.escape(direction)}</div>
+    </header>
+    <section class="status-card">
+      <div class="status-label">Current Status</div>
+      <div class="status-value">{html.escape(status)}</div>
+    </section>
+    <section class="section-grid">
+      {full_trade_detail_panel(rank, item)}
+      {secondary_analysis_html(item)}
+      {trade_brief_html(item)}
+    </section>
+  </main>
+</body>
+</html>"""
 
 
 def recommendation_class(brief: TradeBrief | None) -> str:
