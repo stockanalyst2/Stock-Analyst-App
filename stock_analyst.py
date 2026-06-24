@@ -5572,8 +5572,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
     a:visited {{ color: #a8a8a8; }}
-    .meta {{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 28px; }}
-    .pill {{ border: 1px solid #252525; border-radius: 999px; padding: 8px 12px; background: #050505; color: #cfcfcf; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }}
     .macro-banner {{ margin: 0 0 18px; padding: 14px 16px; border: 1px solid #7f1d1d; border-radius: 8px; background: linear-gradient(135deg, rgba(127, 29, 29, .34), rgba(17, 17, 17, .98)); box-shadow: 0 16px 40px rgba(0, 0, 0, .35); }}
     .macro-banner-kicker {{ color: #fca5a5; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }}
     .macro-banner-title {{ margin-top: 4px; color: #ffffff; font-size: 18px; font-weight: 900; }}
@@ -5675,11 +5673,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 <body>
   <main>
     <h1>Current Watchlist</h1>
-    <div class="meta">
-      <span class="pill">Generated: {html.escape(generated)}</span>
-      <span class="pill">Profile: {html.escape(profile)}</span>
-      <span class="pill">Candidates analyzed: {len(results)}</span>
-    </div>
     {macro_banner}
     <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
