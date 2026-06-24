@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 190" role="img" aria-labelledby="title desc">
+  <title id="title">ATLAS</title>
+  <desc id="desc">Autonomous Trading and Logistical Assessment System</desc>
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1f1f1"/>
+      <stop offset="0.38" stop-color="#bdbdbd"/>
+      <stop offset="0.70" stop-color="#f7f7f7"/>
+      <stop offset="1" stop-color="#858585"/>
+    </linearGradient>
+    <filter id="softGlow" x="-10%" y="-40%" width="120%" height="180%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#ffffff" flood-opacity=".10"/>
+    </filter>
+  </defs>
+
+  <g fill="none" stroke="url(#metal)" stroke-width="24" stroke-linecap="butt" stroke-linejoin="miter" filter="url(#softGlow)">
+    <!-- A -->
+    <path d="M80 108 L132 34 L184 108"/>
+    <!-- T -->
+    <path d="M230 42 H356"/>
+    <path d="M293 42 V109"/>
+    <!-- L -->
+    <path d="M424 42 V109 H528"/>
+    <!-- A -->
+    <path d="M578 108 L630 34 L682 108"/>
+    <!-- S -->
+    <path d="M830 42 H737 C713 42 700 53 700 70 C700 87 713 98 737 98 H800 C824 98 837 109 837 126 C837 143 824 154 800 154 H693"/>
+  </g>
+
+  <text x="460" y="166"
+        text-anchor="middle"
+        fill="#c9c9c9"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="17"
+        font-weight="400"
+        letter-spacing="6.2">
+    AUTONOMOUS TRADING &amp; LOGISTICAL ASSESSMENT SYSTEM
+  </text>
+</svg>

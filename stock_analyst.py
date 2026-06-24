@@ -8360,7 +8360,7 @@ def report_dashboard_html() -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ATLAS</title>
-  <link rel="icon" href="/atlas_wordmark_reference.jpg">
+  <link rel="icon" href="/atlas_wordmark.svg">
   <style>
     :root {{
       color-scheme: dark;
@@ -8375,9 +8375,7 @@ def report_dashboard_html() -> str:
     body {{
       margin: 0;
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 50% 12%, rgba(255,255,255,.045), transparent 24%),
-        #000;
+      background: #000;
       color: var(--text);
       overflow-x: hidden;
     }}
@@ -8471,7 +8469,7 @@ def report_dashboard_html() -> str:
   <main>
     <section class="shell" aria-label="ATLAS home">
       <div class="brand">
-        <img class="wordmark-image" src="/atlas_wordmark_reference.jpg" alt="ATLAS - Autonomous Trading &amp; Logistical Assessment System">
+        <img class="wordmark-image" src="/atlas_wordmark.svg" alt="ATLAS - Autonomous Trading &amp; Logistical Assessment System">
       </div>
       <a class="report-link" href="/stock_report.html" aria-label="Open latest report">
         <span class="menu-icon" aria-hidden="true"><span></span></span>
