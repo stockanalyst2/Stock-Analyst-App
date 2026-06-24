@@ -8406,6 +8406,7 @@ def report_dashboard_html() -> str:
       margin-bottom: 56px;
     }}
     a {{ color: inherit; text-decoration: none; }}
+    button {{ font: inherit; }}
     .report-link {{
       width: min(100%, 604px);
       min-height: 71px;
@@ -8415,6 +8416,8 @@ def report_dashboard_html() -> str:
       grid-template-columns: 74px 1fr;
       align-items: center;
       background: rgba(8, 8, 8, .72);
+      color: inherit;
+      cursor: pointer;
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,.08),
         0 0 32px rgba(255,255,255,.035);
@@ -8476,6 +8479,24 @@ def report_dashboard_html() -> str:
       color: #ff4d4d;
       text-shadow: 0 0 14px rgba(255, 77, 77, .28);
     }}
+    .report-panel {{
+      display: none;
+      width: min(1120px, calc(100vw - 60px));
+      height: min(72vh, 780px);
+      border: 1px solid rgba(232, 232, 232, .50);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #050505;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, .72);
+    }}
+    .report-panel.is-open {{ display: block; }}
+    .report-frame {{
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #050505;
+    }}
     @media (max-width: 560px) {{
       main {{
         align-items: flex-start;
@@ -8486,6 +8507,11 @@ def report_dashboard_html() -> str:
       .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
       .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
       .status-line {{ font-size: 11px; letter-spacing: .18em; }}
+      .report-panel {{
+        width: calc(100vw - 24px);
+        height: 62vh;
+        border-radius: 4px;
+      }}
     }}
   </style>
 </head>
@@ -8495,17 +8521,34 @@ def report_dashboard_html() -> str:
       <div class="brand">
         <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
       </div>
-      <a class="report-link" href="/stock_report.html" aria-label="Open latest report">
+      <button class="report-link" type="button" id="reportToggle" aria-expanded="false" aria-controls="reportPanel">
         <span class="menu-icon" aria-hidden="true"><span></span></span>
         <span class="link-text">Open Latest Report</span>
-      </a>
+      </button>
       <div class="status-line" aria-live="polite">
         <span>Status:</span>
         <span class="status-value" id="appStatus">Online</span>
       </div>
+      <section class="report-panel" id="reportPanel" aria-label="Latest stock report">
+        <iframe class="report-frame" id="reportFrame" title="Latest stock report"></iframe>
+      </section>
     </section>
   </main>
   <script>
+    const reportToggle = document.getElementById('reportToggle');
+    const reportPanel = document.getElementById('reportPanel');
+    const reportFrame = document.getElementById('reportFrame');
+
+    function toggleReport() {{
+      const nextOpen = !reportPanel.classList.contains('is-open');
+      reportPanel.classList.toggle('is-open', nextOpen);
+      reportToggle.setAttribute('aria-expanded', String(nextOpen));
+      reportToggle.querySelector('.link-text').textContent = nextOpen ? 'Close Latest Report' : 'Open Latest Report';
+      if (nextOpen && !reportFrame.src) {{
+        reportFrame.src = `/stock_report.html?t=${{Date.now()}}`;
+      }}
+    }}
+
     async function refreshStatus() {{
       const status = document.getElementById('appStatus');
       try {{
@@ -8518,6 +8561,7 @@ def report_dashboard_html() -> str:
         status.classList.add('offline');
       }}
     }}
+    reportToggle.addEventListener('click', toggleReport);
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>
