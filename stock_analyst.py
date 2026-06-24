@@ -8542,6 +8542,25 @@ def on_demand_command(script_path: Path, symbol: str, output_name: str) -> list[
 class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
     server_version = "StockAnalystReport/1.0"
 
+    def do_HEAD(self) -> None:
+        if not self.is_authorized():
+            self.request_auth()
+            return
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path in {"/", "/app", "/dashboard"}:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return
+        if parsed.path == "/healthz":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return
+        super().do_HEAD()
+
     def do_GET(self) -> None:
         if not self.is_authorized():
             self.request_auth()
@@ -8691,13 +8710,13 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
 def serve_report(args: argparse.Namespace) -> int:
     root = Path(__file__).resolve().parent
     os.chdir(root)
-    start_scheduled_scanner()
     server = http.server.ThreadingHTTPServer((args.host, args.port), ReportRequestHandler)
+    start_scheduled_scanner()
     host = "127.0.0.1" if args.host in {"", "0.0.0.0"} else args.host
-    print(f"Serving Stock Analyst App at http://{host}:{args.port}/app")
+    print(f"Serving Stock Analyst App at http://{host}:{args.port}/app", flush=True)
     if os.environ.get("STOCK_ANALYST_PASSWORD"):
-        print("Password protection is enabled. Username: stock")
-    print("Press Ctrl+C to stop the server.")
+        print("Password protection is enabled. Username: stock", flush=True)
+    print("Press Ctrl+C to stop the server.", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -8775,7 +8794,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv or sys.argv[1:])
+    raw_args = argv if argv is not None else sys.argv[1:]
+    args = parse_args(raw_args)
+    if not raw_args and os.environ.get("PORT"):
+        args.serve = True
+        args.host = "0.0.0.0"
     if args.serve:
         return serve_report(args)
     return run(args)
