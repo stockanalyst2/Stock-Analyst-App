@@ -507,13 +507,27 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.write_report([item], output, "balanced", [])
 
             report = output.read_text()
-            detail = (stock_analyst.Path(temp_dir) / "stock_detail_TEST.html").read_text()
 
-        self.assertIn("stock_detail_TEST.html", report)
+        self.assertFalse((stock_analyst.Path(temp_dir) / "stock_details.html").exists())
+        self.assertFalse((stock_analyst.Path(temp_dir) / "stock_detail_TEST.html").exists())
         self.assertIn("Read More", report)
-        self.assertIn("Back to Watchlist", detail)
-        self.assertIn("Entry Plan", detail)
-        self.assertIn("Trader Judgment", detail)
+        self.assertIn('data-detail-target="TEST"', report)
+        self.assertIn('id="TEST"', report)
+        self.assertIn('data-symbol="TEST"', report)
+        self.assertIn("Back to Watchlist", report)
+        self.assertIn("initialParams.get('detail')", report)
+        self.assertIn("Entry Plan", report)
+        self.assertIn("Trader Judgment", report)
+
+    def test_legacy_detail_urls_map_to_in_report_detail_view(self):
+        parsed = stock_analyst.urllib.parse.urlparse("/stock_details.html?symbol=TEST")
+        self.assertEqual(stock_analyst.legacy_detail_symbol(parsed), "TEST")
+
+        parsed = stock_analyst.urllib.parse.urlparse("/stock_detail_NVDA.html")
+        self.assertEqual(stock_analyst.legacy_detail_symbol(parsed), "NVDA")
+
+        parsed = stock_analyst.urllib.parse.urlparse("/stock_report.html")
+        self.assertIsNone(stock_analyst.legacy_detail_symbol(parsed))
 
     def test_target_profit_levels_include_runner_goals(self):
         item = stock_analyst.Analysis(
@@ -1030,7 +1044,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("Why is it on the list?", row)
         self.assertIn("What other sources are supporting the thesis?", row)
         self.assertIn("Read More", row)
-        self.assertIn("stock_detail_BAD.html", row)
+        self.assertIn('data-detail-target="BAD"', row)
         self.assertNotIn("Entry Plan", row)
         self.assertNotIn("Trader Judgment", row)
         self.assertIn("&lt;script&gt;", row)
