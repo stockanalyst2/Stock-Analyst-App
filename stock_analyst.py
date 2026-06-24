@@ -533,6 +533,20 @@ class PatternDetection:
 
 
 @dataclass
+class OptionsOpportunityScore:
+    ticker: str
+    call_score: float
+    put_score: float
+    confidence: float
+    bullish_factors: list[str]
+    bearish_factors: list[str]
+    missing_data: list[str]
+    risk_factors: list[str]
+    invalidation_conditions: list[str]
+    summary: str
+
+
+@dataclass
 class UniverseStock:
     symbol: str
     name: str
@@ -602,6 +616,7 @@ class Analysis:
     macro_news: list[NewsItem] | None = None
     trade_brief: "TradeBrief | None" = None
     pattern_detection: PatternDetection | None = None
+    options_opportunity: OptionsOpportunityScore | None = None
 
 
 @dataclass
@@ -4018,6 +4033,236 @@ def option_trade_plan(item: Analysis, target_pct: float = 0.20, stop_pct: float 
     )
 
 
+def option_chain_quality(option: OptionContract | None) -> tuple[float, list[str], list[str]]:
+    if option is None:
+        return 30.0, ["Live option chain unavailable"], ["No live contract attached"]
+    score = 50.0
+    risks: list[str] = []
+    missing: list[str] = []
+    if option.estimated:
+        score -= 18
+        risks.append("Contract structure is estimated, so live chain verification is required")
+    spread = option_spread_pct(option)
+    if spread is None:
+        missing.append("Bid/ask spread")
+        score -= 8
+    elif spread <= 0.15:
+        score += 18
+    elif spread <= 0.25:
+        score += 10
+    elif spread <= 0.40:
+        score -= 8
+        risks.append("Bid/ask spread is usable but not clean")
+    else:
+        score -= 22
+        risks.append("Bid/ask spread is wide")
+    if option.volume is None:
+        missing.append("Contract volume")
+    elif option.volume >= 1000:
+        score += 12
+    elif option.volume >= 100:
+        score += 6
+    else:
+        score -= 8
+        risks.append("Contract volume is thin")
+    if option.open_interest is None:
+        missing.append("Open interest")
+    elif option.open_interest >= 1000:
+        score += 12
+    elif option.open_interest >= 250:
+        score += 6
+    else:
+        score -= 8
+        risks.append("Open interest is thin")
+    if option.implied_volatility is None:
+        missing.append("Implied volatility")
+    elif option.implied_volatility > 1.2:
+        score -= 10
+        risks.append("Implied volatility is very high")
+    elif option.implied_volatility < 0.25:
+        score += 5
+    return clamp(score), missing, risks
+
+
+def volatility_quality(item: Analysis) -> tuple[float, list[str], list[str]]:
+    missing: list[str] = []
+    risks: list[str] = []
+    score = 55.0
+    if item.volatility is None:
+        missing.append("Realized volatility")
+    elif item.volatility < 0.18:
+        score -= 8
+        risks.append("Realized volatility may be too low for a fast option move")
+    elif item.volatility <= 0.55:
+        score += 14
+    else:
+        score -= 10
+        risks.append("Realized volatility is elevated enough to increase whipsaw risk")
+    if item.volume_ratio is None:
+        missing.append("Relative volume")
+    elif item.volume_ratio >= 1.5:
+        score += 14
+    elif item.volume_ratio >= 1.1:
+        score += 7
+    elif item.volume_ratio < 0.8:
+        score -= 10
+        risks.append("Volume confirmation is light")
+    option = item.option
+    if option is None or option.implied_volatility is None:
+        missing.append("Live implied volatility")
+    elif option.implied_volatility > 1.2:
+        score -= 12
+        risks.append("Option IV is rich, so the contract needs stronger follow-through")
+    elif option.implied_volatility < 0.35:
+        score += 5
+    return clamp(score), missing, risks
+
+
+def directional_price_action_scores(item: Analysis) -> tuple[float, float, list[str], list[str], list[str]]:
+    setup = item.setup_score if item.setup_score is not None else 50.0
+    call_score = 50.0
+    put_score = 50.0
+    bullish: list[str] = []
+    bearish: list[str] = []
+    risks: list[str] = []
+    direction = item.setup_direction or ""
+    if direction == "CALL":
+        call_score = setup
+        put_score = max(20.0, 100.0 - setup * 0.65)
+        bullish.extend((item.setup_notes or item.notes)[:3])
+    elif direction == "PUT":
+        put_score = setup
+        call_score = max(20.0, 100.0 - setup * 0.65)
+        bearish.extend((item.setup_notes or item.notes)[:3])
+    else:
+        risks.append("No clean call/put direction from available price action")
+    if item.sma_50 and item.sma_200:
+        if item.price > item.sma_50 > item.sma_200:
+            call_score += 8
+            bullish.append("Price is above rising intermediate/long-term moving averages")
+        elif item.price < item.sma_50 < item.sma_200:
+            put_score += 8
+            bearish.append("Price is below falling intermediate/long-term moving averages")
+    if item.return_20d is not None:
+        if item.return_20d > 0.05:
+            call_score += 5
+            bullish.append("20-day relative trend is positive")
+        elif item.return_20d < -0.05:
+            put_score += 5
+            bearish.append("20-day relative trend is negative")
+    if item.rsi is not None:
+        if item.rsi > 74:
+            risks.append("RSI is stretched; chasing calls is lower quality")
+            call_score -= 6
+        elif item.rsi < 26:
+            risks.append("RSI is washed out; chasing puts is lower quality")
+            put_score -= 6
+    return clamp(call_score), clamp(put_score), bullish, bearish, risks
+
+
+def market_context_directional_scores(item: Analysis) -> tuple[float, float, list[str], list[str], list[str]]:
+    catalyst = item.catalyst_score if item.catalyst_score is not None else 50.0
+    call_score = catalyst
+    put_score = catalyst
+    bullish: list[str] = []
+    bearish: list[str] = []
+    risks: list[str] = []
+    direction = item.setup_direction or ""
+    if item.catalyst_score is None:
+        risks.append("Catalyst score unavailable")
+    elif direction == "CALL":
+        bullish.append(item.catalyst_label or "Catalyst backdrop supports the call thesis")
+        put_score = max(20.0, 100.0 - catalyst * 0.55)
+    elif direction == "PUT":
+        bearish.append(item.catalyst_label or "Catalyst backdrop supports the put thesis")
+        call_score = max(20.0, 100.0 - catalyst * 0.55)
+    shock = macro_oil_shock(item.macro_news or [])
+    sector = SYMBOL_SECTORS.get(item.symbol.upper(), "")
+    if shock.get("active"):
+        if sector == "energy":
+            call_score += 8
+            put_score -= 12
+            bullish.append("Active oil/geopolitical shock can support energy calls")
+        else:
+            call_score -= 14
+            put_score += 8
+            bearish.append("Active oil/geopolitical shock creates risk-off pressure for non-energy calls")
+    return clamp(call_score), clamp(put_score), bullish, bearish, risks
+
+
+def build_options_opportunity_score(item: Analysis) -> OptionsOpportunityScore:
+    price_call, price_put, bullish, bearish, price_risks = directional_price_action_scores(item)
+    chain_score, chain_missing, chain_risks = option_chain_quality(item.option)
+    vol_score, vol_missing, vol_risks = volatility_quality(item)
+    context_call, context_put, context_bullish, context_bearish, context_risks = market_context_directional_scores(item)
+    bullish.extend(context_bullish)
+    bearish.extend(context_bearish)
+    missing = list(dict.fromkeys(chain_missing + vol_missing))
+    risks = list(dict.fromkeys(price_risks + chain_risks + vol_risks + context_risks))
+    institutional_missing = [
+        "Options flow: call sweeps, put sweeps, block trades, unusual activity",
+        "Dark pool prints",
+        "Dealer positioning: GEX, DEX, gamma flip, call wall, put wall, vanna, charm",
+        "IV rank / IV percentile",
+    ]
+    missing.extend(institutional_missing)
+    weights = {
+        "price": 0.36,
+        "chain": 0.29,
+        "volatility": 0.21,
+        "context": 0.14,
+    }
+    call_score = (
+        price_call * weights["price"]
+        + chain_score * weights["chain"]
+        + vol_score * weights["volatility"]
+        + context_call * weights["context"]
+    )
+    put_score = (
+        price_put * weights["price"]
+        + chain_score * weights["chain"]
+        + vol_score * weights["volatility"]
+        + context_put * weights["context"]
+    )
+    available_inputs = 4
+    if item.option is None or item.option.estimated:
+        available_inputs -= 1
+    if item.catalyst_score is None:
+        available_inputs -= 1
+    if item.volatility is None and item.volume_ratio is None:
+        available_inputs -= 1
+    coverage = max(0.0, available_inputs / 4)
+    directional_gap = abs(call_score - put_score)
+    confidence = clamp(35 + coverage * 35 + min(20, directional_gap * 0.35) - min(18, len(risks) * 3))
+    direction = "CALL" if call_score >= put_score else "PUT"
+    leading_score = max(call_score, put_score)
+    risk_text = " ".join(risks[:2]) if risks else "No major practical-data risk fired, but the trade still requires trigger confirmation."
+    summary = (
+        f"Practical options score favors {direction} at {leading_score:.0f}/100 using available data only. "
+        f"Confidence is {confidence:.0f}/100 because Atlas has price action, chain/volatility proxies, and catalyst context, "
+        "but does not have live institutional flow or dealer-positioning feeds."
+    )
+    invalidation: list[str] = []
+    if item.trade_brief and item.trade_brief.invalidation is not None:
+        invalidation.append(f"Invalid below/above the trade invalidation level near {format_price(item.trade_brief.invalidation)}")
+    if item.entry_plan:
+        invalidation.append("Invalid if the entry trigger fails or reverses quickly after entry")
+    if risk_text:
+        invalidation.append(risk_text)
+    return OptionsOpportunityScore(
+        ticker=item.symbol,
+        call_score=round(call_score, 1),
+        put_score=round(put_score, 1),
+        confidence=round(confidence, 1),
+        bullish_factors=list(dict.fromkeys([factor for factor in bullish if factor]))[:6],
+        bearish_factors=list(dict.fromkeys([factor for factor in bearish if factor]))[:6],
+        missing_data=list(dict.fromkeys(missing)),
+        risk_factors=risks[:6],
+        invalidation_conditions=invalidation[:5],
+        summary=summary,
+    )
+
+
 def trend_label(values: list[float], short_window: int, long_window: int) -> str:
     short = moving_average(values, short_window)
     long = moving_average(values, long_window)
@@ -5190,6 +5435,7 @@ def themed_left_panels(item: Analysis) -> str:
     catalyst = analyst_catalyst_opinion(item)
     option_risk = analyst_option_critique(item, brief)
     technical = technical_context_text(item, brief)
+    opportunity = options_opportunity_text(item)
     execution = analyst_execution_opinion(item, brief)
     status, status_detail = entry_status(item, brief)
     entry_text = f"Entry status: {status}. {status_detail}\n\n{entry}\n\n{execution}"
@@ -5197,6 +5443,7 @@ def themed_left_panels(item: Analysis) -> str:
     return f"""<div class="theme-stack">
   {theme_panel("Entry Plan", entry_text, open_panel=True)}
   {theme_panel("Trader Judgment", trader_text, open_panel=True)}
+  {theme_panel("Options Score", opportunity, open_panel=True)}
   {theme_panel("Catalyst / Macro", catalyst)}
   {theme_panel("Option / Risk", option_risk)}
   {theme_panel("Technical Context", technical)}
@@ -5209,6 +5456,28 @@ def theme_panel(title: str, text: str, open_panel: bool = False) -> str:
     <summary>{html.escape(title)}</summary>
     <div class="theme-body">{paragraph_html(text)}</div>
   </details>"""
+
+
+def compact_list(label: str, values: list[str]) -> str:
+    if not values:
+        return f"{label}: none flagged."
+    return f"{label}: " + "; ".join(values[:5]) + "."
+
+
+def options_opportunity_text(item: Analysis) -> str:
+    score = item.options_opportunity or build_options_opportunity_score(item)
+    preferred = "CALL" if score.call_score >= score.put_score else "PUT"
+    return (
+        f"{score.summary}\n\n"
+        f"- Preferred side: {preferred}\n"
+        f"- Call score: {score.call_score:.0f}/100\n"
+        f"- Put score: {score.put_score:.0f}/100\n"
+        f"- Confidence: {score.confidence:.0f}/100\n\n"
+        f"{compact_list('Bullish evidence', score.bullish_factors)}\n\n"
+        f"{compact_list('Bearish evidence', score.bearish_factors)}\n\n"
+        f"{compact_list('Risk factors', score.risk_factors)}\n\n"
+        f"{compact_list('Missing institutional data', score.missing_data)}"
+    )
 
 
 def technical_context_text(item: Analysis, brief: TradeBrief) -> str:
@@ -7586,6 +7855,7 @@ def run(args: argparse.Namespace) -> int:
     if args.mode == "trade":
         for item in results[: args.limit]:
             item.trade_brief = build_trade_brief(item, args.market_regime)
+            item.options_opportunity = build_options_opportunity_score(item)
             trader_score = float(real_money_trader_judgment(item, item.trade_brief)["score"])
             item.final_trade_score = min(item.trade_brief.confidence_score, trader_score)
         before = min(len(results), args.limit)

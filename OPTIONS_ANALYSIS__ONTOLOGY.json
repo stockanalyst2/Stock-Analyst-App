@@ -1,0 +1,78 @@
+{
+  "PriceAction": [
+    "Trend",
+    "HigherHigh",
+    "HigherLow",
+    "LowerHigh",
+    "LowerLow",
+    "BOS",
+    "CHOCH",
+    "Breakout",
+    "Pullback",
+    "Support",
+    "Resistance",
+    "SupplyZone",
+    "DemandZone",
+    "VolumeExpansion",
+    "VolumeContraction",
+    "RelativeStrength",
+    "RelativeWeakness",
+    "ATR"
+  ],
+  "OptionsChain": [
+    "OpenInterest",
+    "Volume",
+    "BidAskSpread",
+    "Liquidity",
+    "Delta",
+    "Gamma",
+    "Theta",
+    "Vega"
+  ],
+  "OptionsFlow": [
+    "CallSweep",
+    "PutSweep",
+    "BlockTrade",
+    "UnusualActivity",
+    "DarkPoolPrint"
+  ],
+  "Volatility": [
+    "ImpliedVolatility",
+    "IVRank",
+    "IVPercentile",
+    "RealizedVolatility",
+    "VolatilityExpansion",
+    "VolatilityCompression"
+  ],
+  "DealerPositioning": [
+    "GammaExposure",
+    "DeltaExposure",
+    "GammaFlip",
+    "CallWall",
+    "PutWall",
+    "Vanna",
+    "Charm"
+  ],
+  "MarketContext": [
+    "Earnings",
+    "AnalystUpgrade",
+    "AnalystDowngrade",
+    "NewsCatalyst",
+    "SectorStrength",
+    "SectorWeakness",
+    "MarketBreadth",
+    "VIX"
+  ],
+  "OutputSchema": {
+    "ticker": "",
+    "call_score": 0,
+    "put_score": 0,
+    "confidence": 0,
+    "bullish_factors": [],
+    "bearish_factors": [],
+    "missing_data": [],
+    "risk_factors": [],
+    "invalidation_conditions": [],
+    "summary": ""
+  }
+}

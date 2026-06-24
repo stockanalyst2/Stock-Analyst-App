@@ -552,6 +552,48 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("+20%", plan)
         self.assertIn("-25%", plan)
 
+    def test_options_opportunity_score_flags_unavailable_institutional_data(self):
+        item = stock_analyst.Analysis(
+            symbol="TEST",
+            name="Test Co",
+            price=100,
+            score=70,
+            rating="Candidate",
+            momentum_score=70,
+            value_score=50,
+            risk_score=60,
+            yield_score=40,
+            return_1y=None,
+            return_6m=None,
+            return_3m=0.08,
+            volatility=0.32,
+            max_drawdown=None,
+            sharpe_like=None,
+            rsi=55,
+            sma_50=95,
+            sma_200=90,
+            market_cap=None,
+            pe=None,
+            dividend_yield=None,
+            beta=None,
+            notes=[],
+            news=[],
+            setup_score=78,
+            setup_notes=["breakout", "volume expansion"],
+            return_20d=0.06,
+            volume_ratio=1.4,
+            setup_direction="CALL",
+            catalyst_score=72,
+            catalyst_label="Catalyst support",
+        )
+
+        score = stock_analyst.build_options_opportunity_score(item)
+
+        self.assertGreater(score.call_score, score.put_score)
+        self.assertTrue(any("Options flow" in item for item in score.missing_data))
+        self.assertTrue(any("Dealer positioning" in item for item in score.missing_data))
+        self.assertIn("available data only", score.summary)
+
     def test_tradingview_chart_url_uses_exchange_prefix(self):
         self.assertIn("NASDAQ%3AMSFT", stock_analyst.tradingview_chart_url("MSFT"))
         self.assertIn("NYSE%3AXOM", stock_analyst.tradingview_chart_url("XOM"))
