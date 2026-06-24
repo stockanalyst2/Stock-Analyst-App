@@ -8404,12 +8404,11 @@ def report_dashboard_html() -> str:
       background: transparent;
     }}
     .top-bar {{
-      height: 187px;
+      height: 160px;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      padding: 0 38px 38px 47px;
-      border-bottom: 3px solid var(--line);
+      padding: 0 36px 30px 28px;
     }}
     .wordmark-image {{
       display: block;
@@ -8472,13 +8471,13 @@ def report_dashboard_html() -> str:
     }}
     .tab.is-active {{ color: #f1f1f5; }}
     .content {{
-      min-height: calc(100vh - 263px);
+      min-height: calc(100vh - 236px);
       padding: 0 0 32px;
     }}
     .watchlist-panel {{
       display: block;
       width: 100%;
-      height: calc(100vh - 263px);
+      height: calc(100vh - 236px);
       min-height: 620px;
       border: 0;
       background: transparent;
@@ -8502,8 +8501,8 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .top-bar {{
-        height: 187px;
-        padding: 0 37px 38px 47px;
+        height: 160px;
+        padding: 0 31px 30px 28px;
       }}
       .wordmark-image {{ width: 176px; }}
       .profile-button {{ width: 51px; height: 51px; }}
@@ -8513,11 +8512,11 @@ def report_dashboard_html() -> str:
         gap: 22px;
       }}
       .tab {{ font-size: 16px; }}
-      .content {{ min-height: calc(100vh - 263px); }}
-      .watchlist-panel {{ height: calc(100vh - 263px); min-height: 650px; }}
+      .content {{ min-height: calc(100vh - 236px); }}
+      .watchlist-panel {{ height: calc(100vh - 236px); min-height: 650px; }}
     }}
     @media (max-width: 390px) {{
-      .top-bar {{ padding-left: 32px; padding-right: 30px; }}
+      .top-bar {{ padding-left: 22px; padding-right: 24px; }}
       .wordmark-image {{ width: 150px; }}
       .tabs {{ padding: 0 16px; gap: 12px; }}
       .tab {{ font-size: 14px; }}
