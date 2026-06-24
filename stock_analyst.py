@@ -8391,7 +8391,7 @@ def report_dashboard_html() -> str:
       display: grid;
       align-content: start;
       justify-items: center;
-      gap: 82px;
+      gap: 26px;
     }}
     .brand {{
       display: grid;
@@ -8403,6 +8403,7 @@ def report_dashboard_html() -> str:
       width: min(100%, 760px);
       height: auto;
       object-fit: contain;
+      margin-bottom: 56px;
     }}
     a {{ color: inherit; text-decoration: none; }}
     .report-link {{
@@ -8456,12 +8457,32 @@ def report_dashboard_html() -> str:
       text-transform: uppercase;
       white-space: nowrap;
     }}
+    .status-line {{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #8e8e8e;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }}
+    .status-value {{
+      color: #37d66f;
+      text-shadow: 0 0 14px rgba(55, 214, 111, .30);
+    }}
+    .status-value.offline {{
+      color: #ff4d4d;
+      text-shadow: 0 0 14px rgba(255, 77, 77, .28);
+    }}
     @media (max-width: 560px) {{
       main {{ padding: 30px; }}
-      .shell {{ gap: 50px; }}
-      .wordmark-image {{ width: min(100%, 560px); }}
+      .shell {{ gap: 22px; }}
+      .wordmark-image {{ width: min(100%, 560px); margin-bottom: 28px; }}
       .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
       .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
+      .status-line {{ font-size: 11px; letter-spacing: .18em; }}
     }}
   </style>
 </head>
@@ -8475,8 +8496,28 @@ def report_dashboard_html() -> str:
         <span class="menu-icon" aria-hidden="true"><span></span></span>
         <span class="link-text">Open Latest Report</span>
       </a>
+      <div class="status-line" aria-live="polite">
+        <span>Status:</span>
+        <span class="status-value" id="appStatus">Online</span>
+      </div>
     </section>
   </main>
+  <script>
+    async function refreshStatus() {{
+      const status = document.getElementById('appStatus');
+      try {{
+        const response = await fetch('/healthz', {{ cache: 'no-store' }});
+        if (!response.ok) throw new Error('offline');
+        status.textContent = 'Online';
+        status.classList.remove('offline');
+      }} catch (error) {{
+        status.textContent = 'Offline';
+        status.classList.add('offline');
+      }}
+    }}
+    refreshStatus();
+    setInterval(refreshStatus, 30000);
+  </script>
 </body>
 </html>"""
 
