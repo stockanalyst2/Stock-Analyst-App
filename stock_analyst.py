@@ -8389,9 +8389,9 @@ def report_dashboard_html() -> str:
     .top-bar {{
       height: 160px;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
-      padding: 0 40px 30px 40px;
+      padding: 64px 40px 0 40px;
       max-width: 560px;
       margin: 0 auto;
     }}
@@ -8404,37 +8404,25 @@ def report_dashboard_html() -> str:
       filter: contrast(1.04) brightness(1.05);
     }}
     .profile-button {{
-      width: 51px;
-      height: 51px;
-      position: relative;
-      border: 2px solid rgba(229, 229, 236, .68);
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1.6px solid rgba(229, 229, 236, .72);
       border-radius: 50%;
       background: transparent;
       padding: 0;
       color: rgba(231, 231, 238, .86);
     }}
-    .profile-button::before {{
-      content: "";
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      width: 12px;
-      height: 12px;
-      border: 2px solid currentColor;
-      border-radius: 50%;
-      transform: translateX(-50%);
-    }}
-    .profile-button::after {{
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: 10px;
+    .profile-icon {{
       width: 24px;
-      height: 14px;
-      border: 2px solid currentColor;
-      border-bottom: 0;
-      border-radius: 20px 20px 0 0;
-      transform: translateX(-50%);
+      height: 24px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }}
     .tabs {{
       display: grid;
@@ -8493,10 +8481,10 @@ def report_dashboard_html() -> str:
     @media (max-width: 560px) {{
       .top-bar {{
         height: 160px;
-        padding: 0 38px 30px;
+        padding: 64px 38px 0;
       }}
       .wordmark-image {{ width: 176px; }}
-      .profile-button {{ width: 51px; height: 51px; }}
+      .profile-button {{ width: 42px; height: 42px; }}
       .tabs {{
         min-height: 76px;
         padding: 0 20px;
@@ -8518,7 +8506,12 @@ def report_dashboard_html() -> str:
   <main class="app-shell" aria-label="ATLAS">
     <header class="top-bar">
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
-      <button class="profile-button" type="button" aria-label="Account"></button>
+      <button class="profile-button" type="button" aria-label="Account">
+        <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.25"></circle>
+          <path d="M5.75 19.25c.95-3.45 3.05-5.2 6.25-5.2s5.3 1.75 6.25 5.2"></path>
+        </svg>
+      </button>
     </header>
     <nav class="tabs" aria-label="ATLAS sections">
       <button class="tab is-active" type="button" data-panel="watchlist">Watchlist</button>
