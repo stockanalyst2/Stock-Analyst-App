@@ -5370,7 +5370,7 @@ def report_block(rank: int, item: Analysis) -> str:
             expanded_news_summary(item),
         ]
     )
-    return f"""<article class="setup-card" data-symbol="{html.escape(item.symbol)}" data-grade="{html.escape(grade)}" data-direction="{html.escape(direction)}" data-search="{html.escape(search_text.lower())}">
+    return f"""<article class="setup-card is-collapsed" data-symbol="{html.escape(item.symbol)}" data-grade="{html.escape(grade)}" data-direction="{html.escape(direction)}" data-search="{html.escape(search_text.lower())}">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
@@ -5380,7 +5380,7 @@ def report_block(rank: int, item: Analysis) -> str:
       <div class="direction {html.escape(direction_class)}">{html.escape(direction)}</div>
     </div>
     <div class="setup-summary-actions">
-      <button type="button" class="toggle-card">Collapse</button>
+      <button type="button" class="toggle-card">Expand</button>
     </div>
   </div>
   <div class="setup-body">
@@ -5426,8 +5426,8 @@ def themed_left_panels(item: Analysis) -> str:
     entry = item.entry_plan or "-"
     if brief is None:
         return f"""<div class="theme-stack">
-  {theme_panel("Entry Plan", entry, open_panel=True)}
-  {theme_panel("Trader Judgment", "Full trader judgment is unavailable until the trade brief is built.", open_panel=True)}
+  {theme_panel("Entry Plan", entry)}
+  {theme_panel("Trader Judgment", "Full trader judgment is unavailable until the trade brief is built.")}
 </div>"""
 
     stance = analyst_stance(item, brief)
@@ -5441,9 +5441,9 @@ def themed_left_panels(item: Analysis) -> str:
     entry_text = f"Entry status: {status}. {status_detail}\n\n{entry}\n\n{execution}"
     trader_text = f"Analyst stance: {stance}\n\n{trader}"
     return f"""<div class="theme-stack">
-  {theme_panel("Entry Plan", entry_text, open_panel=True)}
-  {theme_panel("Trader Judgment", trader_text, open_panel=True)}
-  {theme_panel("Options Score", opportunity, open_panel=True)}
+  {theme_panel("Entry Plan", entry_text)}
+  {theme_panel("Trader Judgment", trader_text)}
+  {theme_panel("Options Score", opportunity)}
   {theme_panel("Catalyst / Macro", catalyst)}
   {theme_panel("Option / Risk", option_risk)}
   {theme_panel("Technical Context", technical)}

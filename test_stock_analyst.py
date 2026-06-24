@@ -636,6 +636,9 @@ class StockAnalystTests(unittest.TestCase):
         secondary = stock_analyst.secondary_analysis_html(item)
 
         self.assertIn('class="summary-company"', row)
+        self.assertIn('class="setup-card is-collapsed"', row)
+        self.assertIn('class="toggle-card">Expand</button>', row)
+        self.assertNotIn('class="theme-panel" open', row)
         self.assertIn("&lt;script&gt;", row)
         self.assertIn("&lt;b&gt;unsafe&lt;/b&gt;", secondary)
 
