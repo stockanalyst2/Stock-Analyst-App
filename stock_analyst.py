@@ -5546,6 +5546,12 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     output.parent.mkdir(parents=True, exist_ok=True)
     generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
     blocks = "\n".join(report_block(rank, item) for rank, item in enumerate(results, start=1))
+    if not blocks:
+        blocks = """<section class="empty-state">
+      <div class="empty-kicker">No Entry-Quality Setups</div>
+      <h2>No clean trades passed the final screen.</h2>
+      <p>Atlas found market candidates, then rejected them after catalyst, option quality, risk/reward, and execution checks. That is intentional: when the backdrop is messy, the report should stay quiet instead of dressing up weak trades.</p>
+    </section>"""
     macro_banner = macro_report_banner(results)
     failed_html = ""
     if failed:
@@ -5558,16 +5564,19 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
   <title>Stock Analyst Report</title>
   <style>
     :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
-    body {{ margin: 0; background: #050505; color: #eeeeee; }}
-    main {{ max-width: 1180px; margin: 0 auto; padding: 32px 20px 48px; }}
-    .report-hero {{ display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }}
-    .report-title-block {{ min-width: 0; }}
-    h1 {{ margin: 0 0 8px; font-size: 32px; line-height: 1.15; }}
-    p {{ margin: 0 0 16px; color: #b8b8b8; }}
+    body {{ margin: 0; background: #000000; color: #eeeeee; }}
+    body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .035), transparent 34%); }}
+    main {{ position: relative; max-width: 1320px; margin: 0 auto; padding: 34px 24px 56px; }}
+    .report-hero {{ display: grid; justify-items: center; gap: 15px; margin: 0 0 28px; text-align: center; }}
+    .report-logo {{ width: min(360px, 74vw); height: auto; display: block; opacity: .96; }}
+    .report-title-block {{ max-width: 820px; min-width: 0; }}
+    h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
+    p {{ margin: 0 0 16px; color: #9b9b9b; }}
+    .report-subtitle {{ margin: 0; color: #8f8f8f; font-size: 12px; line-height: 1.6; letter-spacing: .14em; text-transform: uppercase; }}
     a {{ color: #d6d6d6; }}
     a:visited {{ color: #a8a8a8; }}
-    .meta {{ display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 24px; }}
-    .pill {{ border: 1px solid #2a2a2a; border-radius: 999px; padding: 7px 11px; background: #111111; color: #eeeeee; font-size: 13px; }}
+    .meta {{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0 0 28px; }}
+    .pill {{ border: 1px solid #252525; border-radius: 999px; padding: 8px 12px; background: #050505; color: #cfcfcf; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }}
     .macro-banner {{ margin: 0 0 18px; padding: 14px 16px; border: 1px solid #7f1d1d; border-radius: 8px; background: linear-gradient(135deg, rgba(127, 29, 29, .34), rgba(17, 17, 17, .98)); box-shadow: 0 16px 40px rgba(0, 0, 0, .35); }}
     .macro-banner-kicker {{ color: #fca5a5; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }}
     .macro-banner-title {{ margin-top: 4px; color: #ffffff; font-size: 18px; font-weight: 900; }}
@@ -5579,54 +5588,58 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .score {{ font-weight: 700; }}
     .warning {{ margin-top: 16px; color: #fdba74; }}
     .small {{ font-size: 12px; color: #9b9b9b; max-width: 900px; margin-top: 16px; }}
-    .toolbar {{ position: sticky; top: 0; z-index: 10; display: flex; justify-content: flex-end; gap: 8px; align-items: center; margin: 20px 0 18px; padding: 10px; border: 1px solid #2a2a2a; border-radius: 8px; background: rgba(17, 17, 17, .96); backdrop-filter: blur(10px); }}
-    .toolbar button {{ min-height: 34px; border: 1px solid #333333; border-radius: 7px; background: #171717; color: #eeeeee; font: inherit; font-size: 13px; padding: 0 9px; cursor: pointer; }}
-    .toolbar button:hover {{ border-color: #555555; background: #202020; }}
-    .setups {{ display: grid; gap: 18px; margin-top: 24px; }}
-    .setup-card {{ background: #111111; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; box-shadow: 0 18px 45px rgba(0, 0, 0, .35); }}
+    .toolbar {{ position: sticky; top: 0; z-index: 10; display: flex; justify-content: flex-end; gap: 10px; align-items: center; margin: 18px 0 18px; padding: 10px 0; background: rgba(0, 0, 0, .84); backdrop-filter: blur(14px); }}
+    .toolbar button {{ min-height: 38px; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; cursor: pointer; }}
+    .toolbar button:hover {{ border-color: #777777; background: #0d0d0d; }}
+    .setups {{ display: grid; gap: 22px; margin-top: 22px; }}
+    .empty-state {{ border: 1px solid #242424; border-radius: 10px; background: #050505; padding: 34px; text-align: center; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
+    .empty-kicker {{ color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
+    .empty-state h2 {{ margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }}
+    .empty-state p {{ max-width: 700px; margin: 0 auto; color: #a8a8a8; line-height: 1.6; }}
+    .setup-card {{ background: #070707; border: 1px solid #242424; border-radius: 10px; overflow: hidden; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
     .setup-card.is-hidden {{ display: none; }}
     .setup-card.is-collapsed .setup-body {{ display: none; }}
-    .setup-summary {{ display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; background: #0b0b0b; }}
-    .setup-summary-main {{ display: flex; align-items: center; gap: 12px; min-width: 0; }}
+    .setup-summary {{ display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 22px; background: #030303; border-bottom: 1px solid #1d1d1d; }}
+    .setup-summary-main {{ display: flex; align-items: center; gap: 14px; min-width: 0; }}
     .setup-summary-actions {{ display: flex; align-items: center; gap: 8px; flex-shrink: 0; }}
-    .summary-symbol {{ font-size: 24px; line-height: 1; font-weight: 900; letter-spacing: .01em; }}
-    .summary-company {{ margin-top: 3px; color: #9b9b9b; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }}
-    .setup-body {{ border-top: 1px solid #2a2a2a; }}
-    .setup-top {{ display: grid; grid-template-columns: minmax(340px, 460px) minmax(0, 1fr); gap: 18px; padding: 16px; align-items: start; }}
-    .setup-details {{ display: grid; gap: 12px; align-content: start; }}
+    .summary-symbol {{ font-size: clamp(26px, 3vw, 36px); line-height: 1; font-weight: 900; letter-spacing: .02em; }}
+    .summary-company {{ margin-top: 6px; color: #9b9b9b; font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }}
+    .setup-body {{ border-top: 0; }}
+    .setup-top {{ display: grid; grid-template-columns: 1fr; gap: 28px; padding: 26px 22px 30px; align-items: start; }}
+    .setup-details {{ display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: 18px; align-content: start; }}
     .setup-heading, .setup-actions {{ display: none; }}
-    .toggle-card {{ border: 1px solid #333333; border-radius: 999px; padding: 5px 8px; background: #171717; color: #d0d0d0; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: .04em; }}
-    .toggle-card:hover {{ border-color: #555555; background: #202020; }}
+    .toggle-card {{ border: 1px solid #3a3a3a; border-radius: 999px; padding: 7px 12px; background: #050505; color: #d0d0d0; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: .12em; }}
+    .toggle-card:hover {{ border-color: #777777; background: #101010; }}
     .setup-rank {{ font-size: 13px; color: #9b9b9b; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }}
     .setup-symbol {{ font-size: 28px; font-weight: 800; line-height: 1; }}
     .setup-name {{ margin-top: 4px; color: #9b9b9b; font-size: 13px; }}
-    .direction {{ border-radius: 999px; padding: 7px 10px; font-weight: 800; font-size: 12px; }}
+    .direction {{ border-radius: 999px; padding: 7px 11px; font-weight: 900; font-size: 11px; letter-spacing: .1em; }}
     .direction.call {{ background: rgba(34, 197, 94, .16); color: #86efac; border: 1px solid rgba(34, 197, 94, .34); }}
     .direction.put {{ background: rgba(248, 113, 113, .16); color: #fca5a5; border: 1px solid rgba(248, 113, 113, .34); }}
-    .vital-grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
-    .decision-section {{ border: 1px solid #2a2a2a; border-radius: 8px; padding: 11px; background: #0b0b0b; }}
+    .vital-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
+    .decision-section {{ border: 1px solid #242424; border-radius: 8px; padding: 13px; background: #030303; }}
     .decision-section.recommendation {{ font-size: 13px; line-height: 1.4; }}
     .decision-section.recommendation.reject {{ border-color: #7f1d1d; color: #fecaca; }}
     .decision-section.recommendation.watch {{ border-color: #854d0e; color: #fde68a; }}
     .decision-section.recommendation.action {{ border-color: #14532d; color: #bbf7d0; }}
     .decision-label {{ color: #9b9b9b; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }}
-    .entry-text {{ color: #eeeeee; line-height: 1.4; font-weight: 650; }}
-    .theme-stack {{ display: grid; gap: 8px; }}
-    .theme-panel {{ border: 1px solid #2a2a2a; border-radius: 8px; background: #0b0b0b; overflow: hidden; }}
-    .theme-panel summary {{ cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 11px; color: #eeeeee; font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; list-style: none; }}
+    .entry-text {{ color: #eeeeee; line-height: 1.5; font-weight: 650; }}
+    .theme-stack {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }}
+    .theme-panel {{ border: 1px solid #242424; border-radius: 8px; background: #030303; overflow: hidden; }}
+    .theme-panel summary {{ cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 14px 15px; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; list-style: none; }}
     .theme-panel summary::-webkit-details-marker {{ display: none; }}
-    .theme-panel summary::after {{ content: "Expand"; color: #9b9b9b; font-size: 10px; }}
+    .theme-panel summary::after {{ content: "Expand"; color: #8f8f8f; font-size: 9px; letter-spacing: .08em; }}
     .theme-panel[open] summary::after {{ content: "Collapse"; }}
-    .theme-body {{ border-top: 1px solid #262626; padding: 11px; color: #d6d6d6; font-size: 13px; line-height: 1.45; }}
+    .theme-body {{ border-top: 1px solid #202020; padding: 15px; color: #d6d6d6; font-size: 13px; line-height: 1.55; }}
     .theme-body p {{ margin: 0 0 10px; color: #d6d6d6; }}
     .theme-body p:last-child {{ margin-bottom: 0; }}
     .theme-body ul {{ margin: 0; padding-left: 17px; }}
     .theme-body li + li {{ margin-top: 5px; }}
     .option-plan {{ color: #d0d0d0; line-height: 1.4; }}
     .detail-grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }}
-    .detail {{ border: 1px solid #2a2a2a; border-radius: 7px; padding: 9px; background: #171717; }}
-    .detail-label {{ color: #9b9b9b; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }}
-    .detail-value {{ margin-top: 3px; font-weight: 700; overflow-wrap: anywhere; }}
+    .detail {{ border: 1px solid #242424; border-radius: 8px; padding: 13px; background: #030303; }}
+    .detail-label {{ color: #868686; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }}
+    .detail-value {{ margin-top: 6px; font-size: 18px; font-weight: 800; overflow-wrap: anywhere; }}
     .signals {{ border-top: 1px solid #2a2a2a; padding-top: 10px; color: #d0d0d0; font-size: 14px; }}
     .secondary-analysis {{ margin: 0 16px 16px; border: 1px solid #2a2a2a; border-radius: 8px; background: #0b0b0b; overflow: hidden; }}
     .secondary-analysis summary {{ cursor: pointer; padding: 12px 14px; color: #eeeeee; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; list-style: none; }}
@@ -5656,13 +5669,14 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-title a {{ color: #eeeeee; text-decoration: none; }}
     .headline-title a:hover {{ text-decoration: underline; }}
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
-    .chart-card {{ display: flex; flex-direction: column; justify-content: flex-start; }}
-    .chart-section + .chart-section {{ margin-top: 16px; }}
+    .chart-card {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }}
+    .chart-section {{ min-width: 0; }}
+    .chart-section + .chart-section {{ margin-top: 0; }}
     .chart-head {{ display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }}
-    .chart-title {{ margin: 0 0 6px; color: #eeeeee; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }}
+    .chart-title {{ margin: 0 0 10px; color: #eeeeee; font-size: 13px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
     .chart-meta {{ font-size: 12px; color: #9b9b9b; }}
-    .chart-svg {{ width: 100%; height: 420px; display: block; cursor: zoom-in; }}
-    .plotly-chart {{ width: 100%; height: 430px; cursor: zoom-in; }}
+    .chart-svg {{ width: 100%; height: 430px; display: block; cursor: zoom-in; border: 1px solid #202020; border-radius: 8px; background: #050505; }}
+    .plotly-chart {{ width: 100%; height: 430px; cursor: zoom-in; border: 1px solid #202020; border-radius: 8px; background: #050505; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     .modal {{ position: fixed; inset: 0; z-index: 30; display: none; align-items: center; justify-content: center; padding: 22px; background: rgba(0, 0, 0, .82); }}
     .modal.is-open {{ display: flex; }}
@@ -5670,16 +5684,19 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .modal-head {{ display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; color: #eeeeee; font-weight: 800; }}
     .modal-close {{ border: 1px solid #333333; border-radius: 999px; background: #171717; color: #eeeeee; padding: 6px 10px; cursor: pointer; }}
     .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 680px; cursor: default; }}
-    @media (max-width: 860px) {{ .report-hero {{ align-items: flex-start; gap: 12px; }} h1 {{ font-size: 28px; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-top {{ grid-template-columns: 1fr; }} .chart-svg, .plotly-chart {{ height: 320px; }} .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 420px; }} }}
+    @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} .chart-card {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 26px 14px 44px; }} .report-hero {{ gap: 12px; }} .report-logo {{ width: min(300px, 78vw); }} .report-subtitle {{ font-size: 10px; letter-spacing: .11em; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-summary {{ padding: 17px 14px; }} .setup-top {{ padding: 18px 14px 22px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} .chart-svg, .plotly-chart {{ height: 320px; }} .modal-chart .chart-svg, .modal-chart .plotly-chart {{ height: 420px; }} }}
+    @media (max-width: 520px) {{ .setup-summary-main {{ align-items: flex-start; }} .direction {{ margin-top: 1px; }} .vital-grid {{ grid-template-columns: 1fr; }} .setup-summary-actions {{ align-self: flex-start; }} }}
   </style>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 </head>
 <body>
   <main>
     <header class="report-hero">
+      <img class="report-logo" src="atlas_wordmark.jpg" alt="ATLAS">
       <div class="report-title-block">
         <h1>Stock Analyst Report</h1>
-        <p>Ranks short-term CALL/PUT trade candidates using current catalysts, major news, geopolitical/macro pressure, liquidity, and chart context. Use this as a screening aid, not as personalized financial advice.</p>
+        <p class="report-subtitle">Autonomous Trading &amp; Logistical Assessment System</p>
       </div>
     </header>
     <div class="meta">
@@ -5696,7 +5713,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       {blocks}
     </section>
     {failed_html}
-    <p class="small">Method: this is a long-options-only short swing scanner, not a 0DTE system. The default scan prioritizes real backing behind a move: company headlines, major market/geopolitical news, catalyst strength, liquidity, options availability, and chart context. The first option target is +20%; losers should be cut around -25% to -30% or when the catalyst or chart trigger fails. Price data and headlines are fetched at run time and may be delayed or unavailable.</p>
+    <p class="small">Atlas is a screening tool, not personalized financial advice. It prioritizes real backing behind a move: company headlines, major market/geopolitical news, catalyst strength, liquidity, options availability, and chart context. Price data and headlines are fetched at run time and may be delayed or unavailable.</p>
   </main>
   <div class="modal" id="chartModal" aria-hidden="true">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
