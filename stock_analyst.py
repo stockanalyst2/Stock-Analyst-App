@@ -5562,7 +5562,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stock Analyst Report</title>
+  <title>Current Watchlist</title>
   <style>
     :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
     body {{ margin: 0; background: #000000; color: #eeeeee; }}
@@ -5681,7 +5681,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     <header class="report-hero">
       <img class="report-logo" src="atlas_wordmark.jpg" alt="ATLAS">
       <div class="report-title-block">
-        <h1>Stock Analyst Report</h1>
+        <h1>Current Watchlist</h1>
         <p class="report-subtitle">Autonomous Trading &amp; Logistical Assessment System</p>
       </div>
     </header>
@@ -5691,7 +5691,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       <span class="pill">Candidates analyzed: {len(results)}</span>
     </div>
     {macro_banner}
-    <section class="toolbar" aria-label="Report controls">
+    <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
     </section>
@@ -6306,7 +6306,7 @@ def alert_notification_label(stance: str, status: str) -> str:
 
 def format_trade_alert(item: Analysis, stance: str, status: str, report_url: str) -> str:
     label = alert_notification_label(stance, status)
-    return f"{item.symbol} added to report ({label})"
+    return f"{item.symbol} added to watchlist ({label})"
 
 
 def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
@@ -6338,7 +6338,7 @@ def send_test_alert() -> bool:
     return send_telegram_message(
         "Atlas test alert\n"
         f"Time: {generated}\n"
-        "If you got this, phone notifications are connected. Atlas will notify when a new ticker is added to the final report."
+        "If you got this, phone notifications are connected. Atlas will notify when a new ticker is added to the current watchlist."
     )
 
 
@@ -8380,206 +8380,181 @@ def report_dashboard_html() -> str:
   <style>
     :root {{
       color-scheme: dark;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg: #000;
-      --line: rgba(232, 232, 232, .76);
-      --muted: rgba(220, 220, 220, .66);
-      --text: #ededed;
+      font-family: ui-rounded, "SF Pro Rounded", "Avenir Next", "Trebuchet MS", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #020307;
+      --line: rgba(236, 238, 246, .86);
+      --muted: rgba(226, 226, 232, .84);
+      --text: #f0f0f4;
     }}
     * {{ box-sizing: border-box; }}
-    html, body {{ min-height: 100%; }}
+    html, body {{ min-height: 100%; background: var(--bg); }}
     body {{
       margin: 0;
       min-height: 100vh;
-      background: #000;
+      background:
+        radial-gradient(circle at 50% 64%, rgba(255, 255, 255, .018), transparent 34%),
+        #020307;
       color: var(--text);
       overflow-x: hidden;
     }}
-    main {{
+    a {{ color: inherit; text-decoration: none; }}
+    button {{ font: inherit; }}
+    .app-shell {{
       min-height: 100vh;
+      background: transparent;
+    }}
+    .top-bar {{
+      height: 187px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
-    }}
-    .shell {{
-      width: min(820px, 100%);
-      display: grid;
-      align-content: start;
-      justify-items: center;
-      gap: 26px;
-    }}
-    .brand {{
-      display: grid;
-      justify-items: center;
-      width: 100%;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 38px 38px 47px;
+      border-bottom: 3px solid var(--line);
     }}
     .wordmark-image {{
       display: block;
-      width: min(100%, 760px);
+      width: 178px;
       height: auto;
       object-fit: contain;
-      margin-bottom: 56px;
+      opacity: .96;
+      filter: contrast(1.04) brightness(1.05);
     }}
-    a {{ color: inherit; text-decoration: none; }}
-    button {{ font: inherit; }}
-    .report-link {{
-      width: min(100%, 604px);
-      min-height: 71px;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      display: grid;
-      grid-template-columns: 74px 1fr;
-      align-items: center;
-      background: rgba(8, 8, 8, .72);
-      color: inherit;
-      cursor: pointer;
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.08),
-        0 0 32px rgba(255,255,255,.035);
-      transition: border-color .18s ease, background .18s ease, transform .18s ease;
-    }}
-    .report-link:hover {{
-      border-color: #fff;
-      background: rgba(18, 18, 18, .86);
-      transform: translateY(-1px);
-    }}
-    .menu-icon {{
+    .profile-button {{
+      width: 51px;
+      height: 51px;
       position: relative;
-      width: 32px;
-      height: 24px;
-      margin-left: 27px;
+      border: 2px solid rgba(229, 229, 236, .68);
+      border-radius: 50%;
+      background: transparent;
+      padding: 0;
+      color: rgba(231, 231, 238, .86);
     }}
-    .menu-icon::before,
-    .menu-icon::after,
-    .menu-icon span {{
+    .profile-button::before {{
       content: "";
       position: absolute;
-      left: 0;
-      width: 32px;
-      height: 3px;
-      border-radius: 10px;
-      background: #dedede;
-      box-shadow: 0 0 12px rgba(255,255,255,.22);
+      top: 12px;
+      left: 18px;
+      width: 12px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
     }}
-    .menu-icon::before {{ top: 0; }}
-    .menu-icon span {{ top: 10px; }}
-    .menu-icon::after {{ bottom: 1px; }}
-    .link-text {{
-      justify-self: end;
-      padding-right: 29px;
-      color: #dedede;
-      font-size: clamp(12px, 3.2vw, 16px);
-      font-weight: 500;
-      letter-spacing: .34em;
-      line-height: 1.2;
-      text-transform: uppercase;
-      white-space: nowrap;
+    .profile-button::after {{
+      content: "";
+      position: absolute;
+      left: 12px;
+      bottom: 11px;
+      width: 23px;
+      height: 13px;
+      border: 2px solid currentColor;
+      border-bottom: 0;
+      border-radius: 20px 20px 0 0;
     }}
-    .status-line {{
-      display: flex;
+    .tabs {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: #8e8e8e;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: .22em;
-      text-transform: uppercase;
+      min-height: 76px;
+      padding: 0 19px;
+      gap: 18px;
     }}
-    .status-value {{
-      color: #37d66f;
-      text-shadow: 0 0 14px rgba(55, 214, 111, .30);
+    .tab {{
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 0;
+      font-size: clamp(14px, 3.2vw, 17px);
+      font-weight: 700;
+      letter-spacing: .01em;
+      text-align: center;
+      white-space: nowrap;
+      cursor: pointer;
     }}
-    .status-value.offline {{
-      color: #ff4d4d;
-      text-shadow: 0 0 14px rgba(255, 77, 77, .28);
+    .tab.is-active {{ color: #f1f1f5; }}
+    .content {{
+      min-height: calc(100vh - 263px);
+      padding: 0 0 32px;
     }}
-    .report-panel {{
-      display: none;
-      position: fixed;
-      inset: 5vh 50%;
-      z-index: 20;
-      transform: translateX(-50%);
-      width: min(1120px, calc(100vw - 60px));
-      height: 90vh;
-      border: 1px solid rgba(232, 232, 232, .50);
-      border-radius: 6px;
-      overflow: hidden;
-      background: #050505;
-      box-shadow: 0 28px 90px rgba(0, 0, 0, .72);
-    }}
-    .report-panel.is-open {{ display: block; }}
-    .report-overlay {{
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 19;
-      background: rgba(0, 0, 0, .72);
-      backdrop-filter: blur(2px);
-    }}
-    .report-overlay.is-open {{ display: block; }}
-    .report-frame {{
+    .watchlist-panel {{
       display: block;
       width: 100%;
-      height: 100%;
+      height: calc(100vh - 263px);
+      min-height: 620px;
       border: 0;
-      background: #050505;
+      background: transparent;
+    }}
+    .placeholder-panel {{
+      display: none;
+      padding: 56px 26px;
+      color: rgba(226, 226, 232, .70);
+      font-size: 15px;
+      text-align: center;
+    }}
+    .placeholder-panel.is-active {{ display: block; }}
+    .watchlist-panel.is-hidden {{ display: none; }}
+    .status-probe {{
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }}
     @media (max-width: 560px) {{
-      main {{
-        align-items: flex-start;
-        padding: max(96px, 14vh) 30px 30px;
+      .top-bar {{
+        height: 187px;
+        padding: 0 37px 38px 47px;
       }}
-      .shell {{ gap: 22px; }}
-      .wordmark-image {{ width: min(100%, 560px); margin-bottom: 28px; }}
-      .report-link {{ min-height: 69px; grid-template-columns: 72px 1fr; }}
-      .link-text {{ padding-right: 21px; letter-spacing: .28em; }}
-      .status-line {{ font-size: 11px; letter-spacing: .18em; }}
-      .report-panel {{
-        inset: 7vh 50%;
-        width: calc(100vw - 24px);
-        height: 84vh;
-        border-radius: 4px;
+      .wordmark-image {{ width: 176px; }}
+      .profile-button {{ width: 51px; height: 51px; }}
+      .tabs {{
+        min-height: 76px;
+        padding: 0 25px;
+        gap: 22px;
       }}
+      .tab {{ font-size: 16px; }}
+      .content {{ min-height: calc(100vh - 263px); }}
+      .watchlist-panel {{ height: calc(100vh - 263px); min-height: 650px; }}
+    }}
+    @media (max-width: 390px) {{
+      .top-bar {{ padding-left: 32px; padding-right: 30px; }}
+      .wordmark-image {{ width: 150px; }}
+      .tabs {{ padding: 0 16px; gap: 12px; }}
+      .tab {{ font-size: 14px; }}
     }}
   </style>
 </head>
 <body>
-  <main>
-    <section class="shell" aria-label="ATLAS home">
-      <div class="brand">
-        <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
-      </div>
-      <button class="report-link" type="button" id="reportToggle" aria-expanded="false" aria-controls="reportPanel">
-        <span class="menu-icon" aria-hidden="true"><span></span></span>
-        <span class="link-text">Open Latest Report</span>
-      </button>
-      <div class="status-line" aria-live="polite">
-        <span>Status:</span>
-        <span class="status-value" id="appStatus">Online</span>
-      </div>
-      <section class="report-panel" id="reportPanel" aria-label="Latest stock report">
-        <iframe class="report-frame" id="reportFrame" title="Latest stock report"></iframe>
-      </section>
+  <main class="app-shell" aria-label="ATLAS">
+    <header class="top-bar">
+      <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
+      <button class="profile-button" type="button" aria-label="Account"></button>
+    </header>
+    <nav class="tabs" aria-label="ATLAS sections">
+      <button class="tab is-active" type="button" data-panel="watchlist">Current Watchlist</button>
+      <button class="tab" type="button" data-panel="market">Market Report</button>
+      <button class="tab" type="button" data-panel="research">Research assistant</button>
+    </nav>
+    <section class="content">
+      <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
+      <section class="placeholder-panel" id="marketPanel">Market Report</section>
+      <section class="placeholder-panel" id="researchPanel">Research assistant</section>
+      <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
     </section>
-    <div class="report-overlay" id="reportOverlay" aria-hidden="true"></div>
   </main>
   <script>
-    const reportToggle = document.getElementById('reportToggle');
-    const reportPanel = document.getElementById('reportPanel');
-    const reportOverlay = document.getElementById('reportOverlay');
-    const reportFrame = document.getElementById('reportFrame');
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const watchlistFrame = document.getElementById('watchlistFrame');
+    const panels = {{
+      market: document.getElementById('marketPanel'),
+      research: document.getElementById('researchPanel'),
+    }};
 
-    function toggleReport() {{
-      const nextOpen = !reportPanel.classList.contains('is-open');
-      reportPanel.classList.toggle('is-open', nextOpen);
-      reportOverlay.classList.toggle('is-open', nextOpen);
-      reportToggle.setAttribute('aria-expanded', String(nextOpen));
-      reportToggle.querySelector('.link-text').textContent = nextOpen ? 'Close Latest Report' : 'Open Latest Report';
-      if (nextOpen && !reportFrame.src) {{
-        reportFrame.src = `/stock_report.html?t=${{Date.now()}}`;
-      }}
+    function showPanel(name) {{
+      for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
+      watchlistFrame.classList.toggle('is-hidden', name !== 'watchlist');
+      for (const [key, panel] of Object.entries(panels)) panel.classList.toggle('is-active', key === name);
+      if (name === 'watchlist') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
     }}
 
     async function refreshStatus() {{
@@ -8588,14 +8563,11 @@ def report_dashboard_html() -> str:
         const response = await fetch('/healthz', {{ cache: 'no-store' }});
         if (!response.ok) throw new Error('offline');
         status.textContent = 'Online';
-        status.classList.remove('offline');
       }} catch (error) {{
         status.textContent = 'Offline';
-        status.classList.add('offline');
       }}
     }}
-    reportToggle.addEventListener('click', toggleReport);
-    reportOverlay.addEventListener('click', toggleReport);
+    for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>

@@ -405,16 +405,22 @@ class StockAnalystTests(unittest.TestCase):
 
         self.assertIn("<title>ATLAS</title>", document)
         self.assertIn("/atlas_wordmark.jpg", document)
-        self.assertIn("Open Latest Report", document)
+        self.assertIn("Current Watchlist", document)
+        self.assertIn("Market Report", document)
+        self.assertIn("Research assistant", document)
+        self.assertIn("watchlistFrame", document)
+        self.assertIn("watchlist-panel", document)
+        self.assertIn("profile-button", document)
         self.assertIn("Status:", document)
         self.assertIn("Online", document)
         self.assertIn("Offline", document)
         self.assertIn("/healthz", document)
         self.assertIn("/stock_report.html", document)
-        self.assertIn("reportPanel", document)
-        self.assertIn("reportOverlay", document)
-        self.assertIn("reportFrame", document)
-        self.assertIn("Close Latest Report", document)
+        self.assertNotIn("Open Latest Report", document)
+        self.assertNotIn("reportPanel", document)
+        self.assertNotIn("reportOverlay", document)
+        self.assertNotIn("reportFrame", document)
+        self.assertNotIn("Close Latest Report", document)
         self.assertNotIn("/api/scan", document)
         self.assertNotIn("/atlas_ai_wordmark.jpg", document)
 
@@ -1477,9 +1483,9 @@ class StockAnalystTests(unittest.TestCase):
 
             candidates = stock_analyst.alert_candidates_from_transitions([item], {})
             self.assertEqual(candidates, [(item, "Watch only", "Trigger forming")])
-            self.assertEqual(stock_analyst.format_trade_alert(item, "Watch only", "Trigger forming", "stock_report.html"), "TEST added to report (Watch only)")
-            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Starter entry active", "stock_report.html"), "TEST added to report (Potential entry)")
-            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Confirmed entry", "stock_report.html"), "TEST added to report (Enter now)")
+            self.assertEqual(stock_analyst.format_trade_alert(item, "Watch only", "Trigger forming", "stock_report.html"), "TEST added to watchlist (Watch only)")
+            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Starter entry active", "stock_report.html"), "TEST added to watchlist (Potential entry)")
+            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Confirmed entry", "stock_report.html"), "TEST added to watchlist (Enter now)")
 
             prior = {
                 "TEST:CALL": {
