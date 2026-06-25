@@ -1734,6 +1734,22 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.analyst_stance = original_stance
             stock_analyst.entry_status = original_status
 
+    def test_sample_trade_alerts_send_all_simple_notification_formats(self):
+        sent_messages = []
+        with mock.patch("stock_analyst.send_telegram_message", side_effect=lambda message: sent_messages.append(message) or True):
+            sent, messages = stock_analyst.send_test_trade_alerts()
+
+        self.assertEqual(sent, 3)
+        self.assertEqual(messages, sent_messages)
+        self.assertEqual(
+            messages,
+            [
+                "TEST Added to watchlist (Watch only)",
+                "TEST Removed from watchlist (no longer passes final screen; was Watch only)",
+                "TEST ready for entry (2026-06-29) (105 CALL) (TP +20%, +50%, +100% & SL -25%)",
+            ],
+        )
+
     def test_market_open_heartbeat_uses_new_york_time_window(self):
         before_open = dt.datetime(2026, 6, 24, 13, 29, tzinfo=dt.timezone.utc)
         at_open = dt.datetime(2026, 6, 24, 13, 30, tzinfo=dt.timezone.utc)
