@@ -6557,26 +6557,18 @@ def alert_notification_label(stance: str, status: str) -> str:
     return stance or "Added"
 
 
-def alert_condition_label(status: str) -> str:
-    if status == "Confirmed entry":
-        return "confirmed entry"
-    if status == "Starter entry active":
-        return "starter entry active"
-    if status == "Trigger forming":
-        return "trigger forming"
-    if status == "Watch only":
-        return "watching for confirmation"
-    if status:
-        return status[0].lower() + status[1:]
-    return "condition pending"
+def format_entry_expiration(item: Analysis) -> str:
+    if item.option is None:
+        return "exp TBD"
+    return item.option.expiration.isoformat()
 
 
-def format_entry_contract(item: Analysis) -> str:
+def format_entry_strike(item: Analysis) -> str:
     side = item.setup_direction or (item.option.side if item.option else "OPTION")
     if item.option is None:
-        return f"contract TBD / {side}"
+        return f"strike TBD {side}"
     strike = f"{item.option.strike:g}"
-    return f"{item.option.expiration.isoformat()} / {strike} {side}"
+    return f"{strike} {side}"
 
 
 def format_entry_tp_sl(item: Analysis) -> str:
@@ -6600,14 +6592,18 @@ def removed_alert_reason(event: AlertEvent) -> str:
 
 def format_trade_alert(event: AlertEvent, report_url: str = "") -> str:
     if event.kind == "removed":
-        return f"{event.symbol} removed from watchlist ({removed_alert_reason(event)})"
+        return f"{event.symbol} Removed from watchlist ({removed_alert_reason(event)})"
     if event.kind == "entry" and event.item is not None:
-        return f"{event.symbol} ready for entry ({format_entry_contract(event.item)} / {format_entry_tp_sl(event.item)})"
+        return (
+            f"{event.symbol} ready for entry "
+            f"({format_entry_expiration(event.item)}) "
+            f"({format_entry_strike(event.item)}) "
+            f"({format_entry_tp_sl(event.item)})"
+        )
     if event.item is None:
-        return f"{event.symbol} added to watchlist ({alert_notification_label(event.stance, event.status)}) ({alert_condition_label(event.status)})"
+        return f"{event.symbol} Added to watchlist ({alert_notification_label(event.stance, event.status)})"
     label = alert_notification_label(event.stance, event.status)
-    condition = alert_condition_label(event.status)
-    return f"{event.item.symbol} added to watchlist ({label}) ({condition})"
+    return f"{event.item.symbol} Added to watchlist ({label})"
 
 
 def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
@@ -6641,6 +6637,66 @@ def send_test_alert() -> bool:
         f"Time: {generated}\n"
         "If you got this, phone notifications are connected. Atlas will notify when a new ticker is added to the current watchlist."
     )
+
+
+def sample_trade_alert_item() -> Analysis:
+    return Analysis(
+        symbol="TEST",
+        name="Test Setup",
+        price=100.0,
+        score=80,
+        rating="Candidate",
+        momentum_score=75,
+        value_score=55,
+        risk_score=65,
+        yield_score=40,
+        return_1y=0.12,
+        return_6m=0.06,
+        return_3m=0.04,
+        volatility=0.25,
+        max_drawdown=-0.10,
+        sharpe_like=None,
+        rsi=55,
+        sma_50=98,
+        sma_200=92,
+        market_cap=None,
+        pe=None,
+        dividend_yield=None,
+        beta=None,
+        notes=[],
+        news=[],
+        setup_direction="CALL",
+        option=OptionContract(
+            contract_symbol="TEST260629C00105000",
+            side="CALL",
+            strike=105.0,
+            expiration=dt.date(2026, 6, 29),
+            bid=2.0,
+            ask=2.2,
+            last_price=2.1,
+            volume=100,
+            open_interest=500,
+            implied_volatility=0.45,
+        ),
+    )
+
+
+def sample_trade_alert_events() -> list[AlertEvent]:
+    item = sample_trade_alert_item()
+    return [
+        AlertEvent(kind="added", symbol=item.symbol, direction="CALL", stance="Watch only", status="Trigger forming", item=item),
+        AlertEvent(kind="removed", symbol=item.symbol, direction="CALL", stance="Watch only", status="Trigger forming"),
+        AlertEvent(kind="entry", symbol=item.symbol, direction="CALL", stance="Actionable on trigger", status="Confirmed entry", item=item),
+    ]
+
+
+def send_test_trade_alerts() -> tuple[int, list[str]]:
+    messages = [format_trade_alert(event) for event in sample_trade_alert_events()]
+    sent = 0
+    for message in messages:
+        if send_telegram_message(message):
+            sent += 1
+    return sent, messages
 
 
 SCAN_LOCK = threading.Lock()
@@ -8996,6 +9052,9 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path == "/api/test-alert":
             self.handle_test_alert()
             return
+        if parsed.path in {"/api/test-trade-alerts", "/api/test-notifications"}:
+            self.handle_test_trade_alerts()
+            return
         if parsed.path == "/healthz":
             self.send_json({"ok": True, "service": "stock-analyst"})
             return
@@ -9105,6 +9164,23 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json({"ok": False, "error": str(exc)}, status=500)
             return
         self.send_json({"ok": bool(sent)})
+
+    def handle_test_trade_alerts(self) -> None:
+        if not telegram_configured():
+            self.send_json(
+                {
+                    "ok": False,
+                    "error": "Telegram is not configured. Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Render Environment.",
+                },
+                status=400,
+            )
+            return
+        try:
+            sent, messages = send_test_trade_alerts()
+        except Exception as exc:
+            self.send_json({"ok": False, "error": str(exc)}, status=500)
+            return
+        self.send_json({"ok": sent == len(messages), "sent": sent, "messages": messages})
 
     def send_json(self, payload: dict[str, Any], status: int = 200) -> None:
         body = json.dumps(payload).encode("utf-8")
