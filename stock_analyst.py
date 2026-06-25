@@ -6375,18 +6375,22 @@ def load_alert_state() -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return {"sent": [], "observed": {}, "heartbeat_dates": []}
+        return {"sent": [], "observed": {}, "heartbeat_dates": [], "active_positions": {}}
     if not isinstance(payload, dict):
-        payload = {"sent": payload, "observed": {}, "heartbeat_dates": []}
+        payload = {"sent": payload, "observed": {}, "heartbeat_dates": [], "active_positions": {}}
     sent = payload.get("sent") or []
     observed = payload.get("observed") or {}
     heartbeat_dates = payload.get("heartbeat_dates") or []
+    active_positions = payload.get("active_positions") or {}
     if not isinstance(observed, dict):
         observed = {}
+    if not isinstance(active_positions, dict):
+        active_positions = {}
     return {
         "sent": [str(key) for key in sent if str(key).strip()],
         "observed": {str(key): value for key, value in observed.items() if isinstance(value, dict)},
         "heartbeat_dates": [str(value) for value in heartbeat_dates if str(value).strip()],
+        "active_positions": {str(key): value for key, value in active_positions.items() if isinstance(value, dict)},
     }
 
 
@@ -6395,12 +6399,14 @@ def save_alert_state(state: dict[str, Any]) -> None:
     sent = [str(key) for key in state.get("sent", []) if str(key).strip()]
     observed = state.get("observed") or {}
     heartbeat_dates = [str(value) for value in state.get("heartbeat_dates", []) if str(value).strip()]
+    active_positions = state.get("active_positions") or {}
     path.write_text(
         json.dumps(
             {
                 "sent": sorted(set(sent))[-500:],
                 "observed": observed if isinstance(observed, dict) else {},
                 "heartbeat_dates": sorted(set(heartbeat_dates))[-30:],
+                "active_positions": active_positions if isinstance(active_positions, dict) else {},
             },
             indent=2,
         ),
@@ -6425,6 +6431,9 @@ def alert_event_key(event: AlertEvent) -> str:
     today = dt.datetime.now().astimezone().date().isoformat()
     direction = event.direction or "-"
     label = alert_notification_label(event.stance, event.status)
+    if event.kind == "position":
+        bucket = pct_change_bucket(event.percent_change or 0.0)
+        return f"{today}:position:{event.position_key or event.symbol}:{bucket}"
     if event.kind == "entry":
         return f"{today}:entry:{event.symbol}:{direction}:{event.status or label}"
     if event.kind == "removed":
@@ -6444,7 +6453,9 @@ class AlertEvent:
     stance: str = ""
     status: str = ""
     item: Analysis | None = None
-    previous: dict[str, str] | None = None
+    previous: dict[str, Any] | None = None
+    position_key: str = ""
+    percent_change: float | None = None
 
 
 def is_watch_or_wait_state(stance: str, status: str) -> bool:
@@ -6464,6 +6475,19 @@ def is_enter_now_state(stance: str, status: str) -> bool:
     if entry_mode in {"starter", "early"} and status == "Starter entry active":
         return True
     return False
+
+
+def is_high_confidence_entry_alert(item: Analysis, stance: str, status: str) -> bool:
+    if status != "Confirmed entry":
+        return False
+    if not stance.startswith("Actionable"):
+        return False
+    brief = item.trade_brief
+    if brief is None:
+        return False
+    judgment = real_money_trader_judgment(item, brief)
+    min_score = float(os.environ.get("STOCK_ANALYST_READY_ALERT_MIN_SCORE", "70") or "70")
+    return float(judgment.get("score") or 0.0) >= min_score
 
 
 def current_alert_observations(results: list[Analysis]) -> dict[str, dict[str, str]]:
@@ -6487,27 +6511,18 @@ def alert_candidates_from_transitions(
     previous: dict[str, dict[str, str]],
 ) -> list[AlertEvent]:
     candidates: list[AlertEvent] = []
-    current_keys: set[str] = set()
     for item in results:
         brief = item.trade_brief
         stance = analyst_stance(item, brief)
         status, _detail = entry_status(item, brief)
         key = observed_alert_key(item)
-        current_keys.add(key)
         prior = previous.get(key)
-        if not prior:
-            candidates.append(
-                AlertEvent(
-                    kind="added",
-                    symbol=item.symbol,
-                    direction=item.setup_direction or "",
-                    stance=stance,
-                    status=status,
-                    item=item,
-                )
-            )
         prior_status = str((prior or {}).get("status") or "")
-        if is_enter_now_state(stance, status) and not is_enter_now_state(str((prior or {}).get("stance") or ""), prior_status):
+        prior_stance = str((prior or {}).get("stance") or "")
+        if (
+            is_high_confidence_entry_alert(item, stance, status)
+            and not is_enter_now_state(prior_stance, prior_status)
+        ):
             candidates.append(
                 AlertEvent(
                     kind="entry",
@@ -6519,22 +6534,6 @@ def alert_candidates_from_transitions(
                     previous=prior,
                 )
             )
-    for key, prior in previous.items():
-        if key in current_keys:
-            continue
-        symbol = str(prior.get("symbol") or key.split(":", 1)[0]).strip().upper()
-        if not symbol:
-            continue
-        candidates.append(
-            AlertEvent(
-                kind="removed",
-                symbol=symbol,
-                direction=str(prior.get("direction") or ""),
-                stance=str(prior.get("stance") or ""),
-                status=str(prior.get("status") or ""),
-                previous=prior,
-            )
-        )
     limit = max(1, int(os.environ.get("STOCK_ANALYST_ALERT_LIMIT", "5") or "5"))
     return candidates[:limit]
 
@@ -6583,16 +6582,112 @@ def format_entry_tp_sl(item: Analysis) -> str:
     return f"TP {tp_text} & SL {stop_text}"
 
 
-def removed_alert_reason(event: AlertEvent) -> str:
-    prior_status = event.status or event.stance
-    if prior_status:
-        return f"no longer passes final screen; was {alert_notification_label(event.stance, prior_status)}"
-    return "no longer passes final screen"
+def position_key_from_item(item: Analysis) -> str:
+    direction = item.setup_direction or (item.option.side if item.option else "-")
+    contract = item.option.contract_symbol if item.option else ""
+    if contract:
+        return f"{item.symbol}:{direction}:{contract}"
+    return f"{item.symbol}:{direction}"
+
+
+def build_active_position(item: Analysis) -> dict[str, Any] | None:
+    entry_price = option_mid_price(item.option)
+    if item.option is None or entry_price is None or entry_price <= 0:
+        return None
+    return {
+        "symbol": item.symbol,
+        "direction": item.setup_direction or item.option.side,
+        "contract": item.option.contract_symbol,
+        "expiration": item.option.expiration.isoformat(),
+        "strike": item.option.strike,
+        "side": item.option.side,
+        "entry_option_price": entry_price,
+        "opened_at": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "last_alert_bucket": 0,
+        "closed": False,
+    }
+
+
+def pct_change_bucket(percent_change: float) -> int:
+    absolute = abs(percent_change)
+    if absolute < 10:
+        return 0
+    bucket = int(math.floor(absolute / 5.0) * 5)
+    return bucket if percent_change > 0 else -bucket
+
+
+def position_update_action(event: AlertEvent) -> str:
+    pct = event.percent_change or 0.0
+    if pct <= -20:
+        return "recommended action: cut the position"
+    if pct <= -15:
+        return "recommended action: cut if it does not reclaim quickly"
+    if pct <= -10:
+        return "recommended action: watch closely; cut on another weak candle"
+    if pct >= 25:
+        status = event.status
+        if status in {"Confirmed entry", "Starter entry active", "Trigger forming"}:
+            return "recommended action: take partial profit and hold a runner"
+        return "recommended action: take profit"
+    if pct >= 20:
+        return "recommended action: take profit on part; hold only if momentum stays strong"
+    return "recommended action: hold for the 20-25% target unless momentum fades"
+
+
+def should_close_tracked_position(event: AlertEvent) -> bool:
+    action = position_update_action(event)
+    return "cut the position" in action or action.endswith("take profit")
+
+
+def position_events_from_active(
+    results: list[Analysis],
+    active_positions: dict[str, dict[str, Any]],
+) -> list[AlertEvent]:
+    by_symbol_direction = {
+        observed_alert_key(item): item
+        for item in results
+    }
+    events: list[AlertEvent] = []
+    for key, position in active_positions.items():
+        if position.get("closed"):
+            continue
+        symbol = str(position.get("symbol") or "").upper()
+        direction = str(position.get("direction") or "")
+        item = by_symbol_direction.get(f"{symbol}:{direction}")
+        if item is None:
+            continue
+        current_price = option_mid_price(item.option)
+        entry_price = float(position.get("entry_option_price") or 0.0)
+        if current_price is None or current_price <= 0 or entry_price <= 0:
+            continue
+        pct = ((current_price - entry_price) / entry_price) * 100
+        bucket = pct_change_bucket(pct)
+        last_bucket = int(position.get("last_alert_bucket") or 0)
+        if bucket == 0 or bucket == last_bucket:
+            continue
+        stance = analyst_stance(item, item.trade_brief)
+        status, _detail = entry_status(item, item.trade_brief)
+        events.append(
+            AlertEvent(
+                kind="position",
+                symbol=symbol,
+                direction=direction,
+                stance=stance,
+                status=status,
+                item=item,
+                previous=position,
+                position_key=key,
+                percent_change=pct,
+            )
+        )
+    return events
 
 
 def format_trade_alert(event: AlertEvent, report_url: str = "") -> str:
-    if event.kind == "removed":
-        return f"{event.symbol} Removed from watchlist ({removed_alert_reason(event)})"
+    if event.kind == "position":
+        bucket = abs(pct_change_bucket(event.percent_change or 0.0))
+        direction = "gained" if (event.percent_change or 0.0) > 0 else "lost"
+        return f"Your {event.symbol} contract has {direction} more than {bucket}% ({position_update_action(event)})"
     if event.kind == "entry" and event.item is not None:
         return (
             f"{event.symbol} ready for entry "
@@ -6600,10 +6695,7 @@ def format_trade_alert(event: AlertEvent, report_url: str = "") -> str:
             f"({format_entry_strike(event.item)}) "
             f"({format_entry_tp_sl(event.item)})"
         )
-    if event.item is None:
-        return f"{event.symbol} Added to watchlist ({alert_notification_label(event.stance, event.status)})"
-    label = alert_notification_label(event.stance, event.status)
-    return f"{event.item.symbol} Added to watchlist ({label})"
+    return ""
 
 
 def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
@@ -6612,9 +6704,13 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
     state = load_alert_state()
     sent_keys = set(str(key) for key in state.get("sent", []))
     previous = state.get("observed") or {}
+    active_positions = state.get("active_positions") or {}
+    if not isinstance(active_positions, dict):
+        active_positions = {}
     report_url = report_public_url(output)
     sent_count = 0
-    for event in alert_candidates_from_transitions(results, previous):
+    events = position_events_from_active(results, active_positions) + alert_candidates_from_transitions(results, previous)
+    for event in events:
         key = alert_event_key(event)
         if key in sent_keys:
             continue
@@ -6622,10 +6718,23 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
             if send_telegram_message(format_trade_alert(event, report_url)):
                 sent_keys.add(key)
                 sent_count += 1
+                if event.kind == "entry" and event.item is not None:
+                    position = build_active_position(event.item)
+                    if position is not None:
+                        active_positions[position_key_from_item(event.item)] = position
+                if event.kind == "position" and event.position_key:
+                    position = active_positions.get(event.position_key)
+                    if isinstance(position, dict):
+                        position["last_alert_bucket"] = pct_change_bucket(event.percent_change or 0.0)
+                        position["last_alert_at"] = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+                        if should_close_tracked_position(event):
+                            position["closed"] = True
+                            position["closed_at"] = dt.datetime.now().astimezone().isoformat(timespec="seconds")
         except Exception as exc:
             print(f"Telegram alert failed for {event.symbol}: {exc}", file=sys.stderr)
     state["sent"] = sorted(sent_keys)
     state["observed"] = current_alert_observations(results)
+    state["active_positions"] = active_positions
     save_alert_state(state)
     return sent_count
 
@@ -6684,9 +6793,9 @@ def sample_trade_alert_item() -> Analysis:
 def sample_trade_alert_events() -> list[AlertEvent]:
     item = sample_trade_alert_item()
     return [
-        AlertEvent(kind="added", symbol=item.symbol, direction="CALL", stance="Watch only", status="Trigger forming", item=item),
-        AlertEvent(kind="removed", symbol=item.symbol, direction="CALL", stance="Watch only", status="Trigger forming"),
         AlertEvent(kind="entry", symbol=item.symbol, direction="CALL", stance="Actionable on trigger", status="Confirmed entry", item=item),
+        AlertEvent(kind="position", symbol=item.symbol, direction="CALL", stance="Actionable on trigger", status="Confirmed entry", item=item, position_key="TEST:CALL:TEST260629C00105000", percent_change=22.0),
+        AlertEvent(kind="position", symbol=item.symbol, direction="CALL", stance="Watch only", status="Watch only", item=item, position_key="TEST:CALL:TEST260629C00105000", percent_change=-21.0),
     ]
 
 

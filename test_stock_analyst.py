@@ -1637,104 +1637,118 @@ class StockAnalystTests(unittest.TestCase):
         self.assertEqual(status, "Avoid / invalidated")
         self.assertIn("vetoed", detail)
 
-    def test_alert_candidates_notify_new_report_additions(self):
-        item = stock_analyst.Analysis(
-            symbol="TEST",
-            name="Test Co",
-            price=100,
-            score=80,
-            rating="Candidate",
-            momentum_score=75,
-            value_score=55,
-            risk_score=65,
-            yield_score=40,
-            return_1y=0.12,
-            return_6m=0.06,
-            return_3m=0.04,
-            volatility=0.25,
-            max_drawdown=-0.10,
-            sharpe_like=None,
-            rsi=55,
-            sma_50=98,
-            sma_200=92,
-            market_cap=None,
-            pe=None,
-            dividend_yield=None,
-            beta=None,
-            notes=[],
-            news=[],
-            setup_direction="CALL",
+    def test_alert_candidates_only_notify_confirmed_entries(self):
+        item = stock_analyst.sample_trade_alert_item()
+        item.trade_brief = stock_analyst.TradeBrief(
+            thesis="Test",
+            pattern="Trend",
+            pattern_status="confirmed",
+            confirmation_level=101,
+            measured_move=110,
+            invalidation=95,
+            stop_loss=95,
+            target_1=105,
+            target_2=110,
+            target_3=115,
+            risk_reward=2.5,
+            market_structure="aligned",
+            timeframe_supporting=[],
+            timeframe_opposing=[],
+            alignment_score=80,
+            indicator_analysis="aligned",
+            volume_analysis="aligned",
+            relative_strength="aligned",
+            support_resistance="aligned",
+            volume_profile="aligned",
+            liquidity_analysis="liquid",
+            options_flow="unknown",
+            order_flow="unknown",
+            catalyst_analysis="aligned",
+            market_environment="supportive",
+            event_risk="normal",
+            bull_case="",
+            base_case="",
+            bear_case="",
+            confidence_score=80,
+            setup_grade="A",
+            take_reasons=[],
+            avoid_reasons=[],
+            final_recommendation="Enter",
         )
         original_stance = stock_analyst.analyst_stance
         original_status = stock_analyst.entry_status
+        original_judgment = stock_analyst.real_money_trader_judgment
         try:
-            stock_analyst.analyst_stance = lambda _item, _brief: "Watch only"
-            stock_analyst.entry_status = lambda _item, _brief: ("Trigger forming", "aligned")
+            stock_analyst.analyst_stance = lambda _item, _brief: "Actionable on trigger"
+            stock_analyst.entry_status = lambda _item, _brief: ("Confirmed entry", "aligned")
+            stock_analyst.real_money_trader_judgment = lambda _item, _brief: {"score": 82, "verdict": "Ready", "veto": False, "reasons": []}
 
             candidates = stock_analyst.alert_candidates_from_transitions([item], {})
             self.assertEqual(len(candidates), 1)
-            self.assertEqual(candidates[0].kind, "added")
+            self.assertEqual(candidates[0].kind, "entry")
             self.assertEqual(candidates[0].symbol, "TEST")
             self.assertEqual(
                 stock_analyst.format_trade_alert(candidates[0], "stock_report.html"),
-                "TEST Added to watchlist (Watch only)",
-            )
-
-            item.option = stock_analyst.OptionContract(
-                contract_symbol="TEST260629C00105000",
-                side="CALL",
-                strike=105.0,
-                expiration=dt.date(2026, 6, 29),
-                bid=2.0,
-                ask=2.2,
-                last_price=2.1,
-                volume=100,
-                open_interest=500,
-                implied_volatility=0.45,
-            )
-            ready_event = stock_analyst.AlertEvent(
-                kind="entry",
-                symbol="TEST",
-                direction="CALL",
-                stance="Actionable on trigger",
-                status="Confirmed entry",
-                item=item,
-            )
-            self.assertEqual(
-                stock_analyst.format_trade_alert(ready_event, "stock_report.html"),
                 "TEST ready for entry (2026-06-29) (105 CALL) (TP +20%, +50%, +100% & SL -25%)",
-            )
-
-            removed_event = stock_analyst.AlertEvent(
-                kind="removed",
-                symbol="TEST",
-                direction="CALL",
-                stance="Watch only",
-                status="Trigger forming",
-            )
-            self.assertEqual(
-                stock_analyst.format_trade_alert(removed_event, "stock_report.html"),
-                "TEST Removed from watchlist (no longer passes final screen; was Watch only)",
             )
 
             prior = {
                 "TEST:CALL": {
                     "symbol": "TEST",
                     "direction": "CALL",
-                    "stance": "Watch only",
-                    "status": "Trigger forming",
+                    "stance": "Actionable on trigger",
+                    "status": "Confirmed entry",
                 }
             }
             self.assertEqual(stock_analyst.alert_candidates_from_transitions([item], prior), [])
-            self.assertEqual(
-                [event.kind for event in stock_analyst.alert_candidates_from_transitions([], prior)],
-                ["removed"],
-            )
+            self.assertEqual(stock_analyst.alert_candidates_from_transitions([], prior), [])
+        finally:
+            stock_analyst.analyst_stance = original_stance
+            stock_analyst.entry_status = original_status
+            stock_analyst.real_money_trader_judgment = original_judgment
+
+    def test_position_alerts_use_10_percent_minimum_and_5_percent_buckets(self):
+        item = stock_analyst.sample_trade_alert_item()
+        item.option = stock_analyst.OptionContract(
+            contract_symbol="TEST260629C00105000",
+            side="CALL",
+            strike=105.0,
+            expiration=dt.date(2026, 6, 29),
+            bid=2.56,
+            ask=2.58,
+            last_price=2.57,
+            volume=100,
+            open_interest=500,
+            implied_volatility=0.45,
+        )
+        active = {
+            "TEST:CALL:TEST260629C00105000": {
+                "symbol": "TEST",
+                "direction": "CALL",
+                "contract": "TEST260629C00105000",
+                "entry_option_price": 2.10,
+                "last_alert_bucket": 0,
+                "closed": False,
+            }
+        }
+        original_stance = stock_analyst.analyst_stance
+        original_status = stock_analyst.entry_status
+        try:
+            stock_analyst.analyst_stance = lambda _item, _brief: "Actionable on trigger"
+            stock_analyst.entry_status = lambda _item, _brief: ("Confirmed entry", "aligned")
+            events = stock_analyst.position_events_from_active([item], active)
         finally:
             stock_analyst.analyst_stance = original_stance
             stock_analyst.entry_status = original_status
 
-    def test_sample_trade_alerts_send_all_simple_notification_formats(self):
+        self.assertEqual(len(events), 1)
+        self.assertEqual(stock_analyst.pct_change_bucket(events[0].percent_change or 0), 20)
+        self.assertEqual(
+            stock_analyst.format_trade_alert(events[0]),
+            "Your TEST contract has gained more than 20% (recommended action: take profit on part; hold only if momentum stays strong)",
+        )
+
+    def test_sample_trade_alerts_send_entry_and_position_update_formats(self):
         sent_messages = []
         with mock.patch("stock_analyst.send_telegram_message", side_effect=lambda message: sent_messages.append(message) or True):
             sent, messages = stock_analyst.send_test_trade_alerts()
@@ -1744,9 +1758,9 @@ class StockAnalystTests(unittest.TestCase):
         self.assertEqual(
             messages,
             [
-                "TEST Added to watchlist (Watch only)",
-                "TEST Removed from watchlist (no longer passes final screen; was Watch only)",
                 "TEST ready for entry (2026-06-29) (105 CALL) (TP +20%, +50%, +100% & SL -25%)",
+                "Your TEST contract has gained more than 20% (recommended action: take profit on part; hold only if momentum stays strong)",
+                "Your TEST contract has lost more than 20% (recommended action: cut the position)",
             ],
         )
 
