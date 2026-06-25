@@ -1677,7 +1677,7 @@ class StockAnalystTests(unittest.TestCase):
             self.assertEqual(candidates[0].symbol, "TEST")
             self.assertEqual(
                 stock_analyst.format_trade_alert(candidates[0], "stock_report.html"),
-                "TEST added to watchlist (Watch only) (trigger forming)",
+                "TEST Added to watchlist (Watch only)",
             )
 
             item.option = stock_analyst.OptionContract(
@@ -1702,7 +1702,7 @@ class StockAnalystTests(unittest.TestCase):
             )
             self.assertEqual(
                 stock_analyst.format_trade_alert(ready_event, "stock_report.html"),
-                "TEST ready for entry (2026-06-29 / 105 CALL / TP +20%, +50%, +100% & SL -25%)",
+                "TEST ready for entry (2026-06-29) (105 CALL) (TP +20%, +50%, +100% & SL -25%)",
             )
 
             removed_event = stock_analyst.AlertEvent(
@@ -1714,7 +1714,7 @@ class StockAnalystTests(unittest.TestCase):
             )
             self.assertEqual(
                 stock_analyst.format_trade_alert(removed_event, "stock_report.html"),
-                "TEST removed from watchlist (no longer passes final screen; was Watch only)",
+                "TEST Removed from watchlist (no longer passes final screen; was Watch only)",
             )
 
             prior = {
