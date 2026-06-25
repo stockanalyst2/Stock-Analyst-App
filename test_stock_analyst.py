@@ -1672,10 +1672,50 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.entry_status = lambda _item, _brief: ("Trigger forming", "aligned")
 
             candidates = stock_analyst.alert_candidates_from_transitions([item], {})
-            self.assertEqual(candidates, [(item, "Watch only", "Trigger forming")])
-            self.assertEqual(stock_analyst.format_trade_alert(item, "Watch only", "Trigger forming", "stock_report.html"), "TEST added to watchlist (Watch only)")
-            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Starter entry active", "stock_report.html"), "TEST added to watchlist (Potential entry)")
-            self.assertEqual(stock_analyst.format_trade_alert(item, "Actionable on trigger", "Confirmed entry", "stock_report.html"), "TEST added to watchlist (Enter now)")
+            self.assertEqual(len(candidates), 1)
+            self.assertEqual(candidates[0].kind, "added")
+            self.assertEqual(candidates[0].symbol, "TEST")
+            self.assertEqual(
+                stock_analyst.format_trade_alert(candidates[0], "stock_report.html"),
+                "TEST added to watchlist (Watch only) (trigger forming)",
+            )
+
+            item.option = stock_analyst.OptionContract(
+                contract_symbol="TEST260629C00105000",
+                side="CALL",
+                strike=105.0,
+                expiration=dt.date(2026, 6, 29),
+                bid=2.0,
+                ask=2.2,
+                last_price=2.1,
+                volume=100,
+                open_interest=500,
+                implied_volatility=0.45,
+            )
+            ready_event = stock_analyst.AlertEvent(
+                kind="entry",
+                symbol="TEST",
+                direction="CALL",
+                stance="Actionable on trigger",
+                status="Confirmed entry",
+                item=item,
+            )
+            self.assertEqual(
+                stock_analyst.format_trade_alert(ready_event, "stock_report.html"),
+                "TEST ready for entry (2026-06-29 / 105 CALL / TP +20%, +50%, +100% & SL -25%)",
+            )
+
+            removed_event = stock_analyst.AlertEvent(
+                kind="removed",
+                symbol="TEST",
+                direction="CALL",
+                stance="Watch only",
+                status="Trigger forming",
+            )
+            self.assertEqual(
+                stock_analyst.format_trade_alert(removed_event, "stock_report.html"),
+                "TEST removed from watchlist (no longer passes final screen; was Watch only)",
+            )
 
             prior = {
                 "TEST:CALL": {
@@ -1686,6 +1726,10 @@ class StockAnalystTests(unittest.TestCase):
                 }
             }
             self.assertEqual(stock_analyst.alert_candidates_from_transitions([item], prior), [])
+            self.assertEqual(
+                [event.kind for event in stock_analyst.alert_candidates_from_transitions([], prior)],
+                ["removed"],
+            )
         finally:
             stock_analyst.analyst_stance = original_stance
             stock_analyst.entry_status = original_status

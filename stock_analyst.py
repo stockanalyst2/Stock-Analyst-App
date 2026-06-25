@@ -5522,27 +5522,6 @@ def print_table(results: list[Analysis], limit: int) -> None:
         print(" | ".join(cell.ljust(widths[index]) for index, cell in enumerate(row)))
 
 
-def macro_report_banner(results: list[Analysis]) -> str:
-    macro_news: list[NewsItem] = []
-    for item in results:
-        if item.macro_news:
-            macro_news = item.macro_news
-            break
-    shock = macro_oil_shock(macro_news)
-    if not shock.get("active"):
-        return ""
-    label = str(shock.get("label") or "Geopolitical/oil shock")
-    evidence = str(shock.get("evidence") or "Major oil/geopolitical risk is active.").strip()
-    return f"""
-    <section class="macro-banner" aria-label="Critical macro override">
-      <div class="macro-banner-kicker">Critical macro override</div>
-      <div class="macro-banner-title">{html.escape(label)}</div>
-      <p>{html.escape(evidence)}</p>
-      <p>The scanner is treating this as a risk-off oil shock. Normal CALL setups are downgraded unless they show unusually strong relative strength and catalyst support; energy CALLs and non-energy PUTs receive more favorable macro treatment. This is the kind of market-wide event that can override a clean chart.</p>
-    </section>
-    """
-
-
 def write_report(results: list[Analysis], output: Path, profile: str, failed: list[str]) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
@@ -5553,7 +5532,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       <h2>No clean trades passed the final screen.</h2>
       <p>Atlas found market candidates, then rejected them after catalyst, option quality, risk/reward, and execution checks. That is intentional: when the backdrop is messy, the report should stay quiet instead of dressing up weak trades.</p>
     </section>"""
-    macro_banner = macro_report_banner(results)
     failed_html = ""
     if failed:
         failed_html = f"<p class=\"warning\">Failed symbols: {html.escape(', '.join(failed))}</p>"
@@ -5572,10 +5550,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
     a:visited {{ color: #a8a8a8; }}
-    .macro-banner {{ margin: 0 0 18px; padding: 14px 16px; border: 1px solid #7f1d1d; border-radius: 8px; background: linear-gradient(135deg, rgba(127, 29, 29, .34), rgba(17, 17, 17, .98)); box-shadow: 0 16px 40px rgba(0, 0, 0, .35); }}
-    .macro-banner-kicker {{ color: #fca5a5; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }}
-    .macro-banner-title {{ margin-top: 4px; color: #ffffff; font-size: 18px; font-weight: 900; }}
-    .macro-banner p {{ margin: 7px 0 0; color: #f3f4f6; line-height: 1.45; }}
     table {{ width: 100%; border-collapse: collapse; background: #111111; }}
     th, td {{ padding: 10px 12px; border-bottom: 1px solid #2a2a2a; text-align: left; vertical-align: top; font-size: 14px; }}
     th {{ background: #1a1a1a; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #b8b8b8; }}
@@ -5636,7 +5610,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     button.read-more-link {{ cursor: pointer; font-family: inherit; }}
     body.show-detail .toolbar,
     body.show-detail .setups,
-    body.show-detail .macro-banner,
     body.show-detail .small,
     body.show-detail .warning {{ display: none; }}
     .detail-view {{ display: none; }}
@@ -5694,7 +5667,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 <body>
   <main>
     <h1>Current Watchlist</h1>
-    {macro_banner}
     <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
@@ -5922,11 +5894,11 @@ def plain_catalyst_preview(item: Analysis, combined: list[NewsItem], macro_news:
         )
     if macro_warning:
         if direction == "CALL" and SYMBOL_SECTORS.get(item.symbol.upper()) != "energy":
-            base += " The broader tape is not friendly for ordinary calls while oil/geopolitical risk is elevated, so I would need stronger confirmation than usual."
+            base += " Macro alert: oil/geopolitical risk is elevated, so ordinary calls need stronger confirmation than usual."
         elif direction == "CALL":
-            base += " The macro backdrop can help energy calls, but only if the stock confirms instead of opening extended and fading."
+            base += " Macro alert: the backdrop can help energy calls, but only if the stock confirms instead of opening extended and fading."
         elif direction == "PUT":
-            base += " The broader risk-off backdrop makes the put idea easier to justify, especially if the stock starts rejecting higher prices."
+            base += " Macro alert: the risk-off backdrop makes the put idea easier to justify if the stock starts rejecting higher prices."
     return base
 
 
@@ -6449,8 +6421,30 @@ def alert_key(item: Analysis, stance: str) -> str:
     return f"{today}:report-add:{item.symbol}:{item.setup_direction or '-'}"
 
 
+def alert_event_key(event: AlertEvent) -> str:
+    today = dt.datetime.now().astimezone().date().isoformat()
+    direction = event.direction or "-"
+    label = alert_notification_label(event.stance, event.status)
+    if event.kind == "entry":
+        return f"{today}:entry:{event.symbol}:{direction}:{event.status or label}"
+    if event.kind == "removed":
+        return f"{today}:removed:{event.symbol}:{direction}"
+    return f"{today}:report-add:{event.symbol}:{direction}"
+
+
 def observed_alert_key(item: Analysis) -> str:
     return f"{item.symbol}:{item.setup_direction or '-'}"
+
+
+@dataclass
+class AlertEvent:
+    kind: str
+    symbol: str
+    direction: str
+    stance: str = ""
+    status: str = ""
+    item: Analysis | None = None
+    previous: dict[str, str] | None = None
 
 
 def is_watch_or_wait_state(stance: str, status: str) -> bool:
@@ -6491,15 +6485,56 @@ def current_alert_observations(results: list[Analysis]) -> dict[str, dict[str, s
 def alert_candidates_from_transitions(
     results: list[Analysis],
     previous: dict[str, dict[str, str]],
-) -> list[tuple[Analysis, str, str]]:
-    candidates: list[tuple[Analysis, str, str]] = []
+) -> list[AlertEvent]:
+    candidates: list[AlertEvent] = []
+    current_keys: set[str] = set()
     for item in results:
         brief = item.trade_brief
         stance = analyst_stance(item, brief)
         status, _detail = entry_status(item, brief)
-        prior = previous.get(observed_alert_key(item))
+        key = observed_alert_key(item)
+        current_keys.add(key)
+        prior = previous.get(key)
         if not prior:
-            candidates.append((item, stance, status))
+            candidates.append(
+                AlertEvent(
+                    kind="added",
+                    symbol=item.symbol,
+                    direction=item.setup_direction or "",
+                    stance=stance,
+                    status=status,
+                    item=item,
+                )
+            )
+        prior_status = str((prior or {}).get("status") or "")
+        if is_enter_now_state(stance, status) and not is_enter_now_state(str((prior or {}).get("stance") or ""), prior_status):
+            candidates.append(
+                AlertEvent(
+                    kind="entry",
+                    symbol=item.symbol,
+                    direction=item.setup_direction or "",
+                    stance=stance,
+                    status=status,
+                    item=item,
+                    previous=prior,
+                )
+            )
+    for key, prior in previous.items():
+        if key in current_keys:
+            continue
+        symbol = str(prior.get("symbol") or key.split(":", 1)[0]).strip().upper()
+        if not symbol:
+            continue
+        candidates.append(
+            AlertEvent(
+                kind="removed",
+                symbol=symbol,
+                direction=str(prior.get("direction") or ""),
+                stance=str(prior.get("stance") or ""),
+                status=str(prior.get("status") or ""),
+                previous=prior,
+            )
+        )
     limit = max(1, int(os.environ.get("STOCK_ANALYST_ALERT_LIMIT", "5") or "5"))
     return candidates[:limit]
 
@@ -6522,9 +6557,57 @@ def alert_notification_label(stance: str, status: str) -> str:
     return stance or "Added"
 
 
-def format_trade_alert(item: Analysis, stance: str, status: str, report_url: str) -> str:
-    label = alert_notification_label(stance, status)
-    return f"{item.symbol} added to watchlist ({label})"
+def alert_condition_label(status: str) -> str:
+    if status == "Confirmed entry":
+        return "confirmed entry"
+    if status == "Starter entry active":
+        return "starter entry active"
+    if status == "Trigger forming":
+        return "trigger forming"
+    if status == "Watch only":
+        return "watching for confirmation"
+    if status:
+        return status[0].lower() + status[1:]
+    return "condition pending"
+
+
+def format_entry_contract(item: Analysis) -> str:
+    side = item.setup_direction or (item.option.side if item.option else "OPTION")
+    if item.option is None:
+        return f"contract TBD / {side}"
+    strike = f"{item.option.strike:g}"
+    return f"{item.option.expiration.isoformat()} / {strike} {side}"
+
+
+def format_entry_tp_sl(item: Analysis) -> str:
+    goals = [goal for _label, _target, goal in target_profit_levels(item)]
+    tp_text = ", ".join(f"+{goal}%" for goal in goals[:3]) if goals else "+20%"
+    stop_pct = os.environ.get("STOCK_ANALYST_ALERT_STOP_PCT", "25").strip() or "25"
+    try:
+        stop_value = abs(float(stop_pct))
+        stop_text = f"-{stop_value:g}%"
+    except ValueError:
+        stop_text = "-25%"
+    return f"TP {tp_text} & SL {stop_text}"
+
+
+def removed_alert_reason(event: AlertEvent) -> str:
+    prior_status = event.status or event.stance
+    if prior_status:
+        return f"no longer passes final screen; was {alert_notification_label(event.stance, prior_status)}"
+    return "no longer passes final screen"
+
+
+def format_trade_alert(event: AlertEvent, report_url: str = "") -> str:
+    if event.kind == "removed":
+        return f"{event.symbol} removed from watchlist ({removed_alert_reason(event)})"
+    if event.kind == "entry" and event.item is not None:
+        return f"{event.symbol} ready for entry ({format_entry_contract(event.item)} / {format_entry_tp_sl(event.item)})"
+    if event.item is None:
+        return f"{event.symbol} added to watchlist ({alert_notification_label(event.stance, event.status)}) ({alert_condition_label(event.status)})"
+    label = alert_notification_label(event.stance, event.status)
+    condition = alert_condition_label(event.status)
+    return f"{event.item.symbol} added to watchlist ({label}) ({condition})"
 
 
 def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
@@ -6535,16 +6618,16 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
     previous = state.get("observed") or {}
     report_url = report_public_url(output)
     sent_count = 0
-    for item, stance, status in alert_candidates_from_transitions(results, previous):
-        key = alert_key(item, stance)
+    for event in alert_candidates_from_transitions(results, previous):
+        key = alert_event_key(event)
         if key in sent_keys:
             continue
         try:
-            if send_telegram_message(format_trade_alert(item, stance, status, report_url)):
+            if send_telegram_message(format_trade_alert(event, report_url)):
                 sent_keys.add(key)
                 sent_count += 1
         except Exception as exc:
-            print(f"Telegram alert failed for {item.symbol}: {exc}", file=sys.stderr)
+            print(f"Telegram alert failed for {event.symbol}: {exc}", file=sys.stderr)
     state["sent"] = sorted(sent_keys)
     state["observed"] = current_alert_observations(results)
     save_alert_state(state)
