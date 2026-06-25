@@ -5543,9 +5543,9 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
   <title>Current Watchlist</title>
   <style>
     :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
-    body {{ margin: 0; background: #000000; color: #eeeeee; }}
-    body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .035), transparent 34%); }}
-    main {{ position: relative; max-width: 1320px; margin: 0 auto; padding: 18px 24px 56px; }}
+    body {{ margin: 0; background: #020307; color: #eeeeee; }}
+    body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, .035), transparent 34%); }}
+    main {{ position: relative; max-width: 560px; margin: 0 auto; padding: 78px 20px 92px; }}
     h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
@@ -5557,35 +5557,44 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .score {{ font-weight: 700; }}
     .warning {{ margin-top: 16px; color: #fdba74; }}
     .small {{ font-size: 12px; color: #9b9b9b; max-width: 900px; margin-top: 16px; }}
-    .toolbar {{ position: sticky; top: 0; z-index: 10; display: flex; justify-content: flex-end; gap: 10px; align-items: center; margin: 18px 0 18px; padding: 10px 0; background: rgba(0, 0, 0, .84); backdrop-filter: blur(14px); }}
+    .toolbar {{ display: none; }}
     .toolbar button {{ min-height: 38px; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; cursor: pointer; }}
     .toolbar button:hover {{ border-color: #777777; background: #0d0d0d; }}
-    .setups {{ display: grid; gap: 22px; margin-top: 22px; }}
+    .setups {{ display: grid; gap: 11px; margin-top: 0; }}
     .empty-state {{ border: 1px solid #242424; border-radius: 10px; background: #050505; padding: 34px; text-align: center; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
     .empty-kicker {{ color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
     .empty-state h2 {{ margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }}
     .empty-state p {{ max-width: 700px; margin: 0 auto; color: #a8a8a8; line-height: 1.6; }}
-    .setup-card {{ background: #070707; border: 1px solid #242424; border-radius: 10px; overflow: hidden; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
+    .setup-card {{ background: linear-gradient(90deg, rgba(5, 6, 10, .96), rgba(19, 20, 25, .88)); border: 1px solid rgba(114, 116, 126, .22); border-radius: 0; overflow: hidden; box-shadow: none; }}
     .setup-card.is-hidden {{ display: none; }}
     .setup-card.is-collapsed .setup-body {{ display: none; }}
-    .setup-summary {{ display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 22px; background: #030303; border-bottom: 1px solid #1d1d1d; }}
-    .setup-summary-main {{ display: flex; align-items: center; gap: 14px; min-width: 0; }}
-    .setup-summary-actions {{ display: flex; align-items: center; gap: 8px; flex-shrink: 0; }}
-    .summary-symbol {{ font-size: clamp(26px, 3vw, 36px); line-height: 1; font-weight: 900; letter-spacing: .02em; }}
-    .summary-company {{ margin-top: 6px; color: #9b9b9b; font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }}
+    .setup-summary {{ display: grid; grid-template-columns: minmax(0, 1fr) auto 58px; align-items: center; min-height: 112px; gap: 12px; padding: 0 0 0 18px; background: transparent; border-bottom: 0; }}
+    .setup-summary-main {{ display: flex; align-items: center; min-width: 0; }}
+    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 58px; background: rgba(255, 255, 255, .045); border-left: 1px solid rgba(255, 255, 255, .055); }}
+    .summary-title-row {{ display: flex; align-items: center; gap: 12px; min-width: 0; }}
+    .summary-symbol {{ font-size: clamp(28px, 6.8vw, 35px); line-height: 1; font-weight: 950; letter-spacing: .01em; }}
+    .summary-company {{ margin-top: 9px; color: rgba(222, 223, 230, .72); font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }}
+    .quote-block {{ min-width: 112px; text-align: right; padding-right: 4px; }}
+    .quote-price {{ color: #f4f4f6; font-size: 20px; line-height: 1; font-weight: 850; letter-spacing: .01em; }}
+    .quote-change {{ margin-top: 9px; font-size: 13px; line-height: 1; font-weight: 750; }}
+    .quote-block.positive .quote-change {{ color: #72bd70; }}
+    .quote-block.negative .quote-change {{ color: #d66d72; }}
+    .quote-block.neutral .quote-change {{ color: rgba(226, 226, 232, .55); }}
     .setup-body {{ border-top: 0; }}
     .setup-top {{ display: grid; grid-template-columns: 1fr; gap: 28px; padding: 26px 22px 30px; align-items: start; }}
     .setup-details {{ display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: 18px; align-content: start; }}
     .watchlist-preview {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
     .setup-heading, .setup-actions {{ display: none; }}
-    .toggle-card {{ border: 1px solid #3a3a3a; border-radius: 999px; padding: 7px 12px; background: #050505; color: #d0d0d0; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: .12em; }}
-    .toggle-card:hover {{ border-color: #777777; background: #101010; }}
+    .toggle-card {{ position: relative; width: 100%; height: 100%; border: 0; border-radius: 0; padding: 0; background: transparent; color: rgba(241, 241, 245, .9); cursor: pointer; font-size: 0; }}
+    .toggle-card::before {{ content: ""; display: block; width: 11px; height: 11px; margin: 0 auto; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .16s ease; }}
+    .setup-card:not(.is-collapsed) .toggle-card::before {{ transform: rotate(225deg); }}
+    .toggle-card:hover {{ background: rgba(255, 255, 255, .035); }}
     .setup-rank {{ font-size: 13px; color: #9b9b9b; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }}
     .setup-symbol {{ font-size: 28px; font-weight: 800; line-height: 1; }}
     .setup-name {{ margin-top: 4px; color: #9b9b9b; font-size: 13px; }}
-    .direction {{ border-radius: 999px; padding: 7px 11px; font-weight: 900; font-size: 11px; letter-spacing: .1em; }}
-    .direction.call {{ background: rgba(34, 197, 94, .16); color: #86efac; border: 1px solid rgba(34, 197, 94, .34); }}
-    .direction.put {{ background: rgba(248, 113, 113, .16); color: #fca5a5; border: 1px solid rgba(248, 113, 113, .34); }}
+    .direction {{ border-radius: 4px; padding: 5px 10px 4px; font-weight: 900; font-size: 11px; letter-spacing: .08em; }}
+    .direction.call {{ background: rgba(20, 39, 23, .56); color: #86d47f; border: 1px solid rgba(112, 197, 105, .52); }}
+    .direction.put {{ background: rgba(48, 22, 26, .58); color: #d77078; border: 1px solid rgba(215, 94, 105, .52); }}
     .vital-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
     .decision-section {{ border: 1px solid #242424; border-radius: 8px; padding: 13px; background: #030303; }}
     .decision-section.recommendation {{ font-size: 13px; line-height: 1.4; }}
@@ -5660,8 +5669,9 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 16px 14px 44px; }} .toolbar {{ justify-content: stretch; }} .toolbar button {{ flex: 1; }} .setup-summary {{ padding: 17px 14px; }} .setup-top {{ padding: 18px 14px 22px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
-    @media (max-width: 520px) {{ .setup-summary-main {{ align-items: flex-start; }} .direction {{ margin-top: 1px; }} .vital-grid {{ grid-template-columns: 1fr; }} .setup-summary-actions {{ align-self: flex-start; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 74px 20px 44px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
+    @media (max-width: 520px) {{ main {{ padding: 72px 20px 42px; }} .setup-summary {{ min-height: 112px; grid-template-columns: minmax(0, 1fr) auto 58px; padding-left: 18px; }} .summary-symbol {{ font-size: 28px; }} .summary-company {{ font-size: 13px; }} .direction {{ font-size: 10px; padding: 5px 9px 4px; }} .quote-block {{ min-width: 100px; }} .quote-price {{ font-size: 20px; }} .quote-change {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 390px) {{ main {{ padding-left: 18px; padding-right: 18px; }} .setup-summary {{ grid-template-columns: minmax(0, 1fr) 92px 52px; min-height: 104px; padding-left: 16px; }} .setup-summary-actions {{ width: 52px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 12px; }} .quote-block {{ min-width: 86px; }} .quote-price {{ font-size: 18px; }} .quote-change {{ font-size: 11px; }} }}
   </style>
 </head>
 <body>
@@ -5687,7 +5697,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     function setCollapsed(card, collapsed) {{
       card.classList.toggle('is-collapsed', collapsed);
       const button = card.querySelector('.toggle-card');
-      if (button) button.textContent = collapsed ? 'Expand' : 'Collapse';
+      if (button) button.setAttribute('aria-label', (collapsed ? 'Expand ' : 'Collapse ') + card.dataset.symbol);
     }}
 
     document.getElementById('collapseAll').addEventListener('click', () => {{
@@ -5762,17 +5772,21 @@ def report_block(rank: int, item: Analysis) -> str:
             expanded_news_summary(item),
         ]
     )
+    change_html = price_change_html(item)
     return f"""<article class="setup-card is-collapsed" data-symbol="{html.escape(item.symbol)}" data-grade="{html.escape(grade)}" data-direction="{html.escape(direction)}" data-search="{html.escape(search_text.lower())}">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
-        <div class="summary-symbol">{html.escape(item.symbol)}</div>
+        <div class="summary-title-row">
+          <div class="summary-symbol">{html.escape(item.symbol)}</div>
+          <div class="direction {html.escape(direction_class)}">{html.escape(direction)}</div>
+        </div>
         <div class="summary-company">{html.escape(company_name)}</div>
       </div>
-      <div class="direction {html.escape(direction_class)}">{html.escape(direction)}</div>
     </div>
+    {change_html}
     <div class="setup-summary-actions">
-      <button type="button" class="toggle-card">Expand</button>
+      <button type="button" class="toggle-card" aria-label="Expand {html.escape(item.symbol)}"></button>
     </div>
   </div>
   <div class="setup-body">
@@ -5781,6 +5795,23 @@ def report_block(rank: int, item: Analysis) -> str:
     </div>
   </div>
 </article>"""
+
+
+def price_change_html(item: Analysis) -> str:
+    change = item.return_1d
+    if change is None:
+        return f"""<div class="quote-block neutral">
+      <div class="quote-price">${item.price:.2f}</div>
+      <div class="quote-change">--</div>
+    </div>"""
+    previous = item.price / (1 + change) if change > -0.999 else item.price
+    dollar_change = item.price - previous
+    sign = "+" if dollar_change >= 0 else ""
+    change_class = "positive" if dollar_change >= 0 else "negative"
+    return f"""<div class="quote-block {change_class}">
+      <div class="quote-price">${item.price:.2f}</div>
+      <div class="quote-change">{sign}{dollar_change:.2f} ({sign}{change * 100:.2f}%)</div>
+    </div>"""
 
 
 def detail_symbol_id(item: Analysis) -> str:
@@ -8858,7 +8889,7 @@ def report_dashboard_html() -> str:
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(circle at 50% 64%, rgba(255, 255, 255, .018), transparent 34%),
+        radial-gradient(circle at 50% 22%, rgba(255, 255, 255, .018), transparent 34%),
         #020307;
       color: var(--text);
       overflow-x: hidden;
@@ -8868,27 +8899,34 @@ def report_dashboard_html() -> str:
     .app-shell {{
       min-height: 100vh;
       background: transparent;
+      max-width: 590px;
+      margin: 0 auto;
+      padding: 88px 16px 42px;
     }}
     .top-bar {{
-      height: 160px;
+      height: 112px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 64px 40px 0 40px;
-      max-width: 560px;
-      margin: 0 auto;
+      padding: 0 16px;
+      max-width: none;
+      margin: 0;
+      border-radius: 12px 12px 0 0;
+      border: 1px solid rgba(255, 255, 255, .035);
+      background: linear-gradient(135deg, rgba(28, 30, 36, .96), rgba(18, 19, 24, .96));
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .34);
     }}
     .wordmark-image {{
       display: block;
-      width: 178px;
+      width: 190px;
       height: auto;
       object-fit: contain;
       opacity: .96;
       filter: contrast(1.04) brightness(1.05);
     }}
     .profile-button {{
-      width: 42px;
-      height: 42px;
+      width: 50px;
+      height: 50px;
       display: grid;
       place-items: center;
       border: 1.6px solid rgba(229, 229, 236, .72);
@@ -8911,16 +8949,17 @@ def report_dashboard_html() -> str:
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: center;
-      min-height: 76px;
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 0 20px;
-      gap: 0;
+      min-height: 66px;
+      max-width: none;
+      margin: 4px 0 0;
+      padding: 0;
+      gap: 4px;
     }}
     .tab {{
-      border: 0;
-      border-left: 1px solid rgba(226, 226, 232, .62);
-      background: transparent;
+      min-height: 66px;
+      border: 1px solid rgba(255, 255, 255, .028);
+      border-radius: 0 0 10px 10px;
+      background: rgba(25, 27, 32, .94);
       color: var(--muted);
       padding: 0;
       font-size: clamp(14px, 3.2vw, 17px);
@@ -8930,16 +8969,16 @@ def report_dashboard_html() -> str:
       white-space: nowrap;
       cursor: pointer;
     }}
-    .tab:first-child {{ border-left: 0; }}
-    .tab.is-active {{ color: #f1f1f5; }}
+    .tab:first-child {{ border-left: 1px solid rgba(255, 255, 255, .028); }}
+    .tab.is-active {{ color: #f1f1f5; background: rgba(26, 28, 34, .98); }}
     .content {{
-      min-height: calc(100vh - 236px);
-      padding: 0 0 32px;
+      min-height: calc(100vh - 270px);
+      padding: 100px 0 32px;
     }}
     .watchlist-panel {{
       display: block;
       width: 100%;
-      height: calc(100vh - 236px);
+      height: calc(100vh - 270px);
       min-height: 620px;
       border: 0;
       background: transparent;
@@ -8962,25 +9001,25 @@ def report_dashboard_html() -> str:
       white-space: nowrap;
     }}
     @media (max-width: 560px) {{
+      .app-shell {{
+        padding: 88px 16px 34px;
+      }}
       .top-bar {{
-        height: 160px;
-        padding: 64px 38px 0;
+        height: 110px;
+        padding: 0 14px;
       }}
-      .wordmark-image {{ width: 176px; }}
-      .profile-button {{ width: 42px; height: 42px; }}
+      .wordmark-image {{ width: 186px; }}
+      .profile-button {{ width: 50px; height: 50px; }}
       .tabs {{
-        min-height: 76px;
-        padding: 0 20px;
-        gap: 0;
+        min-height: 64px;
       }}
-      .tab {{ font-size: 15px; }}
-      .content {{ min-height: calc(100vh - 236px); }}
-      .watchlist-panel {{ height: calc(100vh - 236px); min-height: 650px; }}
+      .tab {{ min-height: 64px; font-size: 15px; }}
+      .content {{ min-height: calc(100vh - 266px); padding-top: 96px; }}
+      .watchlist-panel {{ height: calc(100vh - 266px); min-height: 650px; }}
     }}
     @media (max-width: 390px) {{
-      .top-bar {{ padding-left: 30px; padding-right: 30px; }}
-      .wordmark-image {{ width: 150px; }}
-      .tabs {{ padding: 0 12px; }}
+      .app-shell {{ padding-left: 14px; padding-right: 14px; }}
+      .wordmark-image {{ width: 156px; }}
       .tab {{ font-size: 13px; }}
     }}
   </style>
@@ -8998,7 +9037,7 @@ def report_dashboard_html() -> str:
     </header>
     <nav class="tabs" aria-label="ATLAS sections">
       <button class="tab is-active" type="button" data-panel="watchlist">Watchlist</button>
-      <button class="tab" type="button" data-panel="market">Report</button>
+      <button class="tab" type="button" data-panel="market">Journal</button>
       <button class="tab" type="button" data-panel="research">Research</button>
     </nav>
     <section class="content">
