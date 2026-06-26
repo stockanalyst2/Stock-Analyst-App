@@ -5545,7 +5545,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     :root {{ color-scheme: dark; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }}
     body {{ margin: 0; background: #020307; color: #eeeeee; }}
     body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, .035), transparent 34%); }}
-    main {{ position: relative; max-width: 590px; margin: 0 auto; padding: 0 4px 92px; }}
+    main {{ position: relative; max-width: none; margin: 0; padding: 0 0 92px; }}
     h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
@@ -5560,25 +5560,25 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .toolbar {{ display: none; }}
     .toolbar button {{ min-height: 38px; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; cursor: pointer; }}
     .toolbar button:hover {{ border-color: #777777; background: #0d0d0d; }}
-    .setups {{ display: grid; gap: 11px; margin-top: 0; }}
+    .setups {{ display: grid; gap: 18px; margin-top: 0; }}
     .empty-state {{ border: 1px solid #242424; border-radius: 10px; background: #050505; padding: 34px; text-align: center; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
     .empty-kicker {{ color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
     .empty-state h2 {{ margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }}
     .empty-state p {{ max-width: 700px; margin: 0 auto; color: #a8a8a8; line-height: 1.6; }}
-    .setup-card {{ background: linear-gradient(90deg, rgba(5, 6, 10, .96), rgba(19, 20, 25, .88)); border: 1px solid rgba(114, 116, 126, .22); border-radius: 0; overflow: hidden; box-shadow: none; }}
+    .setup-card {{ background: linear-gradient(90deg, rgba(5, 6, 10, .98), rgba(12, 13, 18, .94)); border: 1px solid rgba(114, 116, 126, .18); border-radius: 8px; overflow: hidden; box-shadow: 0 18px 38px rgba(0, 0, 0, .18); }}
     .setup-card.is-hidden {{ display: none; }}
     .setup-card .setup-body {{ display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1), opacity .24s ease; }}
     .setup-card.is-collapsed .setup-body {{ grid-template-rows: 0fr; opacity: 0; }}
     .setup-body-inner {{ min-height: 0; overflow: hidden; }}
-    .setup-summary {{ display: grid; grid-template-columns: minmax(0, 1fr) 96px 58px; align-items: center; min-height: 112px; gap: 20px; padding: 0 0 0 18px; background: transparent; border-bottom: 0; }}
+    .setup-summary {{ display: grid; grid-template-columns: minmax(0, 1fr) 116px 54px; align-items: center; min-height: 118px; gap: 22px; padding: 0 0 0 28px; background: transparent; border-bottom: 0; }}
     .setup-summary-main {{ display: flex; align-items: center; min-width: 0; }}
-    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 58px; background: rgba(255, 255, 255, .045); border-left: 1px solid rgba(255, 255, 255, .055); }}
-    .summary-title-row {{ display: flex; align-items: center; gap: 12px; min-width: 0; }}
-    .summary-symbol {{ font-size: clamp(21px, 5vw, 25px); line-height: .95; font-weight: 600; letter-spacing: .005em; }}
-    .summary-company {{ margin-top: 10px; color: rgba(222, 223, 230, .68); font-size: 11.5px; line-height: 1.25; font-weight: 400; overflow-wrap: anywhere; }}
-    .quote-block {{ min-width: 96px; text-align: right; padding-right: 4px; }}
-    .quote-price {{ color: #f4f4f6; font-size: 17px; line-height: 1; font-weight: 600; letter-spacing: .005em; }}
-    .quote-change {{ margin-top: 10px; font-size: 10.5px; line-height: 1; font-weight: 500; }}
+    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 54px; background: transparent; border-left: 0; }}
+    .summary-title-row {{ display: flex; align-items: center; gap: 19px; min-width: 0; }}
+    .summary-symbol {{ font-size: clamp(26px, 6vw, 32px); line-height: .95; font-weight: 600; letter-spacing: -.02em; }}
+    .summary-company {{ margin-top: 15px; color: rgba(222, 223, 230, .80); font-size: 15px; line-height: 1.25; font-weight: 400; overflow-wrap: anywhere; }}
+    .quote-block {{ min-width: 116px; text-align: right; padding-right: 0; }}
+    .quote-price {{ color: #f4f4f6; font-size: 20px; line-height: 1; font-weight: 600; letter-spacing: .005em; }}
+    .quote-change {{ margin-top: 16px; font-size: 14px; line-height: 1; font-weight: 500; }}
     .quote-block.positive .quote-change {{ color: #72bd70; }}
     .quote-block.negative .quote-change {{ color: #d66d72; }}
     .quote-block.neutral .quote-change {{ color: rgba(226, 226, 232, .55); }}
@@ -5588,13 +5588,13 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .watchlist-preview {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
     .setup-heading, .setup-actions {{ display: none; }}
     .toggle-card {{ position: relative; width: 100%; height: 100%; border: 0; border-radius: 0; padding: 0; background: transparent; color: rgba(241, 241, 245, .9); cursor: pointer; font-size: 0; }}
-    .toggle-card::before {{ content: ""; display: block; width: 10px; height: 10px; margin: 0 auto; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .22s cubic-bezier(.2, .8, .2, 1); }}
+    .toggle-card::before {{ content: ""; display: block; width: 12px; height: 12px; margin: 0 auto; border-right: 1.8px solid currentColor; border-bottom: 1.8px solid currentColor; transform: rotate(45deg); transition: transform .22s cubic-bezier(.2, .8, .2, 1); }}
     .setup-card:not(.is-collapsed) .toggle-card::before {{ transform: rotate(225deg); }}
     .toggle-card:hover {{ background: rgba(255, 255, 255, .035); }}
     .setup-rank {{ font-size: 13px; color: #9b9b9b; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }}
     .setup-symbol {{ font-size: 28px; font-weight: 800; line-height: 1; }}
     .setup-name {{ margin-top: 4px; color: #9b9b9b; font-size: 13px; }}
-    .direction {{ border-radius: 3px; padding: 4px 8px 3px; font-weight: 500; font-size: 9px; letter-spacing: .08em; }}
+    .direction {{ border-radius: 4px; padding: 5px 10px 4px; font-weight: 600; font-size: 11px; letter-spacing: .04em; }}
     .direction.call {{ background: rgba(20, 39, 23, .56); color: #86d47f; border: 1px solid rgba(112, 197, 105, .52); }}
     .direction.put {{ background: rgba(48, 22, 26, .58); color: #d77078; border: 1px solid rgba(215, 94, 105, .52); }}
     .vital-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
@@ -5671,9 +5671,9 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 0 4px 44px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
-    @media (max-width: 520px) {{ main {{ padding: 0 4px 42px; }} .setup-summary {{ min-height: 112px; grid-template-columns: minmax(0, 1fr) 92px 58px; gap: 18px; padding-left: 18px; }} .setup-summary-actions {{ width: 58px; }} .summary-title-row {{ gap: 11px; }} .summary-symbol {{ font-size: 21px; font-weight: 600; }} .summary-company {{ font-size: 11px; }} .direction {{ font-size: 8.5px; padding: 4px 8px 3px; }} .quote-block {{ min-width: 92px; }} .quote-price {{ font-size: 16px; font-weight: 600; }} .quote-change {{ font-size: 10px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 390px) {{ main {{ padding-left: 4px; padding-right: 4px; }} .setup-summary {{ grid-template-columns: minmax(0, 1fr) 86px 52px; min-height: 104px; gap: 16px; padding-left: 16px; }} .setup-summary-actions {{ width: 52px; }} .summary-title-row {{ gap: 9px; }} .summary-symbol {{ font-size: 20px; }} .summary-company {{ font-size: 10.5px; }} .quote-block {{ min-width: 86px; }} .quote-price {{ font-size: 15.5px; }} .quote-change {{ font-size: 9.5px; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 0 0 44px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
+    @media (max-width: 520px) {{ main {{ padding: 0 0 42px; }} .setup-summary {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 116px 54px; gap: 18px; padding-left: 28px; }} .setup-summary-actions {{ width: 54px; }} .summary-title-row {{ gap: 18px; }} .summary-symbol {{ font-size: 28px; font-weight: 600; }} .summary-company {{ font-size: 14px; }} .direction {{ font-size: 10px; padding: 5px 10px 4px; }} .quote-block {{ min-width: 116px; }} .quote-price {{ font-size: 19px; font-weight: 600; }} .quote-change {{ font-size: 13px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 390px) {{ .setup-summary {{ grid-template-columns: minmax(0, 1fr) 100px 46px; min-height: 108px; gap: 14px; padding-left: 22px; }} .setup-summary-actions {{ width: 46px; }} .summary-title-row {{ gap: 11px; }} .summary-symbol {{ font-size: 23px; }} .summary-company {{ font-size: 12px; margin-top: 12px; }} .direction {{ font-size: 8.5px; padding: 4px 8px 3px; }} .quote-block {{ min-width: 100px; }} .quote-price {{ font-size: 16px; }} .quote-change {{ font-size: 10.5px; }} }}
   </style>
 </head>
 <body>
@@ -8879,7 +8879,7 @@ def report_dashboard_html() -> str:
   <style>
     :root {{
       color-scheme: dark;
-      font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       --bg: #020307;
       --line: rgba(236, 238, 246, .86);
       --muted: rgba(226, 226, 232, .84);
@@ -8901,88 +8901,58 @@ def report_dashboard_html() -> str:
     .app-shell {{
       min-height: 100vh;
       background: transparent;
-      max-width: 590px;
+      max-width: 607px;
       margin: 0 auto;
-      padding: 88px 16px 42px;
+      padding: 86px 27px 138px;
     }}
-    .top-bar {{
-      height: 112px;
+    .brand-row {{
+      height: 18px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      max-width: none;
-      margin: 0;
-      border-radius: 12px 12px 0 0;
-      border: 1px solid rgba(255, 255, 255, .035);
-      background: linear-gradient(135deg, rgba(28, 30, 36, .96), rgba(18, 19, 24, .96));
-      box-shadow: 0 18px 40px rgba(0, 0, 0, .34);
     }}
     .wordmark-image {{
       display: block;
-      width: 190px;
+      width: 121px;
       height: auto;
       object-fit: contain;
       opacity: .96;
-      filter: contrast(1.04) brightness(1.05);
+      filter: contrast(1.04) brightness(1.08);
       mix-blend-mode: lighten;
     }}
-    .profile-button {{
-      width: 50px;
-      height: 50px;
-      display: grid;
-      place-items: center;
-      border: 1.6px solid rgba(229, 229, 236, .72);
-      border-radius: 50%;
-      background: transparent;
-      padding: 0;
-      color: rgba(231, 231, 238, .86);
-    }}
-    .profile-icon {{
-      width: 24px;
-      height: 24px;
-      display: block;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }}
-    .tabs {{
+    .watchlist-switcher {{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: center;
-      min-height: 66px;
+      min-height: 59px;
       max-width: none;
-      margin: 4px 0 0;
+      margin: 55px 0 0;
       padding: 0;
-      gap: 4px;
+      gap: 13px;
     }}
-    .tab {{
-      min-height: 66px;
-      border: 1px solid rgba(255, 255, 255, .028);
-      border-radius: 0 0 10px 10px;
-      background: rgba(25, 27, 32, .94);
+    .watchlist-tab {{
+      min-height: 59px;
+      border: 1px solid rgba(255, 255, 255, .075);
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(15, 16, 22, .96), rgba(8, 9, 14, .96));
       color: var(--muted);
       padding: 0;
-      font-size: clamp(14px, 3.2vw, 17px);
-      font-weight: 650;
-      letter-spacing: .005em;
+      font-size: 15px;
+      font-weight: 450;
+      letter-spacing: -.015em;
       text-align: center;
       white-space: nowrap;
       cursor: pointer;
     }}
-    .tab:first-child {{ border-left: 1px solid rgba(255, 255, 255, .028); }}
-    .tab.is-active {{ color: #f1f1f5; background: rgba(26, 28, 34, .98); }}
+    .watchlist-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
     .content {{
-      min-height: calc(100vh - 270px);
-      padding: 100px 0 32px;
+      min-height: calc(100vh - 358px);
+      padding: 38px 0 0;
     }}
     .watchlist-panel {{
       display: block;
       width: 100%;
-      height: calc(100vh - 270px);
-      min-height: 620px;
+      height: calc(100vh - 358px);
+      min-height: 710px;
       border: 0;
       background: transparent;
     }}
@@ -8995,6 +8965,44 @@ def report_dashboard_html() -> str:
     }}
     .placeholder-panel.is-active {{ display: block; }}
     .watchlist-panel.is-hidden {{ display: none; }}
+    .bottom-nav {{
+      position: fixed;
+      left: 50%;
+      bottom: 50px;
+      transform: translateX(-50%);
+      width: min(553px, calc(100vw - 54px));
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: end;
+      gap: 0;
+      z-index: 5;
+      pointer-events: auto;
+    }}
+    .nav-item {{
+      min-height: 72px;
+      border: 0;
+      background: transparent;
+      color: rgba(235, 236, 242, .80);
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+    }}
+    .nav-item.is-active {{ color: #61d94f; }}
+    .nav-icon {{
+      width: 38px;
+      height: 38px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }}
+    .nav-item.is-active .nav-icon {{ stroke-width: 2.2; }}
     .status-probe {{
       position: absolute;
       width: 1px;
@@ -9005,57 +9013,75 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .app-shell {{
-        padding: 88px 16px 34px;
+        padding: 86px 27px 138px;
       }}
-      .top-bar {{
-        height: 110px;
-        padding: 0 14px;
-      }}
-      .wordmark-image {{ width: 186px; }}
-      .profile-button {{ width: 50px; height: 50px; }}
-      .tabs {{
-        min-height: 64px;
-      }}
-      .tab {{ min-height: 64px; font-size: 15px; }}
-      .content {{ min-height: calc(100vh - 266px); padding-top: 96px; }}
-      .watchlist-panel {{ height: calc(100vh - 266px); min-height: 650px; }}
+      .wordmark-image {{ width: 121px; }}
+      .watchlist-switcher {{ min-height: 59px; margin-top: 55px; gap: 13px; }}
+      .watchlist-tab {{ min-height: 59px; font-size: 15px; }}
+      .content {{ min-height: calc(100vh - 358px); padding-top: 38px; }}
+      .watchlist-panel {{ height: calc(100vh - 358px); min-height: 710px; }}
     }}
     @media (max-width: 390px) {{
-      .app-shell {{ padding-left: 14px; padding-right: 14px; }}
-      .wordmark-image {{ width: 156px; }}
-      .tab {{ font-size: 13px; }}
+      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
+      .watchlist-switcher {{ gap: 9px; }}
+      .watchlist-tab {{ font-size: 13px; }}
+      .bottom-nav {{ width: calc(100vw - 40px); }}
     }}
   </style>
 </head>
 <body>
   <main class="app-shell" aria-label="ATLAS">
-    <header class="top-bar">
+    <header class="brand-row">
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
-      <button class="profile-button" type="button" aria-label="Account">
-        <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="8" r="3.25"></circle>
-          <path d="M5.75 19.25c.95-3.45 3.05-5.2 6.25-5.2s5.3 1.75 6.25 5.2"></path>
-        </svg>
-      </button>
     </header>
-    <nav class="tabs" aria-label="ATLAS sections">
-      <button class="tab is-active" type="button" data-panel="watchlist">Watchlist</button>
-      <button class="tab" type="button" data-panel="market">Journal</button>
-      <button class="tab" type="button" data-panel="research">Research</button>
+    <nav class="watchlist-switcher" aria-label="Watchlist groups">
+      <button class="watchlist-tab is-active" type="button">ATLAS watchlist</button>
+      <button class="watchlist-tab" type="button">personal watchlist</button>
+      <button class="watchlist-tab" type="button">favorites</button>
     </nav>
     <section class="content">
       <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
       <section class="placeholder-panel" id="marketPanel">Market Report</section>
       <section class="placeholder-panel" id="researchPanel">Research</section>
+      <section class="placeholder-panel" id="tbdPanel">TBD</section>
       <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
     </section>
+    <nav class="bottom-nav" aria-label="ATLAS navigation">
+      <button class="nav-item is-active" type="button" data-panel="watchlist" aria-label="Watchlists">
+        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M15 11h18"></path><path d="M15 20h18"></path><path d="M15 29h18"></path>
+          <circle cx="7" cy="11" r="1.8"></circle><circle cx="7" cy="20" r="1.8"></circle><circle cx="7" cy="29" r="1.8"></circle>
+        </svg>
+        <span>Watchlists</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="market" aria-label="Journal">
+        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M17 7h11a4 4 0 0 1 4 4v22H17a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5Z"></path>
+          <path d="M17 7v26"></path><path d="M9 13h8"></path><path d="M9 20h8"></path><path d="M9 27h8"></path>
+        </svg>
+        <span>Journal</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="research" aria-label="Research">
+        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="18" cy="18" r="12"></circle><path d="m27 27 8 8"></path>
+        </svg>
+        <span>Research</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="tbd" aria-label="TBD">
+        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="15"></circle><path d="M16.5 16a4 4 0 0 1 7.1 2.5c0 4-5.1 4.1-5.1 8"></path><path d="M20 31h.01"></path>
+        </svg>
+        <span>TBD</span>
+      </button>
+    </nav>
   </main>
   <script>
-    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const tabs = Array.from(document.querySelectorAll('.nav-item'));
     const watchlistFrame = document.getElementById('watchlistFrame');
     const panels = {{
       market: document.getElementById('marketPanel'),
       research: document.getElementById('researchPanel'),
+      tbd: document.getElementById('tbdPanel'),
     }};
 
     function showPanel(name) {{
