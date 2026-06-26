@@ -5545,7 +5545,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     :root {{ color-scheme: dark; font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; }}
     body {{ margin: 0; background: #020307; color: #eeeeee; }}
     body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, .035), transparent 34%); }}
-    main {{ position: relative; max-width: 560px; margin: 0 auto; padding: 78px 20px 92px; }}
+    main {{ position: relative; max-width: 560px; margin: 0 auto; padding: 0 20px 92px; }}
     h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
@@ -5574,11 +5574,11 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .setup-summary-main {{ display: flex; align-items: center; min-width: 0; }}
     .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 58px; background: rgba(255, 255, 255, .045); border-left: 1px solid rgba(255, 255, 255, .055); }}
     .summary-title-row {{ display: flex; align-items: center; gap: 12px; min-width: 0; }}
-    .summary-symbol {{ font-size: clamp(27px, 6.2vw, 32px); line-height: .95; font-weight: 850; letter-spacing: .005em; }}
-    .summary-company {{ margin-top: 10px; color: rgba(222, 223, 230, .70); font-size: 13px; line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; }}
+    .summary-symbol {{ font-size: clamp(26px, 6vw, 30px); line-height: .95; font-weight: 760; letter-spacing: .005em; }}
+    .summary-company {{ margin-top: 10px; color: rgba(222, 223, 230, .70); font-size: 13px; line-height: 1.25; font-weight: 450; overflow-wrap: anywhere; }}
     .quote-block {{ min-width: 116px; text-align: right; padding-right: 4px; }}
-    .quote-price {{ color: #f4f4f6; font-size: 20px; line-height: 1; font-weight: 760; letter-spacing: .005em; }}
-    .quote-change {{ margin-top: 10px; font-size: 12px; line-height: 1; font-weight: 650; }}
+    .quote-price {{ color: #f4f4f6; font-size: 20px; line-height: 1; font-weight: 700; letter-spacing: .005em; }}
+    .quote-change {{ margin-top: 10px; font-size: 12px; line-height: 1; font-weight: 600; }}
     .quote-block.positive .quote-change {{ color: #72bd70; }}
     .quote-block.negative .quote-change {{ color: #d66d72; }}
     .quote-block.neutral .quote-change {{ color: rgba(226, 226, 232, .55); }}
@@ -5594,7 +5594,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .setup-rank {{ font-size: 13px; color: #9b9b9b; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }}
     .setup-symbol {{ font-size: 28px; font-weight: 800; line-height: 1; }}
     .setup-name {{ margin-top: 4px; color: #9b9b9b; font-size: 13px; }}
-    .direction {{ border-radius: 3px; padding: 4px 8px 3px; font-weight: 750; font-size: 10px; letter-spacing: .08em; }}
+    .direction {{ border-radius: 3px; padding: 4px 8px 3px; font-weight: 650; font-size: 10px; letter-spacing: .08em; }}
     .direction.call {{ background: rgba(20, 39, 23, .56); color: #86d47f; border: 1px solid rgba(112, 197, 105, .52); }}
     .direction.put {{ background: rgba(48, 22, 26, .58); color: #d77078; border: 1px solid rgba(215, 94, 105, .52); }}
     .vital-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
@@ -5671,8 +5671,8 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 74px 20px 44px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
-    @media (max-width: 520px) {{ main {{ padding: 72px 20px 42px; }} .setup-summary {{ min-height: 112px; grid-template-columns: minmax(0, 1fr) minmax(112px, auto) 58px; gap: 12px; padding-left: 18px; }} .summary-symbol {{ font-size: 28px; }} .summary-company {{ font-size: 12.5px; }} .direction {{ font-size: 10px; padding: 4px 8px 3px; }} .quote-block {{ min-width: 112px; }} .quote-price {{ font-size: 20px; }} .quote-change {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 0 20px 44px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
+    @media (max-width: 520px) {{ main {{ padding: 0 20px 42px; }} .setup-summary {{ min-height: 112px; grid-template-columns: minmax(0, 1fr) minmax(112px, auto) 58px; gap: 12px; padding-left: 18px; }} .summary-symbol {{ font-size: 28px; font-weight: 760; }} .summary-company {{ font-size: 12.5px; }} .direction {{ font-size: 10px; padding: 4px 8px 3px; }} .quote-block {{ min-width: 112px; }} .quote-price {{ font-size: 20px; }} .quote-change {{ font-size: 12px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
     @media (max-width: 390px) {{ main {{ padding-left: 18px; padding-right: 18px; }} .setup-summary {{ grid-template-columns: minmax(0, 1fr) 104px 52px; min-height: 104px; gap: 10px; padding-left: 16px; }} .setup-summary-actions {{ width: 52px; }} .summary-title-row {{ gap: 9px; }} .summary-symbol {{ font-size: 25px; }} .summary-company {{ font-size: 11.5px; }} .quote-block {{ min-width: 104px; }} .quote-price {{ font-size: 18px; }} .quote-change {{ font-size: 11px; }} }}
   </style>
 </head>
