@@ -1058,7 +1058,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn('class="quote-block neutral"', row)
         self.assertIn('class="quote-price">$10.00</div>', row)
         self.assertIn("Why is it on the list?", row)
-        self.assertIn("What other sources are supporting the thesis?", row)
+        self.assertNotIn("What other sources are supporting the thesis?", row)
         self.assertIn("Read More", row)
         self.assertIn('data-detail-target="BAD"', row)
         self.assertNotIn("Entry Plan", row)

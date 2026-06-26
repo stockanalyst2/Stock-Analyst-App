@@ -5826,7 +5826,6 @@ def watchlist_preview_panel(rank: int, item: Analysis) -> str:
     symbol_id = detail_symbol_id(item)
     return f"""<section class="watchlist-preview">
   {theme_panel("Why is it on the list?", why_on_watchlist_text(item), open_panel=True)}
-  {theme_panel("What other sources are supporting the thesis?", supporting_sources_text(item), open_panel=True)}
   <button type="button" class="read-more-link" data-detail-target="{html.escape(symbol_id)}">Read More</button>
 </section>"""
 
