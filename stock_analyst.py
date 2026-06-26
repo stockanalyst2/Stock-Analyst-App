@@ -5524,8 +5524,7 @@ def print_table(results: list[Analysis], limit: int) -> None:
 
 def write_report(results: list[Analysis], output: Path, profile: str, failed: list[str]) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
-    generated_at = dt.datetime.now().astimezone()
-    generated = generated_at.strftime("%Y-%m-%d %H:%M %Z")
+    generated = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
     blocks = "\n".join(report_block(rank, item) for rank, item in enumerate(results, start=1))
     if not blocks:
         blocks = """<section class="empty-state">
@@ -5566,9 +5565,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .empty-kicker {{ color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
     .empty-state h2 {{ margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }}
     .empty-state p {{ max-width: 700px; margin: 0 auto; color: #a8a8a8; line-height: 1.6; }}
-    .watchlist-context {{ display: grid; gap: 8px; margin: 0 0 24px; text-align: center; }}
-    .agent-note {{ margin: 0; color: rgba(229, 229, 236, .72); font-size: 12px; font-weight: 800; letter-spacing: .08em; line-height: 1.45; text-transform: uppercase; }}
-    .last-edited {{ color: rgba(229, 229, 236, .52); font-size: 11px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }}
     .setup-card {{ background: linear-gradient(90deg, rgba(5, 6, 10, .96), rgba(19, 20, 25, .88)); border: 1px solid rgba(114, 116, 126, .22); border-radius: 0; overflow: hidden; box-shadow: none; }}
     .setup-card.is-hidden {{ display: none; }}
     .setup-card .setup-body {{ display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1), opacity .24s ease; }}
@@ -5576,7 +5572,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .setup-body-inner {{ min-height: 0; overflow: hidden; }}
     .setup-summary {{ display: grid; grid-template-columns: minmax(0, 1fr) auto 58px; align-items: center; min-height: 112px; gap: 12px; padding: 0 0 0 18px; background: transparent; border-bottom: 0; }}
     .setup-summary-main {{ display: flex; align-items: center; min-width: 0; }}
-    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 58px; background: linear-gradient(135deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .028)); border-left: 1px solid rgba(255, 255, 255, .055); }}
+    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 58px; background: rgba(255, 255, 255, .045); border-left: 1px solid rgba(255, 255, 255, .055); }}
     .summary-title-row {{ display: flex; align-items: center; gap: 12px; min-width: 0; }}
     .summary-symbol {{ font-size: clamp(28px, 6.8vw, 35px); line-height: 1; font-weight: 950; letter-spacing: .01em; }}
     .summary-company {{ margin-top: 9px; color: rgba(222, 223, 230, .72); font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }}
@@ -5611,7 +5607,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .entry-text {{ color: #eeeeee; line-height: 1.5; font-weight: 650; }}
     .theme-stack {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }}
     .theme-panel {{ border: 1px solid #242424; border-radius: 8px; background: #030303; overflow: hidden; }}
-    .theme-panel summary {{ cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 14px 15px; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; list-style: none; background: linear-gradient(135deg, rgba(48, 50, 58, .92), rgba(15, 16, 20, .92)); }}
+    .theme-panel summary {{ cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 14px 15px; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; list-style: none; }}
     .theme-panel summary::-webkit-details-marker {{ display: none; }}
     .theme-panel summary::after {{ content: "Expand"; color: #8f8f8f; font-size: 9px; letter-spacing: .08em; }}
     .theme-panel[open] summary::after {{ content: "Collapse"; }}
@@ -5646,7 +5642,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .detail-value {{ margin-top: 6px; font-size: 18px; font-weight: 800; overflow-wrap: anywhere; }}
     .signals {{ border-top: 1px solid #2a2a2a; padding-top: 10px; color: #d0d0d0; font-size: 14px; }}
     .secondary-analysis {{ margin: 0 16px 16px; border: 1px solid #2a2a2a; border-radius: 8px; background: #0b0b0b; overflow: hidden; }}
-    .secondary-analysis summary {{ cursor: pointer; padding: 12px 14px; color: #eeeeee; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; list-style: none; background: linear-gradient(135deg, rgba(48, 50, 58, .92), rgba(15, 16, 20, .92)); }}
+    .secondary-analysis summary {{ cursor: pointer; padding: 12px 14px; color: #eeeeee; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; list-style: none; }}
     .secondary-analysis summary::-webkit-details-marker {{ display: none; }}
     .secondary-analysis summary::after {{ content: "Expand"; float: right; color: #9b9b9b; font-size: 11px; }}
     .secondary-analysis[open] summary::after {{ content: "Collapse"; }}
@@ -5687,10 +5683,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
     </section>
-    <section class="watchlist-context" aria-label="Watchlist guidance">
-      <p class="agent-note">List is subject to change. Do not open any listed positions until specified by your ATLAS agent.</p>
-      <div class="last-edited" data-generated-at="{generated_at.isoformat()}">Last edited: just now</div>
-    </section>
     <section class="setups">
       {blocks}
     </section>
@@ -5703,7 +5695,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
   </main>
   <script>
     const cards = Array.from(document.querySelectorAll('.setup-card'));
-    const lastEdited = document.querySelector('.last-edited[data-generated-at]');
 
     function setCollapsed(card, collapsed) {{
       card.classList.toggle('is-collapsed', collapsed);
@@ -5759,22 +5750,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     if (initialDetail) {{
       window.requestAnimationFrame(() => openDetail(initialDetail.toUpperCase()));
     }}
-    function updateLastEdited() {{
-      if (!lastEdited) return;
-      const generated = Date.parse(lastEdited.dataset.generatedAt);
-      if (!Number.isFinite(generated)) return;
-      const minutes = Math.max(0, Math.floor((Date.now() - generated) / 60000));
-      let label = 'just now';
-      if (minutes === 1) label = '1 min ago';
-      else if (minutes > 1 && minutes < 60) label = `${{minutes}} min ago`;
-      else if (minutes >= 60) {{
-        const hours = Math.floor(minutes / 60);
-        label = hours === 1 ? '1 hr ago' : `${{hours}} hrs ago`;
-      }}
-      lastEdited.textContent = `Last edited: ${{label}}`;
-    }}
-    updateLastEdited();
-    setInterval(updateLastEdited, 60000);
   </script>
 </body>
 </html>
@@ -8942,7 +8917,7 @@ def report_dashboard_html() -> str:
       margin: 0;
       border-radius: 12px 12px 0 0;
       border: 1px solid rgba(255, 255, 255, .035);
-      background: linear-gradient(135deg, rgba(42, 44, 51, .98) 0%, rgba(24, 25, 31, .98) 44%, rgba(12, 13, 17, .98) 100%);
+      background: linear-gradient(135deg, rgba(28, 30, 36, .96), rgba(18, 19, 24, .96));
       box-shadow: 0 18px 40px rgba(0, 0, 0, .34);
     }}
     .wordmark-image {{
@@ -8988,7 +8963,7 @@ def report_dashboard_html() -> str:
       min-height: 66px;
       border: 1px solid rgba(255, 255, 255, .028);
       border-radius: 0 0 10px 10px;
-      background: linear-gradient(180deg, rgba(33, 35, 42, .96), rgba(21, 22, 27, .96));
+      background: rgba(25, 27, 32, .94);
       color: var(--muted);
       padding: 0;
       font-size: clamp(14px, 3.2vw, 17px);
@@ -8999,11 +8974,10 @@ def report_dashboard_html() -> str:
       cursor: pointer;
     }}
     .tab:first-child {{ border-left: 1px solid rgba(255, 255, 255, .028); }}
-    .tab.is-active {{ color: #f1f1f5; background: linear-gradient(180deg, rgba(42, 44, 52, .98), rgba(24, 25, 30, .98)); }}
+    .tab.is-active {{ color: #f1f1f5; background: rgba(26, 28, 34, .98); }}
     .content {{
       min-height: calc(100vh - 270px);
       padding: 100px 0 32px;
-      touch-action: pan-y;
     }}
     .watchlist-panel {{
       display: block;
@@ -9019,10 +8993,6 @@ def report_dashboard_html() -> str:
       color: rgba(226, 226, 232, .70);
       font-size: 15px;
       text-align: center;
-    }}
-    .content.is-swiping .watchlist-panel,
-    .content.is-swiping .placeholder-panel {{
-      transition: opacity .18s ease, transform .18s ease;
     }}
     .placeholder-panel.is-active {{ display: block; }}
     .watchlist-panel.is-hidden {{ display: none; }}
@@ -9083,26 +9053,17 @@ def report_dashboard_html() -> str:
   </main>
   <script>
     const tabs = Array.from(document.querySelectorAll('.tab'));
-    const content = document.querySelector('.content');
     const watchlistFrame = document.getElementById('watchlistFrame');
-    const panelOrder = ['watchlist', 'market', 'research'];
-    let activePanel = 'watchlist';
-    let touchStartX = 0;
-    let touchStartY = 0;
     const panels = {{
       market: document.getElementById('marketPanel'),
       research: document.getElementById('researchPanel'),
     }};
 
     function showPanel(name) {{
-      if (!panelOrder.includes(name)) return;
-      activePanel = name;
-      content?.classList.add('is-swiping');
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
       watchlistFrame.classList.toggle('is-hidden', name !== 'watchlist');
       for (const [key, panel] of Object.entries(panels)) panel.classList.toggle('is-active', key === name);
       if (name === 'watchlist') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
-      window.setTimeout(() => content?.classList.remove('is-swiping'), 220);
     }}
 
     async function refreshStatus() {{
@@ -9116,21 +9077,6 @@ def report_dashboard_html() -> str:
       }}
     }}
     for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
-    content?.addEventListener('touchstart', (event) => {{
-      if (event.touches.length !== 1) return;
-      touchStartX = event.touches[0].clientX;
-      touchStartY = event.touches[0].clientY;
-    }}, {{ passive: true }});
-    content?.addEventListener('touchend', (event) => {{
-      const touch = event.changedTouches[0];
-      if (!touch) return;
-      const dx = touch.clientX - touchStartX;
-      const dy = touch.clientY - touchStartY;
-      if (Math.abs(dx) < 58 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-      const currentIndex = panelOrder.indexOf(activePanel);
-      const nextIndex = dx < 0 ? Math.min(panelOrder.length - 1, currentIndex + 1) : Math.max(0, currentIndex - 1);
-      if (nextIndex !== currentIndex) showPanel(panelOrder[nextIndex]);
-    }}, {{ passive: true }});
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>

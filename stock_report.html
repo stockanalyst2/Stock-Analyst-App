@@ -28,9 +28,6 @@
     .empty-kicker { color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
     .empty-state h2 { margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }
     .empty-state p { max-width: 700px; margin: 0 auto; color: #a8a8a8; line-height: 1.6; }
-    .watchlist-context { display: grid; gap: 8px; margin: 0 0 24px; text-align: center; }
-    .agent-note { margin: 0; color: rgba(229, 229, 236, .72); font-size: 12px; font-weight: 800; letter-spacing: .08em; line-height: 1.45; text-transform: uppercase; }
-    .last-edited { color: rgba(229, 229, 236, .52); font-size: 11px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
     .setup-card { background: linear-gradient(90deg, rgba(5, 6, 10, .96), rgba(19, 20, 25, .88)); border: 1px solid rgba(114, 116, 126, .22); border-radius: 0; overflow: hidden; box-shadow: none; }
     .setup-card.is-hidden { display: none; }
     .setup-card .setup-body { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1), opacity .24s ease; }
@@ -38,7 +35,7 @@
     .setup-body-inner { min-height: 0; overflow: hidden; }
     .setup-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 58px; align-items: center; min-height: 112px; gap: 12px; padding: 0 0 0 18px; background: transparent; border-bottom: 0; }
     .setup-summary-main { display: flex; align-items: center; min-width: 0; }
-    .setup-summary-actions { align-self: stretch; display: grid; place-items: center; width: 58px; background: linear-gradient(135deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .028)); border-left: 1px solid rgba(255, 255, 255, .055); }
+    .setup-summary-actions { align-self: stretch; display: grid; place-items: center; width: 58px; background: rgba(255, 255, 255, .045); border-left: 1px solid rgba(255, 255, 255, .055); }
     .summary-title-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .summary-symbol { font-size: clamp(28px, 6.8vw, 35px); line-height: 1; font-weight: 950; letter-spacing: .01em; }
     .summary-company { margin-top: 9px; color: rgba(222, 223, 230, .72); font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }
@@ -73,7 +70,7 @@
     .entry-text { color: #eeeeee; line-height: 1.5; font-weight: 650; }
     .theme-stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }
     .theme-panel { border: 1px solid #242424; border-radius: 8px; background: #030303; overflow: hidden; }
-    .theme-panel summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 14px 15px; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; list-style: none; background: linear-gradient(135deg, rgba(48, 50, 58, .92), rgba(15, 16, 20, .92)); }
+    .theme-panel summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 14px 15px; color: #eeeeee; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; list-style: none; }
     .theme-panel summary::-webkit-details-marker { display: none; }
     .theme-panel summary::after { content: "Expand"; color: #8f8f8f; font-size: 9px; letter-spacing: .08em; }
     .theme-panel[open] summary::after { content: "Collapse"; }
@@ -108,7 +105,7 @@
     .detail-value { margin-top: 6px; font-size: 18px; font-weight: 800; overflow-wrap: anywhere; }
     .signals { border-top: 1px solid #2a2a2a; padding-top: 10px; color: #d0d0d0; font-size: 14px; }
     .secondary-analysis { margin: 0 16px 16px; border: 1px solid #2a2a2a; border-radius: 8px; background: #0b0b0b; overflow: hidden; }
-    .secondary-analysis summary { cursor: pointer; padding: 12px 14px; color: #eeeeee; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; list-style: none; background: linear-gradient(135deg, rgba(48, 50, 58, .92), rgba(15, 16, 20, .92)); }
+    .secondary-analysis summary { cursor: pointer; padding: 12px 14px; color: #eeeeee; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; list-style: none; }
     .secondary-analysis summary::-webkit-details-marker { display: none; }
     .secondary-analysis summary::after { content: "Expand"; float: right; color: #9b9b9b; font-size: 11px; }
     .secondary-analysis[open] summary::after { content: "Collapse"; }
@@ -149,10 +146,6 @@
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
     </section>
-    <section class="watchlist-context" aria-label="Watchlist guidance">
-      <p class="agent-note">List is subject to change. Do not open any listed positions until specified by your ATLAS agent.</p>
-      <div class="last-edited" data-generated-at="2026-06-25T19:34:10.408012-04:00">Last edited: just now</div>
-    </section>
     <section class="setups">
       <article class="setup-card is-collapsed" data-symbol="WFC" data-grade="C" data-direction="PUT" data-search="wfc wells fargo &amp; company put c b reversal meaningful 20-day runup rsi elevated but not euphoric near 20-day resistance zone near major 60-day resistance bearish candle rejection 15m trend rejection banks get the go-ahead to hike dividends. where the best yields are. us bancorp declares scb &amp; plans dividend hike after 2026 stress test citigroup vs. wells fargo: which financial stock is a better buy in 2026? wells fargo’s quarterly earnings preview: what you need to know find out why ubs lowered its price target on lyondellbasell (lyb) from $82 to $73 catalyst summary / research brief: after reviewing barchart, finance, fool, moomoo, reuters, the new york times, the story around wfc is mainly about stocks dip, treasury yields jump as oil pushes higher. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. the deal/customer-demand angle gives traders a concrete repricing hook around future revenue. regulatory/legal overhang keeps buyer conviction conditional. macro/geopolitical stress is active in the tape and can override single-name strength. rates and inflation are pressuring multiples, credit sensitivity, and risk appetite. oil/supply risk is moving energy cash-flow expectations and transport-sensitive margins. main themes: regulatory or public scrutiny, deal, contract, or licensing activity, earnings, guidance, or margin pressure, cloud or data-center demand, oil-price sensitivity. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and deal/contract visibility around demand, backlog, or strategic validation, and regulatory/legal overhang on the multiple, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs, and rates/inflation pressure on multiples, demand, and credit beta, and oil inventory, crude-price, and supply-risk sensitivity. for wfc, the key read is whether this changes underwriting, advisory revenue, fee income, credit sensitivity, trading activity, or capital-markets appetite. macro/geopolitical overlay: geopolitical and oil-risk headlines are affecting the broader tape and rates and inflation expectations remain part of the market backdrop. most relevant current item: stocks dip, treasury yields jump as oil pushes higher. macro override: hormuz’s next chapter is about gas, not just oil. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
@@ -191,7 +184,7 @@
     </div>
   </div>
 </article>
-<article class="setup-card is-collapsed" data-symbol="MU" data-grade="C" data-direction="PUT" data-search="mu micron technology, inc. put c b reversal rsi elevated but not euphoric near 20-day resistance zone stretched above 20-day mean stretched above 50-day mean rejection volume present near major 252-day resistance micron: q3 proved me wrong (rating upgrade) (nasdaq:mu) - seeking alpha micron q3: earnings explode, shares soar -- so let&#x27;s look at what&#x27;s next (nasdaq:mu) - seeking alpha micron and sk hynix: the end of harsh cyclicality may be in sight (nasdaq:mu) - seeking alpha micron signals hbm tam crossing $100b in 2027 as it lifts fy26 capex to around $27b (nasdaq:mu) - seeking alpha micron technology, inc. (mu) q3 2026 earnings call transcript - seeking alpha catalyst summary / research brief: after reviewing finance, fool, stocktwits, the story around mu is mainly about micron&#x27;s blowout earnings could be great news for nvidia investors. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. main themes: earnings, guidance, or margin pressure, new product or platform activity, ai strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover. for mu, the key read is whether investors see the story as durable growth or as a spending/valuation risk. macro/geopolitical overlay: ai and data-center spending remain major drivers of risk appetite. most relevant current item: stock market today, june 25: microsoft falls as ai spending concerns pressure cloud margin outlook. macro override: hormuz’s next chapter is about gas, not just oil. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
+<article class="setup-card is-collapsed" data-symbol="MU" data-grade="C" data-direction="PUT" data-search="mu micron technology, inc. put c b reversal rsi elevated but not euphoric near 20-day resistance zone stretched above 20-day mean stretched above 50-day mean rejection volume present near major 252-day resistance micron: q3 proved me wrong (rating upgrade) (nasdaq:mu) - seeking alpha micron q3: earnings explode, shares soar -- so let&#x27;s look at what&#x27;s next (nasdaq:mu) - seeking alpha micron: avoid buying the peak, you might thank me later (nasdaq:mu) - seeking alpha micron and sk hynix: the end of harsh cyclicality may be in sight (nasdaq:mu) - seeking alpha micron signals hbm tam crossing $100b in 2027 as it lifts fy26 capex to around $27b (nasdaq:mu) - seeking alpha catalyst summary / research brief: after reviewing beincrypto, finance, fool, stocktwits, tradingview, the story around mu is mainly about micron&#x27;s blowout earnings could be great news for nvidia investors. estimate, margin, and guidance sensitivity are in play. the ai/cloud angle comes down to monetization versus capex drag. macro/geopolitical stress is active in the tape and can override single-name strength. main themes: earnings, guidance, or margin pressure, new product or platform activity, ai strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. my read: fresh earnings/guidance pressure on the forward estimate path, and ai/cloud monetization versus capex risk, and chip-sector beta and ai-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. for mu, the key read is whether investors see the story as durable growth or as a spending/valuation risk. macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and ai and data-center spending remain major drivers of risk appetite. most relevant current item: stock market today, june 25: microsoft falls as ai spending concerns pressure cloud margin outlook. macro override: hormuz’s next chapter is about gas, not just oil. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
   <div class="setup-summary">
     <div class="setup-summary-main">
       <div>
@@ -223,43 +216,6 @@
     <div class="theme-body"><p>The useful outside support is this: Micron Q3: Earnings Explode, Shares Soar -- So Let&#x27;s Look At What&#x27;s Next (NASDAQ:MU). My read is that this gives traders something to react to, but I still would not treat the headline as enough by itself. Macro alert: the risk-off backdrop makes the put idea easier to justify if the stock starts rejecting higher prices.</p><p>What supports the thesis is simple: the news gives the ticker attention, and the chart has a possible put path if price confirms around the entry trigger. What would weaken it is just as important: if price loses or reclaims the wrong side of 1252.07, the idea no longer has the same edge. The setup is close enough to monitor, but I would still wait for the chart to confirm before entering.</p></div>
   </details>
   <button type="button" class="read-more-link" data-detail-target="MU">Read More</button>
-</section>
-      </div>
-    </div>
-  </div>
-</article>
-<article class="setup-card is-collapsed" data-symbol="VRTX" data-grade="C" data-direction="PUT" data-search="vrtx vertex pharmaceuticals incorporated put c a reversal controlled 5-day spike meaningful 20-day runup rsi elevated but not euphoric near 20-day resistance zone stretched above 20-day mean stretched above 50-day mean near major 60-day resistance 15m trend rejection 15m lower-high confirmation vertex pharmaceuticals stock: is vrtx underperforming the healthcare sector? - barchart.com vertex projects 2026 revenue of $12.95b-$13.1b while targeting $500m-plus from non-cf products (nasdaq:vrtx) - seeking alpha vertex pharmaceuticals incorporated (vrtx) presents at bernstein 42nd annual strategic decisions conference transcript - seeking alpha vertex pharma upgraded at rbc capital markets (vrtx:nasdaq) - seeking alpha vertex pharmaceuticals incorporated (vrtx) presents at rbc capital markets global healthcare conference 2026 transcript - seeking alpha catalyst summary / research brief: after reviewing barchart.com, bloomberg, cnbc, finance, seeking alpha, i found useful context for vrtx, but not a clean single catalyst. no single dominant catalyst; this is a positioning/sentiment read until price confirms. main themes: vrtx industrial corp, jefferies&#x27; michael yee explains his top biotech picks: vrtx, fate, zlab. my read: positioning and volume sensitivity if traders treat the headline as fresh. for vrtx, the key read is whether it changes approval odds, reimbursement, drug demand, procedure volume, or expected sales. macro override: hormuz’s next chapter is about gas, not just oil. defensive put bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. trade read: keep this as a put setup only if the tape confirms the headline with volume and level control. put confirmation: failed follow-through, a lower high, or rejection of the spike. no rejection, no trade. what would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.">
-  <div class="setup-summary">
-    <div class="setup-summary-main">
-      <div>
-        <div class="summary-title-row">
-          <div class="summary-symbol">VRTX</div>
-          <div class="direction put">PUT</div>
-        </div>
-        <div class="summary-company">Vertex Pharmaceuticals Incorporated</div>
-      </div>
-    </div>
-    <div class="quote-block positive">
-      <div class="quote-price">$480.18</div>
-      <div class="quote-change">+4.98 (+1.05%)</div>
-    </div>
-    <div class="setup-summary-actions">
-      <button type="button" class="toggle-card" aria-label="Expand VRTX"></button>
-    </div>
-  </div>
-  <div class="setup-body">
-    <div class="setup-body-inner">
-      <div class="setup-top">
-        <section class="watchlist-preview">
-  <details class="theme-panel" open>
-    <summary>Why is it on the list?</summary>
-    <div class="theme-body"><p>Vertex Pharmaceuticals Incorporated is here because it has a tradable PUT idea developing, but I would still treat it as conditional. The short version: price has already made a sharp move into an area where sellers may start fading it, so the opportunity is a controlled pullback attempt. Current stance: Actionable on trigger. Price is near the intended starter zone; use the listed confirmation rules and size smaller. I would want price to confirm near the listed entry trigger before treating it seriously, and I would stop trusting the idea if it breaks the invalidation area near 484.96. The point of keeping it on the list is not that it is a perfect trade right now; it is that the setup has enough potential to watch closely if the next move confirms.</p></div>
-  </details>
-  <details class="theme-panel" open>
-    <summary>What other sources are supporting the thesis?</summary>
-    <div class="theme-body"><p>The useful outside support is this: Vertex projects 2026 revenue of $12.95B-$13.1B while targeting $500M-plus from non-CF products (NASDAQ:VRTX). My read is that this gives traders something to react to, but I still would not treat the headline as enough by itself. Macro alert: the risk-off backdrop makes the put idea easier to justify if the stock starts rejecting higher prices.</p><p>What supports the thesis is simple: the news gives the ticker attention, and the chart has a possible put path if price confirms around the entry trigger. What would weaken it is just as important: if price loses or reclaims the wrong side of 484.96, the idea no longer has the same edge. The stock may be worth watching, but the current contract/risk setup is not clean enough yet.</p></div>
-  </details>
-  <button type="button" class="read-more-link" data-detail-target="VRTX">Read More</button>
 </section>
       </div>
     </div>
@@ -428,7 +384,7 @@
   </details>
   <details class="theme-panel">
     <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>ANALYST_ACTION / BULLISH: Micron: Q3 Proved Me Wrong (Rating Upgrade) (NASDAQ:MU) - Seeking Alpha (confidence 77, novelty 65, urgency 70). Transmission: analyst action -&gt; estimate/sentiment reset -&gt; near-term positioning -&gt; MU</li><li>EARNINGS_GUIDANCE / BEARISH: Micron Q3: Earnings Explode, Shares Soar -- So Let&#x27;s Look At What&#x27;s Next (NASDAQ:MU) - Seeking Alpha (confidence 75, novelty 55, urgency 70). Transmission: earnings/guidance update -&gt; forward estimates -&gt; valuation/positioning -&gt; MU</li><li>MARKET_NEWS / BEARISH: Micron And SK hynix: The End Of Harsh Cyclicality May Be In Sight (NASDAQ:MU) - Seeking Alpha (confidence 73, novelty 50, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; MU</li><li>MARKET_NEWS / BEARISH: Micron signals HBM TAM crossing $100B in 2027 as it lifts FY26 CapEx to around $27B (NASDAQ:MU) - Seeking Alpha (confidence 72, novelty 45, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; MU</li></ul></div>
+    <div class="theme-body"><ul><li>ANALYST_ACTION / BULLISH: Micron: Q3 Proved Me Wrong (Rating Upgrade) (NASDAQ:MU) - Seeking Alpha (confidence 77, novelty 65, urgency 70). Transmission: analyst action -&gt; estimate/sentiment reset -&gt; near-term positioning -&gt; MU</li><li>EARNINGS_GUIDANCE / BEARISH: Micron Q3: Earnings Explode, Shares Soar -- So Let&#x27;s Look At What&#x27;s Next (NASDAQ:MU) - Seeking Alpha (confidence 75, novelty 55, urgency 70). Transmission: earnings/guidance update -&gt; forward estimates -&gt; valuation/positioning -&gt; MU</li><li>MARKET_NEWS / BEARISH: Micron: Avoid Buying The Peak, You Might Thank Me Later (NASDAQ:MU) - Seeking Alpha (confidence 73, novelty 50, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; MU</li><li>MARKET_NEWS / BEARISH: Micron And SK hynix: The End Of Harsh Cyclicality May Be In Sight (NASDAQ:MU) - Seeking Alpha (confidence 72, novelty 45, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; MU</li></ul></div>
   </details>
   <details class="theme-panel">
     <summary>Rejection Engine</summary>
@@ -436,7 +392,7 @@
   </details>
   <details class="theme-panel">
     <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing Finance, Fool, Stocktwits, the story around MU is mainly about Micron&#x27;s Blowout Earnings Could Be Great News for Nvidia Investors. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover. For MU, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Stock Market Today, June 25: Microsoft Falls as AI Spending Concerns Pressure Cloud Margin Outlook. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p></div>
+    <div class="theme-body"><p>The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing Beincrypto, Finance, Fool, Stocktwits, TradingView, the story around MU is mainly about Micron&#x27;s Blowout Earnings Could Be Great News for Nvidia Investors. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Macro/geopolitical stress is active in the tape and can override single-name strength. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. For MU, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Stock Market Today, June 25: Microsoft Falls as AI Spending Concerns Pressure Cloud Margin Outlook. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p></div>
   </details>
   <details class="theme-panel">
     <summary>Option / Risk</summary>
@@ -451,7 +407,7 @@
       <details class="secondary-analysis">
   <summary>Trade details and rationale</summary>
     <div class="secondary-body">
-    <div class="rationale"><strong>Professional Analyst Read</strong><p>Analyst stance: Actionable on trigger. MU is one of the cleaner PUT ideas on this scan, but it is still trigger-dependent, not a blind entry. What I like: Pattern/structure: Resistance rejection / double-top candidate with higher highs and higher lows. What I dislike: Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish.</p><p>Catalyst judgment: The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing Finance, Fool, Stocktwits, the story around MU is mainly about Micron&#x27;s Blowout Earnings Could Be Great News for Nvidia Investors. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover. For MU, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Stock Market Today, June 25: Microsoft Falls as AI Spending Concerns Pressure Cloud Margin Outlook. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p><p>Trader judgment: Real-money acceptable on trigger (96/100). Expiration is too close for the short-swing plan Earnings risk is nearby or active; directional entries need extra confirmation The macro tape gives this non-energy PUT a cleaner risk-off backdrop.</p><p>Trade criticism: the supporting picture is No clear higher/lower timeframe support from available data, while the main conflict is Monthly bullish, Weekly bullish. The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is 2.14:1, which is workable if the trigger confirms.</p><p>Execution plan: - Do not chase the open; let the first move show its hand.
+    <div class="rationale"><strong>Professional Analyst Read</strong><p>Analyst stance: Actionable on trigger. MU is one of the cleaner PUT ideas on this scan, but it is still trigger-dependent, not a blind entry. What I like: Pattern/structure: Resistance rejection / double-top candidate with higher highs and higher lows. What I dislike: Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish.</p><p>Catalyst judgment: The catalyst support is real enough to matter. I would treat the news as a legitimate reason traders may keep this name active, not just background noise or a recycled analyst headline. Catalyst summary / research brief: After reviewing Beincrypto, Finance, Fool, Stocktwits, TradingView, the story around MU is mainly about Micron&#x27;s Blowout Earnings Could Be Great News for Nvidia Investors. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Macro/geopolitical stress is active in the tape and can override single-name strength. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. For MU, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Stock Market Today, June 25: Microsoft Falls as AI Spending Concerns Pressure Cloud Margin Outlook. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p><p>Trader judgment: Real-money acceptable on trigger (96/100). Expiration is too close for the short-swing plan Earnings risk is nearby or active; directional entries need extra confirmation The macro tape gives this non-energy PUT a cleaner risk-off backdrop.</p><p>Trade criticism: the supporting picture is No clear higher/lower timeframe support from available data, while the main conflict is Monthly bullish, Weekly bullish. The option spread looks usable for a short-term long call/put idea. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is 2.14:1, which is workable if the trigger confirms.</p><p>Execution plan: - Do not chase the open; let the first move show its hand.
 - Enter only if sellers reject the bounce, print a lower high, or lose short-term VWAP/structure with volume.
 - First objective: +20% option goal, roughly tied to 1131.03 underlying.
 - Risk line: control risk around 1252.07; downgrade if price reclaims the rejection zone and starts holding above it or price trades through 1252.07.</p></div>
@@ -477,120 +433,11 @@
     <div class="brief-section"><strong>Liquidity</strong>Liquidity focus is the $854.35 support and $1213.56 resistance zone; a sweep/reclaim around those levels would improve confirmation.</div>
     <div class="brief-section"><strong>Options Flow</strong>Live unusual-options-flow, sweeps, gamma walls, and dark-pool data are not connected; report uses live/estimated contract pricing and spread quality only.</div>
     <div class="brief-section"><strong>Order Flow</strong>Real tape/order-flow feed is not connected; 15-minute trend reclaim/rejection is used as a proxy confirmation.</div>
-    <div class="brief-section full"><strong>Catalyst Analysis</strong>Catalyst summary / research brief: After reviewing Finance, Fool, Stocktwits, the story around MU is mainly about Micron&#x27;s Blowout Earnings Could Be Great News for Nvidia Investors. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover. For MU, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Stock Market Today, June 25: Microsoft Falls as AI Spending Concerns Pressure Cloud Margin Outlook. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</div>
+    <div class="brief-section full"><strong>Catalyst Analysis</strong>Catalyst summary / research brief: After reviewing Beincrypto, Finance, Fool, Stocktwits, TradingView, the story around MU is mainly about Micron&#x27;s Blowout Earnings Could Be Great News for Nvidia Investors. Estimate, margin, and guidance sensitivity are in play. The AI/cloud angle comes down to monetization versus capex drag. Macro/geopolitical stress is active in the tape and can override single-name strength. Main themes: earnings, guidance, or margin pressure, new product or platform activity, AI strategy, spending, or demand, cloud or data-center demand, chip-sector momentum. My read: fresh earnings/guidance pressure on the forward estimate path, and AI/cloud monetization versus capex risk, and chip-sector beta and AI-basket spillover, and geopolitical/trade-policy stress across risk appetite, supply chains, and input costs. For MU, the key read is whether investors see the story as durable growth or as a spending/valuation risk. Macro/geopolitical overlay: trade-policy and supply-chain risk can still pressure sentiment and AI and data-center spending remain major drivers of risk appetite. Most relevant current item: Stock Market Today, June 25: Microsoft Falls as AI Spending Concerns Pressure Cloud Margin Outlook. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</div>
     <div class="brief-section"><strong>Market Environment</strong>Market regime: Iran/oil risk-off shock. This affects confidence but does not replace the individual chart trigger.</div>
     <div class="brief-section"><strong>Economic Event Risk</strong>Economic calendar feed is not connected; manually check FOMC, CPI, PPI, jobs data, Treasury auctions, and major earnings before entry.</div>
     <div class="brief-section full"><strong>Bull / Base / Bear</strong>Bull case: price confirms the trigger, holds above invalidation, and reaches Target 1 near 1131.03 for the +20% option goal. Base case: price chops near the trigger; wait for confirmation rather than entering early. Bear case: price fails the trigger or trades through invalidation near 1252.07, which cancels the setup.</div>
     <div class="brief-section"><strong>Reasons To Take</strong><ul><li>Pattern/structure: Resistance rejection / double-top candidate with higher highs and higher lows.</li><li>Chart evidence: RSI elevated but not euphoric; near 20-day resistance zone; stretched above 20-day mean; stretched above 50-day mean; rejection volume present; near major 252-day resistance.</li><li>Defined first target: $1131.03 with invalidation near $1252.07.</li></ul></div>
-    <div class="brief-section"><strong>Reasons NOT To Take</strong><ul><li>Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish.</li></ul></div>
-  </div>
-</div>
-    </section>
-  </article><article class="detail-page" id="VRTX" data-symbol="VRTX">
-    <header class="hero">
-      <div>
-        <div class="symbol">VRTX</div>
-        <div class="company">Vertex Pharmaceuticals Incorporated</div>
-      </div>
-      <div class="direction put">PUT</div>
-    </header>
-    <section class="status-card">
-      <div class="status-label">Current Status</div>
-      <div class="status-value">Starter entry active</div>
-    </section>
-    <section class="section-grid">
-      <section class="setup-details">
-  <div class="vital-grid">
-    <div class="detail">
-  <div class="detail-label">Grade</div>
-  <div class="detail-value">Wait</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Entry Status</div>
-  <div class="detail-value">Starter entry active</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Price</div>
-  <div class="detail-value">$480.18</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Recommended Exp</div>
-  <div class="detail-value">2026-06-26</div>
-</div>
-    <div class="detail">
-  <div class="detail-label">Pattern Forming</div>
-  <div class="detail-value">Resistance rejection / double-top candidate</div>
-</div>
-  </div>
-  <div class="theme-stack">
-  <details class="theme-panel">
-    <summary>Entry Plan</summary>
-    <div class="theme-body"><p>Entry status: Starter entry active. Price is near the intended starter zone; use the listed confirmation rules and size smaller.</p><ul><li>Bias: early PUT fade, not a breakdown chase.</li><li>Starter zone: $472.20-$483.26 on rejection, long upper wick, or quick lower-high attempt.</li><li>Size: start smaller because this is intentionally early.</li><li>Add/confirm: The prior close (475.20) and 463.76 are add/confirmation levels if the fade starts working.</li><li>Invalid: price breaks through $483.26 and holds above it.</li></ul><ul><li>Do not chase the open; let the first move show its hand.</li><li>Enter only if sellers reject the bounce, print a lower high, or lose short-term VWAP/structure with volume.</li><li>First objective: +20% option goal, roughly tied to 470.00 underlying.</li><li>Risk line: control risk around 484.96; downgrade if price reclaims the rejection zone and starts holding above it or price trades through 484.96.</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Trader Judgment</summary>
-    <div class="theme-body"><p>Analyst stance: Actionable on trigger</p><p>Real-money acceptable on trigger (78/100). The stock setup may be interesting, but the selected option contract quality is poor. Open interest is thin Expiration is too close for the short-swing plan</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Options Score</summary>
-    <div class="theme-body"><p>Practical options score favors PUT at 66/100 using available data only. Confidence is 42/100 because Atlas has price action, chain/volatility proxies, and catalyst context, but does not have live institutional flow or dealer-positioning feeds. Rejection engine status: NO_TRADE.</p><ul><li>Preferred side: PUT</li><li>Call score: 41/100</li><li>Put score: 66/100</li><li>Confidence: 42/100</li></ul><p>Bullish evidence: 20-day relative trend is positive.</p><p>Bearish evidence: controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; Catalyst support; Active oil/geopolitical shock creates risk-off pressure for non-energy calls.</p><p>Risk factors: Open interest is thin; Expiration is too close for the short-swing plan; Earnings risk is nearby or active; directional entries need extra confirmation; Sector benchmark data unavailable for XLV; Options-flow persistence history.</p><p>Missing institutional data: Bid/ask spread; Contract volume; Implied volatility; Live implied volatility for earnings-IV check; Live implied volatility.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Event Intelligence</summary>
-    <div class="theme-body"><ul><li>EARNINGS_GUIDANCE / BEARISH: Vertex projects 2026 revenue of $12.95B-$13.1B while targeting $500M-plus from non-CF products (NASDAQ:VRTX) - Seeking Alpha (confidence 75, novelty 55, urgency 70). Transmission: earnings/guidance update -&gt; forward estimates -&gt; valuation/positioning -&gt; VRTX</li><li>MARKET_NEWS / BEARISH: Vertex Pharmaceuticals Incorporated (VRTX) Presents at Bernstein 42nd Annual Strategic Decisions Conference Transcript - Seeking Alpha (confidence 73, novelty 50, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; VRTX</li><li>ANALYST_ACTION / BULLISH: Vertex Pharma upgraded at RBC Capital Markets (VRTX:NASDAQ) - Seeking Alpha (confidence 72, novelty 45, urgency 70). Transmission: analyst action -&gt; estimate/sentiment reset -&gt; near-term positioning -&gt; VRTX</li><li>MARKET_NEWS / BEARISH: Vertex Pharmaceuticals Incorporated (VRTX) Presents at RBC Capital Markets Global Healthcare Conference 2026 Transcript - Seeking Alpha (confidence 71, novelty 40, urgency 70). Transmission: market news -&gt; expectation change -&gt; price discovery -&gt; VRTX</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Rejection Engine</summary>
-    <div class="theme-body"><p>Action: NO_TRADE</p><ul><li>Expected move: 2.6%</li><li>Current implied move: 0.5%</li><li>Estimated edge: 2.1%</li></ul><ul><li>NO_TRADE: option contract quality is too weak</li><li>Open interest is thin</li><li>Expiration is too close for the short-swing plan</li><li>Earnings risk is nearby or active; directional entries need extra confirmation</li><li>Bid/ask spread</li><li>Contract volume</li></ul></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Catalyst / Macro</summary>
-    <div class="theme-body"><p>The catalyst support is thin or mixed. I would be careful about forcing a trade here because the news is not strong enough to carry the setup on its own. Catalyst summary / research brief: After reviewing Barchart.com, Bloomberg, CNBC, Finance, Seeking Alpha, I found useful context for VRTX, but not a clean single catalyst. No single dominant catalyst; this is a positioning/sentiment read until price confirms. Main themes: VRTX Industrial Corp, Jefferies&#x27; Michael Yee explains his top biotech picks: VRTX, FATE, ZLAB. My read: positioning and volume sensitivity if traders treat the headline as fresh. For VRTX, the key read is whether it changes approval odds, reimbursement, drug demand, procedure volume, or expected sales. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Option / Risk</summary>
-    <div class="theme-body"><p>Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is 2.13:1, which is workable if the trigger confirms.</p></div>
-  </details>
-  <details class="theme-panel">
-    <summary>Technical Context</summary>
-    <div class="theme-body"><p>Pattern/structure: Resistance rejection / double-top candidate. higher highs and higher lows. controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; stretched above 20-day mean; stretched above 50-day mean; near major 60-day resistance; 15m trend rejection; 15m lower-high confirmation</p><p>Key evidence: controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; stretched above 20-day mean</p><p>Supporting timeframes: 15m bearish. Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish</p><p>Support/resistance read: Key 20-session support is near $420.01; key 20-session resistance is near $480.86. Wider 60-session range is $412.27 to $486.48. Target 1 is 470.00, Target 2 is 461.22, Target 3 is 452.45, and invalidation is near 484.96.</p></div>
-  </details>
-</div>
-</section>
-      <details class="secondary-analysis">
-  <summary>Trade details and rationale</summary>
-    <div class="secondary-body">
-    <div class="rationale"><strong>Professional Analyst Read</strong><p>Analyst stance: Actionable on trigger. VRTX is one of the cleaner PUT ideas on this scan, but it is still trigger-dependent, not a blind entry. What I like: Pattern/structure: Resistance rejection / double-top candidate with higher highs and higher lows. What I dislike: Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish.</p><p>Catalyst judgment: The catalyst support is thin or mixed. I would be careful about forcing a trade here because the news is not strong enough to carry the setup on its own. Catalyst summary / research brief: After reviewing Barchart.com, Bloomberg, CNBC, Finance, Seeking Alpha, I found useful context for VRTX, but not a clean single catalyst. No single dominant catalyst; this is a positioning/sentiment read until price confirms. Main themes: VRTX Industrial Corp, Jefferies&#x27; Michael Yee explains his top biotech picks: VRTX, FATE, ZLAB. My read: positioning and volume sensitivity if traders treat the headline as fresh. For VRTX, the key read is whether it changes approval odds, reimbursement, drug demand, procedure volume, or expected sales. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</p><p>Trader judgment: Real-money acceptable on trigger (78/100). The stock setup may be interesting, but the selected option contract quality is poor. Open interest is thin Expiration is too close for the short-swing plan</p><p>Trade criticism: the supporting picture is 15m bearish, while the main conflict is Monthly bullish, Weekly bullish. Expiration is close, so theta risk is high and the trade needs to work quickly. The current risk/reward is 2.13:1, which is workable if the trigger confirms.</p><p>Execution plan: - Do not chase the open; let the first move show its hand.
-- Enter only if sellers reject the bounce, print a lower high, or lose short-term VWAP/structure with volume.
-- First objective: +20% option goal, roughly tied to 470.00 underlying.
-- Risk line: control risk around 484.96; downgrade if price reclaims the rejection zone and starts holding above it or price trades through 484.96.</p></div>
-    <div class="signals"><strong>Key setup evidence:</strong> controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone</div>
-  </div>
-</details>
-      <div class="trade-brief">
-  <div class="brief-title">Full Trade Brief</div>
-  <div class="brief-grid">
-    <div class="brief-section full recommendation watch"><strong>Final Recommendation</strong>Wait for stronger confirmation before considering this trade.</div>
-    <div class="brief-section full"><strong>Trade Thesis</strong>VRTX is a PUT trend-reversal candidate because price is showing higher highs and higher lows with resistance rejection / double-top candidate behavior near a defined level. The setup is valid only if the entry trigger confirms.</div>
-    <div class="brief-section"><strong>Pattern</strong>Resistance rejection / double-top candidate. Status: forming near resistance. Confirmation: 64.0.</div>
-    <div class="brief-section"><strong>Confidence</strong>Wait setup. Score 53.6/100. Alignment 25.0/100.</div>
-    <div class="brief-section full"><strong>Market Structure</strong>higher highs and higher lows. controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; stretched above 20-day mean; stretched above 50-day mean; near major 60-day resistance; 15m trend rejection; 15m lower-high confirmation</div>
-    <div class="brief-section"><strong>Timeframes Supporting</strong>15m bearish</div>
-    <div class="brief-section"><strong>Timeframes Opposing</strong>Monthly bullish, Weekly bullish, Daily bullish</div>
-    <div class="brief-section full"><strong>Trade Levels</strong>Entry zone: current/trigger-based. Stop 484.96. T1 470.00, T2 461.22, T3 452.45. Risk/reward 2.13:1. Invalidation 484.96.</div>
-    <div class="brief-section"><strong>Indicators</strong>RSI 73.7; 50SMA 440.53; 200SMA 441.16; setup grade A.</div>
-    <div class="brief-section"><strong>Volume</strong>Relative volume 1.1x; volume score 42/100.</div>
-    <div class="brief-section"><strong>Relative Strength</strong>20-day return 9.8% and 3-month return 5.5% versus market regime context.</div>
-    <div class="brief-section"><strong>Support / Resistance</strong>Key 20-session support is near $420.01; key 20-session resistance is near $480.86. Wider 60-session range is $412.27 to $486.48.</div>
-    <div class="brief-section"><strong>Volume Profile</strong>True volume profile/POC/VAH/VAL feed is not connected; proxy read uses recent support/resistance and volume expansion.</div>
-    <div class="brief-section"><strong>Liquidity</strong>Liquidity focus is the $420.01 support and $480.86 resistance zone; a sweep/reclaim around those levels would improve confirmation.</div>
-    <div class="brief-section"><strong>Options Flow</strong>Live unusual-options-flow, sweeps, gamma walls, and dark-pool data are not connected; report uses live/estimated contract pricing and spread quality only.</div>
-    <div class="brief-section"><strong>Order Flow</strong>Real tape/order-flow feed is not connected; 15-minute trend reclaim/rejection is used as a proxy confirmation.</div>
-    <div class="brief-section full"><strong>Catalyst Analysis</strong>Catalyst summary / research brief: After reviewing Barchart.com, Bloomberg, CNBC, Finance, Seeking Alpha, I found useful context for VRTX, but not a clean single catalyst. No single dominant catalyst; this is a positioning/sentiment read until price confirms. Main themes: VRTX Industrial Corp, Jefferies&#x27; Michael Yee explains his top biotech picks: VRTX, FATE, ZLAB. My read: positioning and volume sensitivity if traders treat the headline as fresh. For VRTX, the key read is whether it changes approval odds, reimbursement, drug demand, procedure volume, or expected sales. Macro override: Hormuz’s next chapter is about gas, not just oil. Defensive PUT bias is cleaner in non-energy names while traders de-risk around oil inflation, shipping disruption, and geopolitical uncertainty. Trade read: keep this as a PUT setup only if the tape confirms the headline with volume and level control. PUT confirmation: failed follow-through, a lower high, or rejection of the spike. No rejection, no trade. What would weaken the trade: sellers fail to reject the move, the stock holds above resistance, or fresh positive news overwhelms the bearish setup.</div>
-    <div class="brief-section"><strong>Market Environment</strong>Market regime: Iran/oil risk-off shock. This affects confidence but does not replace the individual chart trigger.</div>
-    <div class="brief-section"><strong>Economic Event Risk</strong>Economic calendar feed is not connected; manually check FOMC, CPI, PPI, jobs data, Treasury auctions, and major earnings before entry.</div>
-    <div class="brief-section full"><strong>Bull / Base / Bear</strong>Bull case: price confirms the trigger, holds above invalidation, and reaches Target 1 near 470.00 for the +20% option goal. Base case: price chops near the trigger; wait for confirmation rather than entering early. Bear case: price fails the trigger or trades through invalidation near 484.96, which cancels the setup.</div>
-    <div class="brief-section"><strong>Reasons To Take</strong><ul><li>Pattern/structure: Resistance rejection / double-top candidate with higher highs and higher lows.</li><li>Chart evidence: controlled 5-day spike; meaningful 20-day runup; RSI elevated but not euphoric; near 20-day resistance zone; stretched above 20-day mean; stretched above 50-day mean; near major 60-day resistance; 15m trend rejection; 15m lower-high confirmation.</li><li>Defined first target: $470.00 with invalidation near $484.96.</li></ul></div>
     <div class="brief-section"><strong>Reasons NOT To Take</strong><ul><li>Opposing timeframes: Monthly bullish, Weekly bullish, Daily bullish.</li></ul></div>
   </div>
 </div>
@@ -602,7 +449,6 @@
   </main>
   <script>
     const cards = Array.from(document.querySelectorAll('.setup-card'));
-    const lastEdited = document.querySelector('.last-edited[data-generated-at]');
 
     function setCollapsed(card, collapsed) {
       card.classList.toggle('is-collapsed', collapsed);
@@ -658,22 +504,6 @@
     if (initialDetail) {
       window.requestAnimationFrame(() => openDetail(initialDetail.toUpperCase()));
     }
-    function updateLastEdited() {
-      if (!lastEdited) return;
-      const generated = Date.parse(lastEdited.dataset.generatedAt);
-      if (!Number.isFinite(generated)) return;
-      const minutes = Math.max(0, Math.floor((Date.now() - generated) / 60000));
-      let label = 'just now';
-      if (minutes === 1) label = '1 min ago';
-      else if (minutes > 1 && minutes < 60) label = `${minutes} min ago`;
-      else if (minutes >= 60) {
-        const hours = Math.floor(minutes / 60);
-        label = hours === 1 ? '1 hr ago' : `${hours} hrs ago`;
-      }
-      lastEdited.textContent = `Last edited: ${label}`;
-    }
-    updateLastEdited();
-    setInterval(updateLastEdited, 60000);
   </script>
 </body>
 </html>
