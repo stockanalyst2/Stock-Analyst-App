@@ -8927,6 +8927,7 @@ def report_dashboard_html() -> str:
       object-fit: contain;
       opacity: .96;
       filter: contrast(1.04) brightness(1.05);
+      mix-blend-mode: lighten;
     }}
     .profile-button {{
       width: 50px;

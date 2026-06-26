@@ -420,6 +420,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("watchlist-panel", document)
         self.assertIn("profile-button", document)
         self.assertIn("profile-icon", document)
+        self.assertIn("mix-blend-mode: lighten", document)
         self.assertIn("<svg", document)
         self.assertIn("Status:", document)
         self.assertIn("Online", document)
