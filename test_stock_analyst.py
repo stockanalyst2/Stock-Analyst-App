@@ -464,6 +464,8 @@ class StockAnalystTests(unittest.TestCase):
         self.assertNotIn("Candidates analyzed:", document)
         self.assertNotIn("stock_analyst_logo.jpg", document)
         self.assertNotIn("Stock Analyst logo", document)
+        self.assertNotIn("Atlas is a screening tool", document)
+        self.assertNotIn("not personalized financial advice", document)
         self.assertNotIn("On-demand ticker", document)
         self.assertNotIn("tickerInput", document)
         self.assertNotIn("plotly", document.lower())

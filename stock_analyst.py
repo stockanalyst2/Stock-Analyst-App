@@ -5691,7 +5691,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       {"".join(detail_article(rank, item) for rank, item in enumerate(results, start=1))}
     </section>
     {failed_html}
-    <p class="small">Atlas is a screening tool, not personalized financial advice. It prioritizes real backing behind a move: company headlines, major market/geopolitical news, catalyst strength, liquidity, options availability, and chart context. Price data and headlines are fetched at run time and may be delayed or unavailable.</p>
   </main>
   <script>
     const cards = Array.from(document.querySelectorAll('.setup-card'));
