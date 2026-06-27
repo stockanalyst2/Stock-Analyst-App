@@ -8954,7 +8954,7 @@ def report_dashboard_html() -> str:
       background: transparent;
       max-width: 607px;
       margin: 0 auto;
-      padding: 68px 27px 142px;
+      padding: 68px 27px 114px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -9066,7 +9066,7 @@ def report_dashboard_html() -> str:
       gap: 0;
       z-index: 5;
       pointer-events: auto;
-      padding: 10px 0 8px;
+      padding: 6px 0;
       border-radius: 28px;
       background: rgba(2, 3, 7, .84);
       backdrop-filter: blur(18px);
@@ -9074,22 +9074,23 @@ def report_dashboard_html() -> str:
       box-shadow: 0 -18px 42px rgba(2, 3, 7, .82);
     }}
     .nav-item {{
-      min-height: 72px;
+      min-height: 48px;
       border: 0;
       background: transparent;
       color: rgba(235, 236, 242, .80);
       display: grid;
       place-items: center;
       align-content: center;
-      gap: 8px;
-      font-size: 13px;
+      gap: 0;
+      font-size: 0;
       font-weight: 400;
       cursor: pointer;
     }}
+    .nav-item span {{ display: none; }}
     .nav-item.is-active {{ color: #61d94f; }}
     .nav-icon {{
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       display: block;
       fill: none;
       stroke: currentColor;
@@ -9108,7 +9109,7 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .app-shell {{
-        padding: 68px 20px 142px;
+        padding: 68px 20px 114px;
       }}
       .wordmark-image {{ width: 121px; }}
       .section-switcher {{ min-height: 42px; margin-top: 28px; gap: 9px; }}
@@ -9164,26 +9165,22 @@ def report_dashboard_html() -> str:
           <path d="M15 11h18"></path><path d="M15 20h18"></path><path d="M15 29h18"></path>
           <circle cx="7" cy="11" r="1.8"></circle><circle cx="7" cy="20" r="1.8"></circle><circle cx="7" cy="29" r="1.8"></circle>
         </svg>
-        <span>Watchlists</span>
       </button>
       <button class="nav-item" type="button" data-panel="market" aria-label="Journal">
         <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
           <path d="M17 7h11a4 4 0 0 1 4 4v22H17a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5Z"></path>
           <path d="M17 7v26"></path><path d="M9 13h8"></path><path d="M9 20h8"></path><path d="M9 27h8"></path>
         </svg>
-        <span>Journal</span>
       </button>
       <button class="nav-item" type="button" data-panel="research" aria-label="Research">
         <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
           <circle cx="18" cy="18" r="12"></circle><path d="m27 27 8 8"></path>
         </svg>
-        <span>Research</span>
       </button>
       <button class="nav-item" type="button" data-panel="tbd" aria-label="TBD">
         <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
           <circle cx="20" cy="20" r="15"></circle><path d="M16.5 16a4 4 0 0 1 7.1 2.5c0 4-5.1 4.1-5.1 8"></path><path d="M20 31h.01"></path>
         </svg>
-        <span>TBD</span>
       </button>
     </nav>
   </main>
