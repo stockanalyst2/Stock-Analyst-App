@@ -5545,7 +5545,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     :root {{ color-scheme: dark; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }}
     body {{ margin: 0; background: #020307; color: #eeeeee; }}
     body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, .035), transparent 34%); }}
-    main {{ position: relative; max-width: none; margin: 0; padding: 0 0 92px; }}
+    main {{ position: relative; max-width: none; margin: 0; padding: 0 0 240px; }}
     h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
@@ -5671,8 +5671,8 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 0 0 44px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
-    @media (max-width: 520px) {{ main {{ padding: 0 0 42px; }} .setup-summary {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 116px 54px; gap: 18px; padding-left: 28px; }} .setup-summary-actions {{ width: 54px; }} .summary-title-row {{ gap: 18px; }} .summary-symbol {{ font-size: 28px; font-weight: 600; }} .summary-company {{ font-size: 14px; }} .direction {{ font-size: 10px; padding: 5px 10px 4px; }} .quote-block {{ min-width: 116px; }} .quote-price {{ font-size: 19px; font-weight: 600; }} .quote-change {{ font-size: 13px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 0 0 230px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
+    @media (max-width: 520px) {{ main {{ padding: 0 0 230px; }} .setup-summary {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 116px 54px; gap: 18px; padding-left: 28px; }} .setup-summary-actions {{ width: 54px; }} .summary-title-row {{ gap: 18px; }} .summary-symbol {{ font-size: 28px; font-weight: 600; }} .summary-company {{ font-size: 14px; }} .direction {{ font-size: 10px; padding: 5px 10px 4px; }} .quote-block {{ min-width: 116px; }} .quote-price {{ font-size: 19px; font-weight: 600; }} .quote-change {{ font-size: 13px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
     @media (max-width: 390px) {{ .setup-summary {{ grid-template-columns: minmax(0, 1fr) 100px 46px; min-height: 108px; gap: 14px; padding-left: 22px; }} .setup-summary-actions {{ width: 46px; }} .summary-title-row {{ gap: 11px; }} .summary-symbol {{ font-size: 23px; }} .summary-company {{ font-size: 12px; margin-top: 12px; }} .direction {{ font-size: 8.5px; padding: 4px 8px 3px; }} .quote-block {{ min-width: 100px; }} .quote-price {{ font-size: 16px; }} .quote-change {{ font-size: 10.5px; }} }}
   </style>
 </head>
@@ -5718,7 +5718,11 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       const toggle = event.target.closest('.toggle-card');
       if (toggle) {{
         const card = toggle.closest('.setup-card');
-        setCollapsed(card, !card.classList.contains('is-collapsed'));
+        const shouldCollapse = !card.classList.contains('is-collapsed');
+        setCollapsed(card, shouldCollapse);
+        if (!shouldCollapse) {{
+          window.setTimeout(() => card.scrollIntoView({{ block: 'center', behavior: 'smooth' }}), 120);
+        }}
         return;
       }}
     }});
@@ -8927,7 +8931,7 @@ def report_dashboard_html() -> str:
       max-width: none;
       margin: 55px 0 0;
       padding: 0;
-      gap: 13px;
+      gap: 12px;
     }}
     .watchlist-tab {{
       min-height: 59px;
@@ -8936,12 +8940,13 @@ def report_dashboard_html() -> str:
       background: linear-gradient(135deg, rgba(15, 16, 22, .96), rgba(8, 9, 14, .96));
       color: var(--muted);
       padding: 0;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 450;
       letter-spacing: -.015em;
       text-align: center;
       white-space: nowrap;
       cursor: pointer;
+      overflow: hidden;
     }}
     .watchlist-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
     .content {{
@@ -8951,8 +8956,8 @@ def report_dashboard_html() -> str:
     .watchlist-panel {{
       display: block;
       width: 100%;
-      height: calc(100vh - 358px);
-      min-height: 710px;
+      height: calc(100dvh - 500px);
+      min-height: 520px;
       border: 0;
       background: transparent;
     }}
@@ -8965,6 +8970,19 @@ def report_dashboard_html() -> str:
     }}
     .placeholder-panel.is-active {{ display: block; }}
     .watchlist-panel.is-hidden {{ display: none; }}
+    .watchlist-subpanel {{
+      display: none;
+      min-height: 520px;
+      border: 1px solid rgba(114, 116, 126, .14);
+      border-radius: 8px;
+      padding: 34px 24px;
+      background: rgba(5, 6, 10, .72);
+      color: rgba(226, 226, 232, .72);
+      line-height: 1.5;
+      text-align: center;
+    }}
+    .watchlist-subpanel.is-active {{ display: grid; place-items: center; }}
+    .watchlist-switcher.is-hidden {{ display: none; }}
     .bottom-nav {{
       position: fixed;
       left: 50%;
@@ -9013,13 +9031,14 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .app-shell {{
-        padding: 86px 27px 138px;
+        padding: 86px 20px 138px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .watchlist-switcher {{ min-height: 59px; margin-top: 55px; gap: 13px; }}
-      .watchlist-tab {{ min-height: 59px; font-size: 15px; }}
+      .watchlist-switcher {{ min-height: 59px; margin-top: 55px; gap: 9px; }}
+      .watchlist-tab {{ min-height: 59px; font-size: 12.5px; padding: 0 4px; }}
       .content {{ min-height: calc(100vh - 358px); padding-top: 38px; }}
-      .watchlist-panel {{ height: calc(100vh - 358px); min-height: 710px; }}
+      .watchlist-panel {{ height: calc(100dvh - 500px); min-height: 520px; }}
+      .watchlist-subpanel {{ min-height: 520px; }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
@@ -9035,12 +9054,14 @@ def report_dashboard_html() -> str:
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
     </header>
     <nav class="watchlist-switcher" aria-label="Watchlist groups">
-      <button class="watchlist-tab is-active" type="button">ATLAS watchlist</button>
-      <button class="watchlist-tab" type="button">personal watchlist</button>
-      <button class="watchlist-tab" type="button">favorites</button>
+      <button class="watchlist-tab is-active" type="button" data-watchlist-panel="atlas">ATLAS watchlist</button>
+      <button class="watchlist-tab" type="button" data-watchlist-panel="personal">personal watchlist</button>
+      <button class="watchlist-tab" type="button" data-watchlist-panel="favorites">favorites</button>
     </nav>
     <section class="content">
-      <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
+      <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" data-watchlist-content="atlas" src="/stock_report.html?t={int(time.time())}"></iframe>
+      <section class="watchlist-subpanel" id="personalWatchlistPanel" data-watchlist-content="personal">Personal watchlist is ready for saved tickers.</section>
+      <section class="watchlist-subpanel" id="favoritesWatchlistPanel" data-watchlist-content="favorites">Favorites will appear here when saved.</section>
       <section class="placeholder-panel" id="marketPanel">Market Report</section>
       <section class="placeholder-panel" id="researchPanel">Research</section>
       <section class="placeholder-panel" id="tbdPanel">TBD</section>
@@ -9077,6 +9098,9 @@ def report_dashboard_html() -> str:
   </main>
   <script>
     const tabs = Array.from(document.querySelectorAll('.nav-item'));
+    const watchlistTabs = Array.from(document.querySelectorAll('.watchlist-tab'));
+    const watchlistSwitcher = document.querySelector('.watchlist-switcher');
+    const watchlistContents = Array.from(document.querySelectorAll('[data-watchlist-content]'));
     const watchlistFrame = document.getElementById('watchlistFrame');
     const panels = {{
       market: document.getElementById('marketPanel'),
@@ -9086,9 +9110,24 @@ def report_dashboard_html() -> str:
 
     function showPanel(name) {{
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
-      watchlistFrame.classList.toggle('is-hidden', name !== 'watchlist');
+      watchlistSwitcher.classList.toggle('is-hidden', name !== 'watchlist');
       for (const [key, panel] of Object.entries(panels)) panel.classList.toggle('is-active', key === name);
-      if (name === 'watchlist') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
+      if (name === 'watchlist') {{
+        const activeWatchlist = document.querySelector('.watchlist-tab.is-active')?.dataset.watchlistPanel || 'atlas';
+        showWatchlistPanel(activeWatchlist);
+      }} else {{
+        for (const content of watchlistContents) content.classList.add('is-hidden');
+      }}
+    }}
+
+    function showWatchlistPanel(name) {{
+      for (const tab of watchlistTabs) tab.classList.toggle('is-active', tab.dataset.watchlistPanel === name);
+      for (const content of watchlistContents) {{
+        const isActive = content.dataset.watchlistContent === name;
+        content.classList.toggle('is-active', isActive && content.classList.contains('watchlist-subpanel'));
+        content.classList.toggle('is-hidden', !isActive);
+      }}
+      if (name === 'atlas') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
     }}
 
     async function refreshStatus() {{
@@ -9102,6 +9141,7 @@ def report_dashboard_html() -> str:
       }}
     }}
     for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
+    for (const tab of watchlistTabs) tab.addEventListener('click', () => showWatchlistPanel(tab.dataset.watchlistPanel));
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>
