@@ -8952,7 +8952,7 @@ def report_dashboard_html() -> str:
       background: transparent;
       max-width: 607px;
       margin: 0 auto;
-      padding: 86px 27px 138px;
+      padding: 54px 27px 138px;
     }}
     .brand-row {{
       height: 18px;
@@ -8977,7 +8977,7 @@ def report_dashboard_html() -> str:
       z-index: 4;
       min-height: calc(59px - (27px * var(--switch-progress)));
       max-width: none;
-      margin: calc(55px - (45px * var(--switch-progress))) 0 0;
+      margin: calc(36px - (30px * var(--switch-progress))) 0 0;
       padding: calc(0px + (6px * var(--switch-progress))) 0;
       gap: calc(12px - (4px * var(--switch-progress)));
       background: rgba(2, 3, 7, calc(.10 + (.78 * var(--switch-progress))));
@@ -9004,19 +9004,19 @@ def report_dashboard_html() -> str:
     .section-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
     .content {{
       min-height: calc(100vh - 358px);
-      padding: 38px 0 0;
+      padding: 28px 0 132px;
     }}
     .watchlist-panel {{
       display: block;
       width: 100%;
-      height: calc(100dvh - 500px);
-      min-height: 520px;
+      height: calc(100dvh - 455px);
+      min-height: 360px;
       border: 0;
       background: transparent;
     }}
     .placeholder-panel {{
       display: none;
-      min-height: 520px;
+      min-height: 360px;
       border: 1px solid rgba(114, 116, 126, .14);
       border-radius: 8px;
       padding: 34px 24px;
@@ -9030,7 +9030,7 @@ def report_dashboard_html() -> str:
     .watchlist-panel.is-hidden {{ display: none; }}
     .watchlist-subpanel {{
       display: none;
-      min-height: 520px;
+      min-height: 360px;
       border: 1px solid rgba(114, 116, 126, .14);
       border-radius: 8px;
       padding: 34px 24px;
@@ -9052,6 +9052,12 @@ def report_dashboard_html() -> str:
       gap: 0;
       z-index: 5;
       pointer-events: auto;
+      padding: 10px 0 8px;
+      border-radius: 28px;
+      background: rgba(2, 3, 7, .84);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 -18px 42px rgba(2, 3, 7, .82);
     }}
     .nav-item {{
       min-height: 72px;
@@ -9088,14 +9094,14 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .app-shell {{
-        padding: 86px 20px 138px;
+        padding: 54px 20px 138px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .section-switcher {{ min-height: calc(59px - (27px * var(--switch-progress))); margin-top: calc(55px - (45px * var(--switch-progress))); gap: calc(9px - (3px * var(--switch-progress))); }}
+      .section-switcher {{ min-height: calc(59px - (27px * var(--switch-progress))); margin-top: calc(36px - (30px * var(--switch-progress))); gap: calc(9px - (3px * var(--switch-progress))); }}
       .section-tab {{ min-height: calc(59px - (28px * var(--switch-progress))); font-size: calc(12.5px - (1px * var(--switch-progress))); padding: 0 4px; }}
-      .content {{ min-height: calc(100vh - 358px); padding-top: 38px; }}
-      .watchlist-panel {{ height: calc(100dvh - 500px); min-height: 520px; }}
-      .watchlist-subpanel {{ min-height: 520px; }}
+      .content {{ min-height: calc(100vh - 306px); padding-top: 28px; padding-bottom: 132px; }}
+      .watchlist-panel {{ height: calc(100dvh - 455px); min-height: 360px; }}
+      .watchlist-subpanel {{ min-height: 360px; }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
