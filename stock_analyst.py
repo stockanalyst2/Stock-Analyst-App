@@ -5753,6 +5753,28 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     if (initialDetail) {{
       window.requestAnimationFrame(() => openDetail(initialDetail.toUpperCase()));
     }}
+
+    function reportScrollProgress() {{
+      const progress = Math.max(0, Math.min(1, window.scrollY / 140));
+      window.parent?.postMessage({{ type: 'atlas-report-scroll', progress }}, '*');
+    }}
+    let reportSwipeStartX = 0;
+    let reportSwipeStartY = 0;
+    document.addEventListener('touchstart', (event) => {{
+      const point = event.touches[0];
+      reportSwipeStartX = point.clientX;
+      reportSwipeStartY = point.clientY;
+    }}, {{ passive: true }});
+    document.addEventListener('touchend', (event) => {{
+      const point = event.changedTouches[0];
+      const deltaX = point.clientX - reportSwipeStartX;
+      const deltaY = point.clientY - reportSwipeStartY;
+      if (Math.abs(deltaX) > 54 && Math.abs(deltaX) > Math.abs(deltaY) * 1.35) {{
+        window.parent?.postMessage({{ type: 'atlas-subpanel-swipe', direction: deltaX < 0 ? 'left' : 'right' }}, '*');
+      }}
+    }}, {{ passive: true }});
+    window.addEventListener('scroll', reportScrollProgress, {{ passive: true }});
+    reportScrollProgress();
   </script>
 </body>
 </html>
@@ -5840,20 +5862,41 @@ def why_on_watchlist_text(item: Analysis) -> str:
     stance = analyst_stance(item, brief)
     evidence = plain_setup_read(item)
     company_name = display_company_name(item.symbol, item.name)
+    catalyst_read = plain_catalyst_preview(
+        item,
+        dedupe_news((relevant_company_news(item.news, item) or item.news) + relevant_macro_news(item.macro_news or [], item.symbol)),
+        relevant_macro_news(item.macro_news or [], item.symbol),
+    )
+    opportunity = item.options_opportunity or build_options_opportunity_score(item)
+    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
+    primary_risk = (rejection.reasons or opportunity.risk_factors or ["confirmation is still required"])[0]
+    contract_read = "The contract side is still estimated or incomplete, so I would verify the chain before treating the setup as actionable."
+    if item.option and not item.option.estimated:
+        spread = option_spread_pct(item.option)
+        if spread is not None and spread <= 0.18:
+            contract_read = "The option structure is usable enough to monitor because the spread is not the main problem; the entry trigger is."
+        elif spread is not None:
+            contract_read = "The stock may be interesting, but the option spread needs discipline because a sloppy fill can erase the edge quickly."
+        else:
+            contract_read = "The contract has live data, but I would still judge it by fill quality and whether price confirms the trigger."
     if brief:
         status, status_detail = entry_status(item, brief)
         status_note = status_detail.split(".")[0].strip()
         trigger = preview_level_text(item, brief.confirmation_level, "the listed entry trigger")
         invalidation = format_price(brief.invalidation)
+        setup_clause = evidence.strip()
+        catalyst_clause = clean_preview_catalyst_read(catalyst_read, item.symbol).strip()
         return (
-            f"{company_name} is here because it has a tradable {direction} idea developing, but I would still treat it as conditional. "
-            f"The short version: {evidence.strip()} Current stance: {stance}. {status_note}. "
-            f"I would want price to confirm near {trigger} before treating it seriously, and I would stop trusting the idea if it breaks the invalidation area near {invalidation}. "
-            "The point of keeping it on the list is not that it is a perfect trade right now; it is that the setup has enough potential to watch closely if the next move confirms."
+            f"{company_name} is on the live list because the current {direction} idea has a specific place to be right or wrong, not because it is an automatic entry. "
+            f"The setup read is: {setup_clause} The outside context is: {catalyst_clause} "
+            f"My current stance is {stance}. {status_note}. The level that matters most is {trigger}; if price cannot confirm around that area, I would rather let it go than force the trade. "
+            f"The main reason to be careful is this: {primary_risk}. {contract_read} "
+            f"I would stop trusting the idea if price breaks the invalidation area near {invalidation}, because at that point the thesis is no longer behaving the way it needs to."
         )
     return (
         f"{company_name} is here as a possible {direction} idea because the scan found enough movement and context to keep it on watch. "
-        f"The useful part is simple: {evidence} I would keep this watch-only until the fuller trade details are available."
+        f"The setup read is: {evidence} The current outside read is: {clean_preview_catalyst_read(catalyst_read, item.symbol)} "
+        f"The main caution is {primary_risk}. I would keep this watch-only until the fuller trade details and contract quality are available."
     )
 
 
@@ -8884,6 +8927,7 @@ def report_dashboard_html() -> str:
     :root {{
       color-scheme: dark;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --switch-progress: 0;
       --bg: #020307;
       --line: rgba(236, 238, 246, .86);
       --muted: rgba(226, 226, 232, .84);
@@ -8928,21 +8972,28 @@ def report_dashboard_html() -> str:
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: center;
-      min-height: 59px;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      min-height: calc(59px - (27px * var(--switch-progress)));
       max-width: none;
-      margin: 55px 0 0;
-      padding: 0;
-      gap: 12px;
+      margin: calc(55px - (45px * var(--switch-progress))) 0 0;
+      padding: calc(0px + (6px * var(--switch-progress))) 0;
+      gap: calc(12px - (4px * var(--switch-progress)));
+      background: rgba(2, 3, 7, calc(.10 + (.78 * var(--switch-progress))));
+      backdrop-filter: blur(calc(0px + (16px * var(--switch-progress))));
+      -webkit-backdrop-filter: blur(calc(0px + (16px * var(--switch-progress))));
+      transition: margin .12s linear, min-height .12s linear, padding .12s linear, background .12s linear, backdrop-filter .12s linear;
     }}
     .section-switcher.is-hidden {{ display: none; }}
     .section-tab {{
-      min-height: 59px;
+      min-height: calc(59px - (28px * var(--switch-progress)));
       border: 1px solid rgba(255, 255, 255, .075);
-      border-radius: 6px;
+      border-radius: calc(6px + (12px * var(--switch-progress)));
       background: linear-gradient(135deg, rgba(15, 16, 22, .96), rgba(8, 9, 14, .96));
       color: var(--muted);
       padding: 0;
-      font-size: 14px;
+      font-size: calc(14px - (2px * var(--switch-progress)));
       font-weight: 450;
       letter-spacing: -.015em;
       text-align: center;
@@ -9040,8 +9091,8 @@ def report_dashboard_html() -> str:
         padding: 86px 20px 138px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .section-switcher {{ min-height: 59px; margin-top: 55px; gap: 9px; }}
-      .section-tab {{ min-height: 59px; font-size: 12.5px; padding: 0 4px; }}
+      .section-switcher {{ min-height: calc(59px - (27px * var(--switch-progress))); margin-top: calc(55px - (45px * var(--switch-progress))); gap: calc(9px - (3px * var(--switch-progress))); }}
+      .section-tab {{ min-height: calc(59px - (28px * var(--switch-progress))); font-size: calc(12.5px - (1px * var(--switch-progress))); padding: 0 4px; }}
       .content {{ min-height: calc(100vh - 358px); padding-top: 38px; }}
       .watchlist-panel {{ height: calc(100dvh - 500px); min-height: 520px; }}
       .watchlist-subpanel {{ min-height: 520px; }}
@@ -9122,9 +9173,19 @@ def report_dashboard_html() -> str:
     const sectionTabs = Array.from(document.querySelectorAll('.section-tab'));
     const subpanelContents = Array.from(document.querySelectorAll('[data-subpanel-content]'));
     const watchlistFrame = document.getElementById('watchlistFrame');
+    const appShell = document.querySelector('.app-shell');
     const panels = {{
       tbd: document.getElementById('tbdPanel'),
     }};
+
+    function setSwitchProgress(value) {{
+      const progress = Math.max(0, Math.min(1, value));
+      document.documentElement.style.setProperty('--switch-progress', progress.toFixed(3));
+    }}
+
+    function updateSwitchProgressFromScroll(scrollY = window.scrollY) {{
+      setSwitchProgress(scrollY / 140);
+    }}
 
     function showPanel(name) {{
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
@@ -9155,6 +9216,35 @@ def report_dashboard_html() -> str:
       if (name === 'live-watchlist') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
     }}
 
+    function activeSwitcher() {{
+      return sectionSwitchers.find((switcher) => !switcher.classList.contains('is-hidden'));
+    }}
+
+    function moveSubpanel(direction) {{
+      const switcher = activeSwitcher();
+      if (!switcher) return;
+      const visibleTabs = Array.from(switcher.querySelectorAll('.section-tab'));
+      const activeIndex = visibleTabs.findIndex((tab) => tab.classList.contains('is-active'));
+      const nextIndex = Math.max(0, Math.min(visibleTabs.length - 1, activeIndex + direction));
+      if (nextIndex !== activeIndex && visibleTabs[nextIndex]) showSubpanel(visibleTabs[nextIndex].dataset.subpanel);
+    }}
+
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    function rememberSwipeStart(event) {{
+      const point = event.touches ? event.touches[0] : event;
+      swipeStartX = point.clientX;
+      swipeStartY = point.clientY;
+    }}
+    function finishSwipe(event) {{
+      const point = event.changedTouches ? event.changedTouches[0] : event;
+      const deltaX = point.clientX - swipeStartX;
+      const deltaY = point.clientY - swipeStartY;
+      if (Math.abs(deltaX) > 54 && Math.abs(deltaX) > Math.abs(deltaY) * 1.35) {{
+        moveSubpanel(deltaX < 0 ? 1 : -1);
+      }}
+    }}
+
     async function refreshStatus() {{
       const status = document.getElementById('appStatus');
       try {{
@@ -9167,6 +9257,16 @@ def report_dashboard_html() -> str:
     }}
     for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
     for (const tab of sectionTabs) tab.addEventListener('click', () => showSubpanel(tab.dataset.subpanel));
+    window.addEventListener('scroll', () => updateSwitchProgressFromScroll(), {{ passive: true }});
+    window.addEventListener('message', (event) => {{
+      if (event.data?.type === 'atlas-report-scroll') setSwitchProgress(event.data.progress || 0);
+      if (event.data?.type === 'atlas-subpanel-swipe') moveSubpanel(event.data.direction === 'left' ? 1 : -1);
+    }});
+    appShell.addEventListener('touchstart', rememberSwipeStart, {{ passive: true }});
+    appShell.addEventListener('touchend', finishSwipe, {{ passive: true }});
+    appShell.addEventListener('pointerdown', rememberSwipeStart);
+    appShell.addEventListener('pointerup', finishSwipe);
+    updateSwitchProgressFromScroll();
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>
