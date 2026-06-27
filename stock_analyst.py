@@ -8902,6 +8902,7 @@ def report_dashboard_html() -> str:
     }}
     a {{ color: inherit; text-decoration: none; }}
     button {{ font: inherit; }}
+    .is-hidden {{ display: none !important; }}
     .app-shell {{
       min-height: 100vh;
       background: transparent;
@@ -8923,7 +8924,7 @@ def report_dashboard_html() -> str:
       filter: contrast(1.04) brightness(1.08);
       mix-blend-mode: lighten;
     }}
-    .watchlist-switcher {{
+    .section-switcher {{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: center;
@@ -8933,7 +8934,8 @@ def report_dashboard_html() -> str:
       padding: 0;
       gap: 12px;
     }}
-    .watchlist-tab {{
+    .section-switcher.is-hidden {{ display: none; }}
+    .section-tab {{
       min-height: 59px;
       border: 1px solid rgba(255, 255, 255, .075);
       border-radius: 6px;
@@ -8948,7 +8950,7 @@ def report_dashboard_html() -> str:
       cursor: pointer;
       overflow: hidden;
     }}
-    .watchlist-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
+    .section-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
     .content {{
       min-height: calc(100vh - 358px);
       padding: 38px 0 0;
@@ -8963,12 +8965,17 @@ def report_dashboard_html() -> str:
     }}
     .placeholder-panel {{
       display: none;
-      padding: 56px 26px;
+      min-height: 520px;
+      border: 1px solid rgba(114, 116, 126, .14);
+      border-radius: 8px;
+      padding: 34px 24px;
+      background: rgba(5, 6, 10, .72);
       color: rgba(226, 226, 232, .70);
       font-size: 15px;
+      line-height: 1.5;
       text-align: center;
     }}
-    .placeholder-panel.is-active {{ display: block; }}
+    .placeholder-panel.is-active {{ display: grid; place-items: center; }}
     .watchlist-panel.is-hidden {{ display: none; }}
     .watchlist-subpanel {{
       display: none;
@@ -8982,7 +8989,6 @@ def report_dashboard_html() -> str:
       text-align: center;
     }}
     .watchlist-subpanel.is-active {{ display: grid; place-items: center; }}
-    .watchlist-switcher.is-hidden {{ display: none; }}
     .bottom-nav {{
       position: fixed;
       left: 50%;
@@ -9034,16 +9040,16 @@ def report_dashboard_html() -> str:
         padding: 86px 20px 138px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .watchlist-switcher {{ min-height: 59px; margin-top: 55px; gap: 9px; }}
-      .watchlist-tab {{ min-height: 59px; font-size: 12.5px; padding: 0 4px; }}
+      .section-switcher {{ min-height: 59px; margin-top: 55px; gap: 9px; }}
+      .section-tab {{ min-height: 59px; font-size: 12.5px; padding: 0 4px; }}
       .content {{ min-height: calc(100vh - 358px); padding-top: 38px; }}
       .watchlist-panel {{ height: calc(100dvh - 500px); min-height: 520px; }}
       .watchlist-subpanel {{ min-height: 520px; }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
-      .watchlist-switcher {{ gap: 9px; }}
-      .watchlist-tab {{ font-size: 13px; }}
+      .section-switcher {{ gap: 9px; }}
+      .section-tab {{ font-size: 13px; }}
       .bottom-nav {{ width: calc(100vw - 40px); }}
     }}
   </style>
@@ -9053,17 +9059,31 @@ def report_dashboard_html() -> str:
     <header class="brand-row">
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
     </header>
-    <nav class="watchlist-switcher" aria-label="Watchlist groups">
-      <button class="watchlist-tab is-active" type="button" data-watchlist-panel="atlas">ATLAS watchlist</button>
-      <button class="watchlist-tab" type="button" data-watchlist-panel="personal">personal watchlist</button>
-      <button class="watchlist-tab" type="button" data-watchlist-panel="favorites">favorites</button>
+    <nav class="section-switcher" data-section-switcher="watchlist" aria-label="Watchlist groups">
+      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live Watchlist</button>
+      <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom Watchlist</button>
+      <button class="section-tab" type="button" data-subpanel="alerts">Alerts</button>
+    </nav>
+    <nav class="section-switcher is-hidden" data-section-switcher="market" aria-label="Journal groups">
+      <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
+      <button class="section-tab" type="button" data-subpanel="journal-entries">Journal Entries</button>
+      <button class="section-tab" type="button" data-subpanel="trade-logs">Trade Logs</button>
+    </nav>
+    <nav class="section-switcher is-hidden" data-section-switcher="research" aria-label="Research groups">
+      <button class="section-tab is-active" type="button" data-subpanel="research-assistant">Research Assistant</button>
+      <button class="section-tab" type="button" data-subpanel="market-reports">Market Reports</button>
+      <button class="section-tab" type="button" data-subpanel="portfolio-analysis">Portfolio Analysis</button>
     </nav>
     <section class="content">
-      <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" data-watchlist-content="atlas" src="/stock_report.html?t={int(time.time())}"></iframe>
-      <section class="watchlist-subpanel" id="personalWatchlistPanel" data-watchlist-content="personal">Personal watchlist is ready for saved tickers.</section>
-      <section class="watchlist-subpanel" id="favoritesWatchlistPanel" data-watchlist-content="favorites">Favorites will appear here when saved.</section>
-      <section class="placeholder-panel" id="marketPanel">Market Report</section>
-      <section class="placeholder-panel" id="researchPanel">Research</section>
+      <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" data-subpanel-content="live-watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
+      <section class="watchlist-subpanel" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="alerts">Alerts will appear here after entry signals or position updates.</section>
+      <section class="placeholder-panel" data-subpanel-content="pl-calendar">P/L Calendar is ready for realized and open position tracking.</section>
+      <section class="placeholder-panel" data-subpanel-content="journal-entries">Journal Entries will store trade notes and post-trade reviews.</section>
+      <section class="placeholder-panel" data-subpanel-content="trade-logs">Trade Logs will show executions, adjustments, exits, and status changes.</section>
+      <section class="placeholder-panel" data-subpanel-content="research-assistant">Research Assistant will hold ticker and market research workflows.</section>
+      <section class="placeholder-panel" data-subpanel-content="market-reports">Market Reports will summarize the broader trading backdrop.</section>
+      <section class="placeholder-panel" data-subpanel-content="portfolio-analysis">Portfolio Analysis will track exposure, risk, and open-position context.</section>
       <section class="placeholder-panel" id="tbdPanel">TBD</section>
       <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
     </section>
@@ -9098,36 +9118,41 @@ def report_dashboard_html() -> str:
   </main>
   <script>
     const tabs = Array.from(document.querySelectorAll('.nav-item'));
-    const watchlistTabs = Array.from(document.querySelectorAll('.watchlist-tab'));
-    const watchlistSwitcher = document.querySelector('.watchlist-switcher');
-    const watchlistContents = Array.from(document.querySelectorAll('[data-watchlist-content]'));
+    const sectionSwitchers = Array.from(document.querySelectorAll('[data-section-switcher]'));
+    const sectionTabs = Array.from(document.querySelectorAll('.section-tab'));
+    const subpanelContents = Array.from(document.querySelectorAll('[data-subpanel-content]'));
     const watchlistFrame = document.getElementById('watchlistFrame');
     const panels = {{
-      market: document.getElementById('marketPanel'),
-      research: document.getElementById('researchPanel'),
       tbd: document.getElementById('tbdPanel'),
     }};
 
     function showPanel(name) {{
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
-      watchlistSwitcher.classList.toggle('is-hidden', name !== 'watchlist');
+      for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher.dataset.sectionSwitcher !== name);
       for (const [key, panel] of Object.entries(panels)) panel.classList.toggle('is-active', key === name);
-      if (name === 'watchlist') {{
-        const activeWatchlist = document.querySelector('.watchlist-tab.is-active')?.dataset.watchlistPanel || 'atlas';
-        showWatchlistPanel(activeWatchlist);
+      if (name === 'tbd') {{
+        for (const content of subpanelContents) content.classList.add('is-hidden');
       }} else {{
-        for (const content of watchlistContents) content.classList.add('is-hidden');
+        const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.sectionSwitcher === name);
+        const activeSubpanel = activeSwitcher?.querySelector('.section-tab.is-active')?.dataset.subpanel;
+        showSubpanel(activeSubpanel);
       }}
     }}
 
-    function showWatchlistPanel(name) {{
-      for (const tab of watchlistTabs) tab.classList.toggle('is-active', tab.dataset.watchlistPanel === name);
-      for (const content of watchlistContents) {{
-        const isActive = content.dataset.watchlistContent === name;
+    function showSubpanel(name) {{
+      if (!name) return;
+      const activeTab = sectionTabs.find((tab) => tab.dataset.subpanel === name);
+      const switcher = activeTab?.closest('[data-section-switcher]');
+      if (switcher) {{
+        for (const tab of switcher.querySelectorAll('.section-tab')) tab.classList.toggle('is-active', tab.dataset.subpanel === name);
+      }}
+      for (const content of subpanelContents) {{
+        const isActive = content.dataset.subpanelContent === name;
         content.classList.toggle('is-active', isActive && content.classList.contains('watchlist-subpanel'));
         content.classList.toggle('is-hidden', !isActive);
+        if (content.classList.contains('placeholder-panel')) content.classList.toggle('is-active', isActive);
       }}
-      if (name === 'atlas') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
+      if (name === 'live-watchlist') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
     }}
 
     async function refreshStatus() {{
@@ -9141,7 +9166,7 @@ def report_dashboard_html() -> str:
       }}
     }}
     for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
-    for (const tab of watchlistTabs) tab.addEventListener('click', () => showWatchlistPanel(tab.dataset.watchlistPanel));
+    for (const tab of sectionTabs) tab.addEventListener('click', () => showSubpanel(tab.dataset.subpanel));
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>
