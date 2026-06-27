@@ -8938,21 +8938,27 @@ def report_dashboard_html() -> str:
     body {{
       margin: 0;
       min-height: 100vh;
+      height: 100dvh;
       background:
         radial-gradient(circle at 50% 22%, rgba(255, 255, 255, .018), transparent 34%),
         #020307;
       color: var(--text);
-      overflow-x: hidden;
+      overflow: hidden;
+      overscroll-behavior: none;
     }}
     a {{ color: inherit; text-decoration: none; }}
     button {{ font: inherit; }}
     .is-hidden {{ display: none !important; }}
     .app-shell {{
-      min-height: 100vh;
+      height: 100dvh;
       background: transparent;
       max-width: 607px;
       margin: 0 auto;
-      padding: 54px 27px 138px;
+      padding: 68px 27px 142px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }}
     .brand-row {{
       height: 18px;
@@ -8972,28 +8978,25 @@ def report_dashboard_html() -> str:
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: center;
-      position: sticky;
-      top: 0;
+      position: relative;
       z-index: 4;
-      min-height: calc(59px - (27px * var(--switch-progress)));
+      flex: 0 0 auto;
+      min-height: 42px;
       max-width: none;
-      margin: calc(36px - (30px * var(--switch-progress))) 0 0;
-      padding: calc(0px + (6px * var(--switch-progress))) 0;
-      gap: calc(12px - (4px * var(--switch-progress)));
-      background: rgba(2, 3, 7, calc(.10 + (.78 * var(--switch-progress))));
-      backdrop-filter: blur(calc(0px + (16px * var(--switch-progress))));
-      -webkit-backdrop-filter: blur(calc(0px + (16px * var(--switch-progress))));
-      transition: margin .12s linear, min-height .12s linear, padding .12s linear, background .12s linear, backdrop-filter .12s linear;
+      margin: 28px 0 0;
+      padding: 0;
+      gap: 12px;
+      background: transparent;
     }}
     .section-switcher.is-hidden {{ display: none; }}
     .section-tab {{
-      min-height: calc(59px - (28px * var(--switch-progress)));
+      min-height: 42px;
       border: 1px solid rgba(255, 255, 255, .075);
-      border-radius: calc(6px + (12px * var(--switch-progress)));
+      border-radius: 18px;
       background: linear-gradient(135deg, rgba(15, 16, 22, .96), rgba(8, 9, 14, .96));
       color: var(--muted);
       padding: 0;
-      font-size: calc(14px - (2px * var(--switch-progress)));
+      font-size: 13px;
       font-weight: 450;
       letter-spacing: -.015em;
       text-align: center;
@@ -9003,20 +9006,24 @@ def report_dashboard_html() -> str:
     }}
     .section-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
     .content {{
-      min-height: calc(100vh - 358px);
-      padding: 28px 0 132px;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 42px 0 0;
+      overflow: hidden;
+      overscroll-behavior: contain;
     }}
     .watchlist-panel {{
       display: block;
       width: 100%;
-      height: calc(100dvh - 455px);
-      min-height: 360px;
+      height: 100%;
+      min-height: 0;
       border: 0;
       background: transparent;
     }}
     .placeholder-panel {{
       display: none;
-      min-height: 360px;
+      height: 100%;
+      min-height: 0;
       border: 1px solid rgba(114, 116, 126, .14);
       border-radius: 8px;
       padding: 34px 24px;
@@ -9025,12 +9032,16 @@ def report_dashboard_html() -> str:
       font-size: 15px;
       line-height: 1.5;
       text-align: center;
+      box-sizing: border-box;
+      overflow: auto;
+      overscroll-behavior: contain;
     }}
     .placeholder-panel.is-active {{ display: grid; place-items: center; }}
     .watchlist-panel.is-hidden {{ display: none; }}
     .watchlist-subpanel {{
       display: none;
-      min-height: 360px;
+      height: 100%;
+      min-height: 0;
       border: 1px solid rgba(114, 116, 126, .14);
       border-radius: 8px;
       padding: 34px 24px;
@@ -9038,6 +9049,9 @@ def report_dashboard_html() -> str:
       color: rgba(226, 226, 232, .72);
       line-height: 1.5;
       text-align: center;
+      box-sizing: border-box;
+      overflow: auto;
+      overscroll-behavior: contain;
     }}
     .watchlist-subpanel.is-active {{ display: grid; place-items: center; }}
     .bottom-nav {{
@@ -9094,14 +9108,14 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .app-shell {{
-        padding: 54px 20px 138px;
+        padding: 68px 20px 142px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .section-switcher {{ min-height: calc(59px - (27px * var(--switch-progress))); margin-top: calc(36px - (30px * var(--switch-progress))); gap: calc(9px - (3px * var(--switch-progress))); }}
-      .section-tab {{ min-height: calc(59px - (28px * var(--switch-progress))); font-size: calc(12.5px - (1px * var(--switch-progress))); padding: 0 4px; }}
-      .content {{ min-height: calc(100vh - 306px); padding-top: 28px; padding-bottom: 132px; }}
-      .watchlist-panel {{ height: calc(100dvh - 455px); min-height: 360px; }}
-      .watchlist-subpanel {{ min-height: 360px; }}
+      .section-switcher {{ min-height: 42px; margin-top: 28px; gap: 9px; }}
+      .section-tab {{ min-height: 42px; font-size: 12.5px; padding: 0 4px; }}
+      .content {{ padding-top: 42px; }}
+      .watchlist-panel {{ height: 100%; min-height: 0; }}
+      .watchlist-subpanel {{ height: 100%; min-height: 0; }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
