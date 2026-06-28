@@ -5561,12 +5561,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .toolbar button {{ min-height: 38px; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; cursor: pointer; }}
     .toolbar button:hover {{ border-color: #777777; background: #0d0d0d; }}
     .setups {{ display: grid; gap: 0; margin-top: 0; }}
-    .account-group-header {{ display: grid; grid-template-columns: 66px minmax(0, 1fr) 58px; align-items: center; gap: 22px; min-height: 96px; border-bottom: 1px solid rgba(114, 116, 126, .13); }}
-    .account-icon {{ width: 66px; height: 66px; border-radius: 6px; background: linear-gradient(135deg, rgba(20, 22, 30, .98), rgba(8, 9, 14, .98)); border: 1px solid rgba(255, 255, 255, .06); display: grid; place-items: center; color: rgba(236, 238, 246, .88); font-size: 12px; font-weight: 800; letter-spacing: .18em; }}
-    .account-title {{ color: #f2f2f4; font-size: 20px; line-height: 1.1; font-weight: 400; letter-spacing: -.02em; }}
-    .account-count {{ margin-top: 9px; color: rgba(222, 223, 230, .62); font-size: 16px; line-height: 1; }}
-    .account-collapse {{ width: 58px; height: 58px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .10); display: grid; place-items: center; }}
-    .account-collapse::before {{ content: ""; width: 10px; height: 10px; border-right: 2px solid rgba(246, 246, 248, .95); border-bottom: 2px solid rgba(246, 246, 248, .95); transform: rotate(225deg); }}
     .empty-state {{ border: 1px solid #242424; border-radius: 10px; background: #050505; padding: 34px; text-align: center; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
     .empty-kicker {{ color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
     .empty-state h2 {{ margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }}
@@ -5687,7 +5681,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
     @media (max-width: 860px) {{ main {{ padding: 0 0 100px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
     @media (max-width: 520px) {{ main {{ padding: 0 0 100px; }} .setup-summary {{ min-height: 86px; grid-template-columns: minmax(98px, 1fr) 118px 104px 26px; gap: 10px; }} .setup-summary-actions {{ width: 26px; }} .summary-title-row {{ gap: 9px; }} .summary-symbol {{ font-size: 20px; font-weight: 450; }} .summary-company {{ font-size: 14px; max-width: 118px; }} .direction {{ font-size: 9px; padding: 3px 7px 2px; }} .sparkline {{ width: 118px; height: 39px; }} .quote-block {{ min-width: 104px; min-height: 39px; padding: 0 9px; }} .quote-price {{ font-size: 18px; font-weight: 450; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 390px) {{ .account-group-header {{ grid-template-columns: 54px minmax(0, 1fr) 48px; min-height: 82px; gap: 14px; }} .account-icon {{ width: 54px; height: 54px; }} .account-title {{ font-size: 18px; }} .account-count {{ font-size: 14px; }} .account-collapse {{ width: 48px; height: 48px; }} .setup-summary {{ grid-template-columns: minmax(88px, 1fr) 90px 92px 24px; min-height: 82px; gap: 8px; }} .setup-summary-actions {{ width: 24px; }} .summary-title-row {{ gap: 7px; }} .summary-symbol {{ font-size: 18px; }} .summary-company {{ font-size: 12px; max-width: 96px; }} .direction {{ font-size: 8px; padding: 3px 6px 2px; }} .sparkline {{ width: 90px; height: 35px; }} .quote-block {{ min-width: 92px; min-height: 36px; }} .quote-price {{ font-size: 16px; }} }}
+    @media (max-width: 390px) {{ .setup-summary {{ grid-template-columns: minmax(88px, 1fr) 90px 92px 24px; min-height: 82px; gap: 8px; }} .setup-summary-actions {{ width: 24px; }} .summary-title-row {{ gap: 7px; }} .summary-symbol {{ font-size: 18px; }} .summary-company {{ font-size: 12px; max-width: 96px; }} .direction {{ font-size: 8px; padding: 3px 6px 2px; }} .sparkline {{ width: 90px; height: 35px; }} .quote-block {{ min-width: 92px; min-height: 36px; }} .quote-price {{ font-size: 16px; }} }}
   </style>
 </head>
 <body>
@@ -5696,14 +5690,6 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
-    </section>
-    <section class="account-group-header" aria-label="Current account">
-      <div class="account-icon">AT</div>
-      <div>
-        <div class="account-title">ATLAS account</div>
-        <div class="account-count">{len(results)} items</div>
-      </div>
-      <div class="account-collapse" aria-hidden="true"></div>
     </section>
     <section class="setups">
       {blocks}
@@ -9186,11 +9172,9 @@ def report_dashboard_html() -> str:
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
     </header>
     <nav class="section-switcher" data-section-switcher="watchlist" aria-label="Watchlist groups">
-      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Options</button>
-      <button class="section-tab" type="button" data-subpanel="roth-ira">Roth IRA</button>
-      <button class="section-tab" type="button" data-subpanel="christian">Christian</button>
-      <button class="section-tab" type="button" data-subpanel="investing">Investing</button>
-      <button class="section-tab" type="button" data-subpanel="agentic">Agentic</button>
+      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live Watchlist</button>
+      <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom Watchlist</button>
+      <button class="section-tab" type="button" data-subpanel="alerts">Alerts</button>
     </nav>
     <nav class="section-switcher is-hidden" data-section-switcher="market" aria-label="Journal groups">
       <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
@@ -9204,10 +9188,8 @@ def report_dashboard_html() -> str:
     </nav>
     <section class="content">
       <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" data-subpanel-content="live-watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
-      <section class="watchlist-subpanel" data-subpanel-content="roth-ira">Roth IRA watchlist is ready for saved tickers.</section>
-      <section class="watchlist-subpanel" data-subpanel-content="christian">Christian watchlist is ready for saved tickers.</section>
-      <section class="watchlist-subpanel" data-subpanel-content="investing">Investing watchlist is ready for saved tickers.</section>
-      <section class="watchlist-subpanel" data-subpanel-content="agentic">Agentic watchlist is ready for agent-monitored tickers.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="alerts">Alerts will appear here after entry signals or position updates.</section>
       <section class="placeholder-panel" data-subpanel-content="pl-calendar">P/L Calendar is ready for realized and open position tracking.</section>
       <section class="placeholder-panel" data-subpanel-content="journal-entries">Journal Entries will store trade notes and post-trade reviews.</section>
       <section class="placeholder-panel" data-subpanel-content="trade-logs">Trade Logs will show executions, adjustments, exits, and status changes.</section>
