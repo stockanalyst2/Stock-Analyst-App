@@ -5545,7 +5545,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     :root {{ color-scheme: dark; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }}
     body {{ margin: 0; background: #020307; color: #eeeeee; }}
     body::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, .035), transparent 34%); }}
-    main {{ position: relative; max-width: none; margin: 0; padding: 0 0 240px; }}
+    main {{ position: relative; max-width: none; margin: 0; padding: 0 0 100px; }}
     h1 {{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }}
     p {{ margin: 0 0 16px; color: #9b9b9b; }}
     a {{ color: #d6d6d6; }}
@@ -5560,25 +5560,39 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .toolbar {{ display: none; }}
     .toolbar button {{ min-height: 38px; border: 1px solid #3a3a3a; border-radius: 4px; background: #050505; color: #eeeeee; font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; cursor: pointer; }}
     .toolbar button:hover {{ border-color: #777777; background: #0d0d0d; }}
-    .setups {{ display: grid; gap: 18px; margin-top: 0; }}
+    .setups {{ display: grid; gap: 0; margin-top: 0; }}
+    .account-group-header {{ display: grid; grid-template-columns: 66px minmax(0, 1fr) 58px; align-items: center; gap: 22px; min-height: 96px; border-bottom: 1px solid rgba(114, 116, 126, .13); }}
+    .account-icon {{ width: 66px; height: 66px; border-radius: 6px; background: linear-gradient(135deg, rgba(20, 22, 30, .98), rgba(8, 9, 14, .98)); border: 1px solid rgba(255, 255, 255, .06); display: grid; place-items: center; color: rgba(236, 238, 246, .88); font-size: 12px; font-weight: 800; letter-spacing: .18em; }}
+    .account-title {{ color: #f2f2f4; font-size: 20px; line-height: 1.1; font-weight: 400; letter-spacing: -.02em; }}
+    .account-count {{ margin-top: 9px; color: rgba(222, 223, 230, .62); font-size: 16px; line-height: 1; }}
+    .account-collapse {{ width: 58px; height: 58px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .10); display: grid; place-items: center; }}
+    .account-collapse::before {{ content: ""; width: 10px; height: 10px; border-right: 2px solid rgba(246, 246, 248, .95); border-bottom: 2px solid rgba(246, 246, 248, .95); transform: rotate(225deg); }}
     .empty-state {{ border: 1px solid #242424; border-radius: 10px; background: #050505; padding: 34px; text-align: center; box-shadow: 0 22px 70px rgba(0, 0, 0, .42); }}
     .empty-kicker {{ color: #8f8f8f; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }}
     .empty-state h2 {{ margin: 10px 0 10px; color: #f2f2f2; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; }}
     .empty-state p {{ max-width: 700px; margin: 0 auto; color: #a8a8a8; line-height: 1.6; }}
-    .setup-card {{ background: linear-gradient(90deg, rgba(5, 6, 10, .98), rgba(12, 13, 18, .94)); border: 1px solid rgba(114, 116, 126, .18); border-radius: 8px; overflow: hidden; box-shadow: 0 18px 38px rgba(0, 0, 0, .18); }}
+    .setup-card {{ background: transparent; border: 0; border-radius: 0; overflow: hidden; box-shadow: none; border-bottom: 1px solid rgba(114, 116, 126, .13); }}
     .setup-card.is-hidden {{ display: none; }}
     .setup-card .setup-body {{ display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1), opacity .24s ease; }}
     .setup-card.is-collapsed .setup-body {{ grid-template-rows: 0fr; opacity: 0; }}
     .setup-body-inner {{ min-height: 0; overflow: hidden; }}
-    .setup-summary {{ display: grid; grid-template-columns: minmax(0, 1fr) 116px 54px; align-items: center; min-height: 118px; gap: 22px; padding: 0 0 0 28px; background: transparent; border-bottom: 0; }}
+    .setup-summary {{ display: grid; grid-template-columns: minmax(118px, 1fr) 142px 118px 34px; align-items: center; min-height: 86px; gap: 14px; padding: 0; background: transparent; border-bottom: 0; }}
     .setup-summary-main {{ display: flex; align-items: center; min-width: 0; }}
-    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 54px; background: transparent; border-left: 0; }}
-    .summary-title-row {{ display: flex; align-items: center; gap: 19px; min-width: 0; }}
-    .summary-symbol {{ font-size: clamp(26px, 6vw, 32px); line-height: .95; font-weight: 600; letter-spacing: -.02em; }}
-    .summary-company {{ margin-top: 15px; color: rgba(222, 223, 230, .80); font-size: 15px; line-height: 1.25; font-weight: 400; overflow-wrap: anywhere; }}
-    .quote-block {{ min-width: 116px; text-align: right; padding-right: 0; }}
-    .quote-price {{ color: #f4f4f6; font-size: 20px; line-height: 1; font-weight: 600; letter-spacing: .005em; }}
-    .quote-change {{ margin-top: 16px; font-size: 14px; line-height: 1; font-weight: 500; }}
+    .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 34px; background: transparent; border-left: 0; }}
+    .summary-title-row {{ display: flex; align-items: center; gap: 10px; min-width: 0; }}
+    .summary-symbol {{ font-size: 21px; line-height: 1; font-weight: 450; letter-spacing: -.02em; }}
+    .summary-company {{ margin-top: 8px; color: rgba(222, 223, 230, .66); font-size: 15px; line-height: 1.15; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 142px; }}
+    .sparkline {{ width: 142px; height: 42px; display: block; opacity: .95; }}
+    .sparkline-baseline {{ stroke: rgba(214, 218, 226, .36); stroke-width: 1; stroke-dasharray: 2 6; }}
+    .sparkline-line {{ fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
+    .sparkline.positive .sparkline-line {{ stroke: #0caf45; }}
+    .sparkline.negative .sparkline-line {{ stroke: #cf5337; }}
+    .sparkline.neutral .sparkline-line {{ stroke: rgba(222, 223, 230, .55); }}
+    .quote-block {{ min-width: 118px; text-align: center; padding-right: 0; justify-self: end; border: 1.4px solid rgba(226, 226, 232, .34); border-radius: 7px; min-height: 43px; display: grid; place-items: center; padding: 0 12px; }}
+    .quote-price {{ color: #f4f4f6; font-size: 19px; line-height: 1; font-weight: 450; letter-spacing: .005em; }}
+    .quote-change {{ display: none; }}
+    .quote-block.positive {{ border-color: rgba(12, 175, 69, .88); }}
+    .quote-block.negative {{ border-color: rgba(207, 83, 55, .9); }}
     .quote-block.positive .quote-change {{ color: #72bd70; }}
     .quote-block.negative .quote-change {{ color: #d66d72; }}
     .quote-block.neutral .quote-change {{ color: rgba(226, 226, 232, .55); }}
@@ -5588,13 +5602,13 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .watchlist-preview {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
     .setup-heading, .setup-actions {{ display: none; }}
     .toggle-card {{ position: relative; width: 100%; height: 100%; border: 0; border-radius: 0; padding: 0; background: transparent; color: rgba(241, 241, 245, .9); cursor: pointer; font-size: 0; }}
-    .toggle-card::before {{ content: ""; display: block; width: 12px; height: 12px; margin: 0 auto; border-right: 1.8px solid currentColor; border-bottom: 1.8px solid currentColor; transform: rotate(45deg); transition: transform .22s cubic-bezier(.2, .8, .2, 1); }}
+    .toggle-card::before {{ content: ""; display: block; width: 9px; height: 9px; margin: 0 auto; border-right: 1.7px solid currentColor; border-bottom: 1.7px solid currentColor; transform: rotate(45deg); transition: transform .22s cubic-bezier(.2, .8, .2, 1); }}
     .setup-card:not(.is-collapsed) .toggle-card::before {{ transform: rotate(225deg); }}
     .toggle-card:hover {{ background: rgba(255, 255, 255, .035); }}
     .setup-rank {{ font-size: 13px; color: #9b9b9b; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }}
     .setup-symbol {{ font-size: 28px; font-weight: 800; line-height: 1; }}
     .setup-name {{ margin-top: 4px; color: #9b9b9b; font-size: 13px; }}
-    .direction {{ border-radius: 4px; padding: 5px 10px 4px; font-weight: 600; font-size: 11px; letter-spacing: .04em; }}
+    .direction {{ border-radius: 4px; padding: 3px 8px 2px; font-weight: 650; font-size: 10px; letter-spacing: .04em; }}
     .direction.call {{ background: rgba(20, 39, 23, .56); color: #86d47f; border: 1px solid rgba(112, 197, 105, .52); }}
     .direction.put {{ background: rgba(48, 22, 26, .58); color: #d77078; border: 1px solid rgba(215, 94, 105, .52); }}
     .vital-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
@@ -5671,9 +5685,9 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .headline-impact {{ margin-top: 2px; color: #b8b8b8; }}
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 860px) {{ main {{ padding: 0 0 230px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
-    @media (max-width: 520px) {{ main {{ padding: 0 0 230px; }} .setup-summary {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 116px 54px; gap: 18px; padding-left: 28px; }} .setup-summary-actions {{ width: 54px; }} .summary-title-row {{ gap: 18px; }} .summary-symbol {{ font-size: 28px; font-weight: 600; }} .summary-company {{ font-size: 14px; }} .direction {{ font-size: 10px; padding: 5px 10px 4px; }} .quote-block {{ min-width: 116px; }} .quote-price {{ font-size: 19px; font-weight: 600; }} .quote-change {{ font-size: 13px; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 390px) {{ .setup-summary {{ grid-template-columns: minmax(0, 1fr) 100px 46px; min-height: 108px; gap: 14px; padding-left: 22px; }} .setup-summary-actions {{ width: 46px; }} .summary-title-row {{ gap: 11px; }} .summary-symbol {{ font-size: 23px; }} .summary-company {{ font-size: 12px; margin-top: 12px; }} .direction {{ font-size: 8.5px; padding: 4px 8px 3px; }} .quote-block {{ min-width: 100px; }} .quote-price {{ font-size: 16px; }} .quote-change {{ font-size: 10.5px; }} }}
+    @media (max-width: 860px) {{ main {{ padding: 0 0 100px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
+    @media (max-width: 520px) {{ main {{ padding: 0 0 100px; }} .setup-summary {{ min-height: 86px; grid-template-columns: minmax(98px, 1fr) 118px 104px 26px; gap: 10px; }} .setup-summary-actions {{ width: 26px; }} .summary-title-row {{ gap: 9px; }} .summary-symbol {{ font-size: 20px; font-weight: 450; }} .summary-company {{ font-size: 14px; max-width: 118px; }} .direction {{ font-size: 9px; padding: 3px 7px 2px; }} .sparkline {{ width: 118px; height: 39px; }} .quote-block {{ min-width: 104px; min-height: 39px; padding: 0 9px; }} .quote-price {{ font-size: 18px; font-weight: 450; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 390px) {{ .account-group-header {{ grid-template-columns: 54px minmax(0, 1fr) 48px; min-height: 82px; gap: 14px; }} .account-icon {{ width: 54px; height: 54px; }} .account-title {{ font-size: 18px; }} .account-count {{ font-size: 14px; }} .account-collapse {{ width: 48px; height: 48px; }} .setup-summary {{ grid-template-columns: minmax(88px, 1fr) 90px 92px 24px; min-height: 82px; gap: 8px; }} .setup-summary-actions {{ width: 24px; }} .summary-title-row {{ gap: 7px; }} .summary-symbol {{ font-size: 18px; }} .summary-company {{ font-size: 12px; max-width: 96px; }} .direction {{ font-size: 8px; padding: 3px 6px 2px; }} .sparkline {{ width: 90px; height: 35px; }} .quote-block {{ min-width: 92px; min-height: 36px; }} .quote-price {{ font-size: 16px; }} }}
   </style>
 </head>
 <body>
@@ -5682,6 +5696,14 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
+    </section>
+    <section class="account-group-header" aria-label="Current account">
+      <div class="account-icon">AT</div>
+      <div>
+        <div class="account-title">ATLAS account</div>
+        <div class="account-count">{len(results)} items</div>
+      </div>
+      <div class="account-collapse" aria-hidden="true"></div>
     </section>
     <section class="setups">
       {blocks}
@@ -5800,6 +5822,7 @@ def report_block(rank: int, item: Analysis) -> str:
         ]
     )
     change_html = price_change_html(item)
+    sparkline_html = watchlist_sparkline_html(item)
     return f"""<article class="setup-card is-collapsed" data-symbol="{html.escape(item.symbol)}" data-grade="{html.escape(grade)}" data-direction="{html.escape(direction)}" data-search="{html.escape(search_text.lower())}">
   <div class="setup-summary">
     <div class="setup-summary-main">
@@ -5811,6 +5834,7 @@ def report_block(rank: int, item: Analysis) -> str:
         <div class="summary-company">{html.escape(company_name)}</div>
       </div>
     </div>
+    {sparkline_html}
     {change_html}
     <div class="setup-summary-actions">
       <button type="button" class="toggle-card" aria-label="Expand {html.escape(item.symbol)}"></button>
@@ -5824,6 +5848,36 @@ def report_block(rank: int, item: Analysis) -> str:
     </div>
   </div>
 </article>"""
+
+
+def watchlist_sparkline_html(item: Analysis) -> str:
+    closes = [value for value in (item.chart_closes or [])[-36:] if value is not None]
+    if len(closes) < 2:
+        return '<svg class="sparkline neutral" viewBox="0 0 142 42" aria-hidden="true"><line class="sparkline-baseline" x1="2" y1="21" x2="140" y2="21"></line></svg>'
+    min_close = min(closes)
+    max_close = max(closes)
+    price_range = max_close - min_close
+    if price_range <= 0:
+        price_range = max(abs(max_close) * 0.01, 1.0)
+        min_close -= price_range / 2
+    width = 142
+    height = 42
+    pad_x = 3
+    pad_y = 5
+    usable_w = width - pad_x * 2
+    usable_h = height - pad_y * 2
+    points = []
+    for index, close in enumerate(closes):
+        x = pad_x + (index / (len(closes) - 1)) * usable_w
+        y = pad_y + (1 - ((close - min_close) / price_range)) * usable_h
+        points.append(f"{x:.1f},{y:.1f}")
+    trend_class = "positive" if closes[-1] >= closes[0] else "negative"
+    return (
+        f'<svg class="sparkline {trend_class}" viewBox="0 0 {width} {height}" aria-hidden="true">'
+        f'<line class="sparkline-baseline" x1="2" y1="{height / 2:.1f}" x2="{width - 2}" y2="{height / 2:.1f}"></line>'
+        f'<polyline class="sparkline-line" points="{html.escape(" ".join(points))}"></polyline>'
+        "</svg>"
+    )
 
 
 def price_change_html(item: Analysis) -> str:
@@ -8954,17 +9008,13 @@ def report_dashboard_html() -> str:
       background: transparent;
       max-width: 607px;
       margin: 0 auto;
-      padding: 68px 27px 114px;
+      padding: 88px 33px 86px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }}
-    .brand-row {{
-      height: 18px;
-      display: flex;
-      align-items: center;
-    }}
+    .brand-row {{ display: none; }}
     .wordmark-image {{
       display: block;
       width: 121px;
@@ -8975,40 +9025,44 @@ def report_dashboard_html() -> str:
       mix-blend-mode: lighten;
     }}
     .section-switcher {{
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
+      justify-content: space-between;
       align-items: center;
       position: relative;
       z-index: 4;
       flex: 0 0 auto;
-      min-height: 42px;
+      min-height: 58px;
       max-width: none;
-      margin: 28px 0 0;
+      margin: 0;
       padding: 0;
-      gap: 12px;
+      gap: 24px;
       background: transparent;
+      border-bottom: 1px solid rgba(114, 116, 126, .16);
+      overflow-x: auto;
+      scrollbar-width: none;
     }}
+    .section-switcher::-webkit-scrollbar {{ display: none; }}
     .section-switcher.is-hidden {{ display: none; }}
     .section-tab {{
-      min-height: 42px;
-      border: 1px solid rgba(255, 255, 255, .075);
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(15, 16, 22, .96), rgba(8, 9, 14, .96));
-      color: var(--muted);
+      min-height: 58px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: rgba(226, 226, 232, .68);
       padding: 0;
-      font-size: 13px;
-      font-weight: 450;
+      font-size: 15px;
+      font-weight: 650;
       letter-spacing: -.015em;
       text-align: center;
       white-space: nowrap;
       cursor: pointer;
       overflow: hidden;
     }}
-    .section-tab.is-active {{ color: #f1f1f5; font-weight: 700; }}
+    .section-tab.is-active {{ color: #f1f1f5; font-weight: 750; }}
     .content {{
       flex: 1 1 auto;
       min-height: 0;
-      padding: 42px 0 0;
+      padding: 32px 0 0;
       overflow: hidden;
       overscroll-behavior: contain;
     }}
@@ -9057,24 +9111,24 @@ def report_dashboard_html() -> str:
     .bottom-nav {{
       position: fixed;
       left: 50%;
-      bottom: 50px;
+      bottom: 28px;
       transform: translateX(-50%);
-      width: min(553px, calc(100vw - 54px));
+      width: min(470px, calc(100vw - 66px));
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       align-items: end;
       gap: 0;
       z-index: 5;
       pointer-events: auto;
-      padding: 6px 0;
-      border-radius: 28px;
-      background: rgba(2, 3, 7, .84);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      box-shadow: 0 -18px 42px rgba(2, 3, 7, .82);
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
     }}
     .nav-item {{
-      min-height: 48px;
+      min-height: 42px;
       border: 0;
       background: transparent;
       color: rgba(235, 236, 242, .80);
@@ -9089,8 +9143,8 @@ def report_dashboard_html() -> str:
     .nav-item span {{ display: none; }}
     .nav-item.is-active {{ color: #61d94f; }}
     .nav-icon {{
-      width: 34px;
-      height: 34px;
+      width: 31px;
+      height: 31px;
       display: block;
       fill: none;
       stroke: currentColor;
@@ -9109,20 +9163,20 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 560px) {{
       .app-shell {{
-        padding: 68px 20px 114px;
+        padding: 88px 33px 86px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .section-switcher {{ min-height: 42px; margin-top: 28px; gap: 9px; }}
-      .section-tab {{ min-height: 42px; font-size: 12.5px; padding: 0 4px; }}
-      .content {{ padding-top: 42px; }}
+      .section-switcher {{ min-height: 58px; gap: 24px; }}
+      .section-tab {{ min-height: 58px; font-size: 15px; padding: 0; }}
+      .content {{ padding-top: 32px; }}
       .watchlist-panel {{ height: 100%; min-height: 0; }}
       .watchlist-subpanel {{ height: 100%; min-height: 0; }}
     }}
     @media (max-width: 390px) {{
-      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
-      .section-switcher {{ gap: 9px; }}
-      .section-tab {{ font-size: 13px; }}
-      .bottom-nav {{ width: calc(100vw - 40px); }}
+      .app-shell {{ padding-left: 33px; padding-right: 33px; }}
+      .section-switcher {{ gap: 18px; }}
+      .section-tab {{ font-size: 14px; }}
+      .bottom-nav {{ width: calc(100vw - 66px); }}
     }}
   </style>
 </head>
@@ -9132,9 +9186,11 @@ def report_dashboard_html() -> str:
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
     </header>
     <nav class="section-switcher" data-section-switcher="watchlist" aria-label="Watchlist groups">
-      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live Watchlist</button>
-      <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom Watchlist</button>
-      <button class="section-tab" type="button" data-subpanel="alerts">Alerts</button>
+      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Options</button>
+      <button class="section-tab" type="button" data-subpanel="roth-ira">Roth IRA</button>
+      <button class="section-tab" type="button" data-subpanel="christian">Christian</button>
+      <button class="section-tab" type="button" data-subpanel="investing">Investing</button>
+      <button class="section-tab" type="button" data-subpanel="agentic">Agentic</button>
     </nav>
     <nav class="section-switcher is-hidden" data-section-switcher="market" aria-label="Journal groups">
       <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
@@ -9148,8 +9204,10 @@ def report_dashboard_html() -> str:
     </nav>
     <section class="content">
       <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" data-subpanel-content="live-watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
-      <section class="watchlist-subpanel" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
-      <section class="watchlist-subpanel" data-subpanel-content="alerts">Alerts will appear here after entry signals or position updates.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="roth-ira">Roth IRA watchlist is ready for saved tickers.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="christian">Christian watchlist is ready for saved tickers.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="investing">Investing watchlist is ready for saved tickers.</section>
+      <section class="watchlist-subpanel" data-subpanel-content="agentic">Agentic watchlist is ready for agent-monitored tickers.</section>
       <section class="placeholder-panel" data-subpanel-content="pl-calendar">P/L Calendar is ready for realized and open position tracking.</section>
       <section class="placeholder-panel" data-subpanel-content="journal-entries">Journal Entries will store trade notes and post-trade reviews.</section>
       <section class="placeholder-panel" data-subpanel-content="trade-logs">Trade Logs will show executions, adjustments, exits, and status changes.</section>
@@ -9177,9 +9235,9 @@ def report_dashboard_html() -> str:
           <circle cx="18" cy="18" r="12"></circle><path d="m27 27 8 8"></path>
         </svg>
       </button>
-      <button class="nav-item" type="button" data-panel="tbd" aria-label="TBD">
+      <button class="nav-item" type="button" data-panel="tbd" aria-label="Profile">
         <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
-          <circle cx="20" cy="20" r="15"></circle><path d="M16.5 16a4 4 0 0 1 7.1 2.5c0 4-5.1 4.1-5.1 8"></path><path d="M20 31h.01"></path>
+          <circle cx="20" cy="13" r="5"></circle><path d="M10 32c1.8-7 6-10.5 10-10.5S28.2 25 30 32"></path>
         </svg>
       </button>
     </nav>
