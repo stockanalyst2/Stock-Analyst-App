@@ -5570,20 +5570,21 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .setup-card .setup-body {{ display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s cubic-bezier(.2, .8, .2, 1), opacity .24s ease; }}
     .setup-card.is-collapsed .setup-body {{ grid-template-rows: 0fr; opacity: 0; }}
     .setup-body-inner {{ min-height: 0; overflow: hidden; }}
-    .setup-summary {{ display: grid; grid-template-columns: minmax(155px, 1fr) minmax(158px, 190px) 136px 28px; align-items: center; min-height: 118px; gap: 24px; padding: 0; background: transparent; border-bottom: 0; }}
+    .setup-summary {{ display: grid; grid-template-columns: minmax(135px, 1fr) minmax(190px, 240px) 142px 28px; align-items: center; min-height: 124px; gap: 32px; padding: 0; background: transparent; border-bottom: 0; }}
     .setup-summary-main {{ display: flex; align-items: center; min-width: 0; }}
     .setup-summary-actions {{ align-self: stretch; display: grid; place-items: center; width: 28px; background: transparent; border-left: 0; }}
-    .summary-title-row {{ display: flex; align-items: center; gap: 12px; min-width: 0; }}
-    .summary-symbol {{ font-size: 25px; line-height: 1; font-weight: 400; letter-spacing: -.015em; }}
-    .summary-company {{ margin-top: 11px; color: rgba(222, 223, 230, .62); font-size: 16px; line-height: 1.15; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 168px; }}
-    .sparkline {{ width: 178px; height: 52px; display: block; opacity: .95; }}
+    .summary-title-row {{ display: flex; align-items: center; gap: 0; min-width: 0; }}
+    .setup-summary .direction {{ display: none; }}
+    .summary-symbol {{ font-size: 28px; line-height: 1; font-weight: 400; letter-spacing: -.015em; }}
+    .summary-company {{ margin-top: 18px; color: rgba(222, 223, 230, .58); font-size: 21px; line-height: 1.15; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 178px; }}
+    .sparkline {{ width: 224px; height: 64px; display: block; opacity: .95; }}
     .sparkline-baseline {{ stroke: rgba(214, 218, 226, .36); stroke-width: 1; stroke-dasharray: 2 6; }}
     .sparkline-line {{ fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
     .sparkline.positive .sparkline-line {{ stroke: #0caf45; }}
     .sparkline.negative .sparkline-line {{ stroke: #cf5337; }}
     .sparkline.neutral .sparkline-line {{ stroke: rgba(222, 223, 230, .55); }}
-    .quote-block {{ min-width: 136px; text-align: center; padding-right: 0; justify-self: end; border: 1.4px solid rgba(226, 226, 232, .34); border-radius: 8px; min-height: 54px; display: grid; place-items: center; padding: 0 14px; }}
-    .quote-price {{ color: #f4f4f6; font-size: 22px; line-height: 1; font-weight: 400; letter-spacing: .005em; }}
+    .quote-block {{ min-width: 142px; text-align: center; padding-right: 0; justify-self: end; border: 1.6px solid rgba(226, 226, 232, .34); border-radius: 8px; min-height: 58px; display: grid; place-items: center; padding: 0 16px; background: rgba(2, 3, 7, .94); position: relative; z-index: 1; }}
+    .quote-price {{ color: #f4f4f6; font-size: 26px; line-height: 1; font-weight: 400; letter-spacing: .005em; }}
     .quote-change {{ display: none; }}
     .quote-block.positive {{ border-color: rgba(12, 175, 69, .88); }}
     .quote-block.negative {{ border-color: rgba(207, 83, 55, .9); }}
@@ -5680,9 +5681,9 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
     .news-summary {{ color: #d0d0d0; line-height: 1.45; }}
     @media (max-width: 1040px) {{ .setup-details {{ grid-template-columns: 1fr; }} .theme-stack {{ grid-template-columns: 1fr; }} }}
     @media (max-width: 860px) {{ main {{ padding: 0 0 100px; }} .setup-top {{ padding: 18px 14px 22px; }} .vital-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .detail-value {{ font-size: 15px; }} }}
-    @media (max-width: 620px) {{ .setup-summary {{ min-height: 106px; grid-template-columns: minmax(118px, 1fr) 132px 116px 22px; gap: 14px; }} .setup-summary-actions {{ width: 22px; }} .summary-symbol {{ font-size: 22px; }} .summary-company {{ margin-top: 9px; font-size: 14px; max-width: 130px; }} .sparkline {{ width: 132px; height: 45px; }} .quote-block {{ min-width: 116px; min-height: 44px; padding: 0 10px; }} .quote-price {{ font-size: 19px; }} }}
-    @media (max-width: 520px) {{ main {{ padding: 0 0 100px; }} .setup-summary {{ min-height: 104px; grid-template-columns: minmax(104px, 1fr) 112px 106px 20px; gap: 11px; }} .setup-summary-actions {{ width: 20px; }} .summary-title-row {{ gap: 8px; }} .summary-symbol {{ font-size: 20px; font-weight: 400; }} .summary-company {{ font-size: 13px; max-width: 112px; }} .direction {{ font-size: 8px; padding: 3px 6px 2px; }} .sparkline {{ width: 112px; height: 41px; }} .quote-block {{ min-width: 106px; min-height: 41px; padding: 0 8px; }} .quote-price {{ font-size: 18px; font-weight: 400; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
-    @media (max-width: 390px) {{ .setup-summary {{ grid-template-columns: minmax(92px, 1fr) 96px 92px 18px; min-height: 98px; gap: 8px; }} .setup-summary-actions {{ width: 18px; }} .summary-title-row {{ gap: 6px; }} .summary-symbol {{ font-size: 18px; }} .summary-company {{ font-size: 12px; max-width: 98px; }} .direction {{ font-size: 7px; padding: 2px 5px; }} .sparkline {{ width: 96px; height: 38px; }} .quote-block {{ min-width: 92px; min-height: 38px; }} .quote-price {{ font-size: 16px; }} }}
+    @media (max-width: 620px) {{ .setup-summary {{ min-height: 104px; grid-template-columns: minmax(104px, 1fr) 118px 116px 22px; gap: 22px; }} .setup-summary-actions {{ width: 22px; }} .summary-symbol {{ font-size: 23px; }} .summary-company {{ margin-top: 11px; font-size: 15px; max-width: 116px; }} .sparkline {{ width: 118px; height: 45px; }} .quote-block {{ min-width: 116px; min-height: 48px; padding: 0 10px; }} .quote-price {{ font-size: 20px; }} }}
+    @media (max-width: 520px) {{ main {{ padding: 0 0 100px; }} .setup-summary {{ min-height: 96px; grid-template-columns: minmax(86px, 1fr) 96px 98px 20px; gap: 15px; }} .setup-summary-actions {{ width: 20px; }} .summary-symbol {{ font-size: 20px; font-weight: 400; }} .summary-company {{ margin-top: 9px; font-size: 13px; max-width: 96px; }} .sparkline {{ width: 96px; height: 39px; }} .quote-block {{ min-width: 98px; min-height: 40px; padding: 0 8px; }} .quote-price {{ font-size: 18px; font-weight: 400; }} .vital-grid {{ grid-template-columns: 1fr; }} }}
+    @media (max-width: 390px) {{ .setup-summary {{ grid-template-columns: minmax(76px, 1fr) 78px 88px 18px; min-height: 88px; gap: 10px; }} .setup-summary-actions {{ width: 18px; }} .summary-symbol {{ font-size: 18px; }} .summary-company {{ font-size: 12px; max-width: 82px; }} .sparkline {{ width: 78px; height: 34px; }} .quote-block {{ min-width: 88px; min-height: 36px; }} .quote-price {{ font-size: 16px; }} }}
   </style>
 </head>
 <body>
@@ -9012,8 +9013,9 @@ def report_dashboard_html() -> str:
       mix-blend-mode: lighten;
     }}
     .section-switcher {{
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      justify-content: center;
       align-items: center;
       position: relative;
       z-index: 4;
@@ -9022,7 +9024,7 @@ def report_dashboard_html() -> str:
       max-width: none;
       margin: 0;
       padding: 0;
-      gap: 24px;
+      gap: 0;
       background: transparent;
       border-bottom: 1px solid rgba(114, 116, 126, .16);
       overflow-x: auto;
@@ -9153,7 +9155,7 @@ def report_dashboard_html() -> str:
         padding: 88px 33px 86px;
       }}
       .wordmark-image {{ width: 121px; }}
-      .section-switcher {{ min-height: 58px; gap: 24px; }}
+      .section-switcher {{ min-height: 58px; gap: 0; }}
       .section-tab {{ min-height: 58px; font-size: 15px; padding: 0; }}
       .content {{ padding-top: 32px; }}
       .watchlist-panel {{ height: 100%; min-height: 0; }}
@@ -9161,7 +9163,7 @@ def report_dashboard_html() -> str:
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 33px; padding-right: 33px; }}
-      .section-switcher {{ gap: 18px; }}
+      .section-switcher {{ gap: 0; }}
       .section-tab {{ font-size: 14px; }}
       .bottom-nav {{ width: calc(100vw - 66px); }}
     }}
@@ -9173,8 +9175,8 @@ def report_dashboard_html() -> str:
       <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
     </header>
     <nav class="section-switcher" data-section-switcher="watchlist" aria-label="Watchlist groups">
-      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live Watchlist</button>
-      <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom Watchlist</button>
+      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live</button>
+      <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom</button>
       <button class="section-tab" type="button" data-subpanel="alerts">Alerts</button>
     </nav>
     <nav class="section-switcher is-hidden" data-section-switcher="market" aria-label="Journal groups">
