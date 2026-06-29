@@ -9102,7 +9102,108 @@ def normalize_on_demand_symbol(raw_symbol: str) -> str:
     return symbol
 
 
+def market_status_header_html() -> str:
+    return """<header class="MarketStatusHeader market-status-header">
+      <div>
+        <h1>Watchlist</h1>
+        <p class="ai-subhead"><span aria-hidden="true">✦</span> AI insights. Real-time markets.</p>
+        <p class="market-open"><span aria-hidden="true"></span> Markets are open</p>
+      </div>
+      <button class="ai-powered-pill" type="button" aria-label="AI powered">
+        <span aria-hidden="true">✦</span> AI powered
+      </button>
+    </header>"""
+
+
+def market_insight_card_html() -> str:
+    return """<section class="MarketInsightCard market-insight-card" aria-label="Market summary">
+      <div class="market-insight">
+        <div class="insight-icon trend-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M6 22 L13 15l5 5 8-11"></path><path d="M20 9h6v6"></path></svg>
+        </div>
+        <div>
+          <span>Market Trend</span>
+          <strong>Bullish</strong>
+          <small>Strength: Strong</small>
+        </div>
+      </div>
+      <div class="market-divider" aria-hidden="true"></div>
+      <div class="market-insight">
+        <div class="insight-icon volatility-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="m18 3-9 14h7l-2 12 10-16h-7z"></path></svg>
+        </div>
+        <div>
+          <span>Volatility</span>
+          <strong class="purple-text">Moderate</strong>
+          <small>VIX 15.6</small>
+        </div>
+      </div>
+    </section>"""
+
+
+def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: str, recommendation: str) -> str:
+    rec_class = "call" if recommendation.upper() == "CALL" else "put"
+    rating_class = ai_rating.lower().replace(" ", "-")
+    logo_text = "".join(part[0] for part in symbol.split() if part)[:2] or symbol[:2]
+    why = {
+        "ABNB": "Airbnb is here because travel demand and consumer-discretionary momentum can reprice quickly when buyers defend a clean pullback. I would treat it as a call idea only if price confirms demand instead of drifting with the broader tape.",
+        "PANW": "Palo Alto Networks is here because cybersecurity remains one of the cleaner enterprise-tech themes, and the setup has enough catalyst support to stay on the live list. The trade still needs confirmation because high-quality software names can fade hard when risk appetite cools.",
+        "BAC": "Bank of America is here as a put idea because banks remain sensitive to rates, credit expectations, and risk-off flows. If financials weaken while BAC rejects resistance, the setup has a clear bearish path; if buyers hold it, the idea should be left alone.",
+    }.get(symbol, "This ticker is on the live list because Atlas found a tradable setup with defined risk and current market context.")
+    return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
+        <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
+          <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">{html.escape(logo_text)}</div>
+          <div class="stock-copy">
+            <div class="stock-title-row">
+              <h2>{html.escape(symbol)}</h2>
+            </div>
+            <p>{html.escape(name)}</p>
+            <span class="sector-badge">{html.escape(sector)}</span>
+            <span class="ai-rating {html.escape(rating_class)}"><span aria-hidden="true">★</span> AI Rating <strong>{html.escape(ai_rating)}</strong></span>
+          </div>
+          <div class="stock-actions">
+            <span class="recommendation {rec_class}">{html.escape(recommendation.title())}</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </div>
+        </button>
+        <div class="stock-card-detail">
+          <div>
+            <strong>Why is it on the list?</strong>
+            <p>{html.escape(why)}</p>
+          </div>
+        </div>
+      </article>"""
+
+
+def bottom_nav_html() -> str:
+    return """<nav class="BottomNav bottom-nav" aria-label="ATLAS navigation">
+      <button class="nav-item is-active" type="button" data-panel="watchlist" aria-label="Watchlist">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 8h18"></path><path d="M9 16h18"></path><path d="M9 24h18"></path><circle cx="4.5" cy="8" r="1.4"></circle><circle cx="4.5" cy="16" r="1.4"></circle><circle cx="4.5" cy="24" r="1.4"></circle></svg>
+        <span>Watchlist</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="news" aria-label="News">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 5h14l4 4v18H8z"></path><path d="M22 5v6h6"></path><path d="M12 15h10"></path><path d="M12 20h10"></path></svg>
+        <span>News</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="search" aria-label="Search">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="9"></circle><path d="m21 21 7 7"></path></svg>
+        <span>Search</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="profile" aria-label="Profile">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10.5" r="4"></circle><path d="M8 27c1.5-6 5-9 8-9s6.5 3 8 9"></path></svg>
+        <span>Profile</span>
+      </button>
+    </nav>"""
+
+
 def report_dashboard_html() -> str:
+    stock_cards = "\n".join(
+        [
+            stock_watchlist_card_html("ABNB", "Airbnb, Inc.", "Travel", "Strong", "Call"),
+            stock_watchlist_card_html("PANW", "Palo Alto Networks", "Cybersecurity", "Moderate", "Call"),
+            stock_watchlist_card_html("BAC", "Bank of America", "Banking", "Hold", "Put"),
+        ]
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -9113,191 +9214,412 @@ def report_dashboard_html() -> str:
   <style>
     :root {{
       color-scheme: dark;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --switch-progress: 0;
-      --bg: #020307;
-      --line: rgba(236, 238, 246, .86);
-      --muted: rgba(226, 226, 232, .84);
-      --text: #f0f0f4;
+      font-family: Inter, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --bg: #020305;
+      --card: rgba(11, 13, 18, .70);
+      --card-strong: rgba(16, 18, 25, .78);
+      --line: rgba(255, 255, 255, .12);
+      --muted: rgba(230, 233, 241, .66);
+      --text: #f8f8fb;
+      --green: #21f66b;
+      --green-soft: rgba(33, 246, 107, .16);
+      --purple: #b34cff;
+      --orange: #ff6a34;
     }}
     * {{ box-sizing: border-box; }}
-    html, body {{ min-height: 100%; background: var(--bg); }}
+    html, body {{ min-height: 100%; background: #000; }}
     body {{
       margin: 0;
       min-height: 100vh;
       height: 100dvh;
       background:
-        radial-gradient(circle at 50% 22%, rgba(255, 255, 255, .018), transparent 34%),
-        #020307;
+        radial-gradient(circle at 72% 12%, rgba(144, 64, 255, .18), transparent 30%),
+        radial-gradient(circle at 55% 0%, rgba(15, 245, 119, .15), transparent 25%),
+        linear-gradient(180deg, #040506 0%, #000104 100%);
       color: var(--text);
       overflow: hidden;
       overscroll-behavior: none;
     }}
+    body::before {{
+      content: "";
+      position: fixed;
+      inset: -22% -34% auto 22%;
+      height: 380px;
+      pointer-events: none;
+      background:
+        linear-gradient(112deg, transparent 20%, rgba(22, 245, 130, .34), rgba(20, 151, 255, .18), rgba(168, 62, 255, .42), transparent 74%);
+      filter: blur(28px);
+      opacity: .72;
+      transform: rotate(-8deg);
+    }}
+    body::after {{
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 36%, rgba(255, 255, 255, .035), transparent 1px),
+        linear-gradient(rgba(255, 255, 255, .012) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 5px;
+      opacity: .28;
+      mix-blend-mode: screen;
+    }}
     a {{ color: inherit; text-decoration: none; }}
-    button {{ font: inherit; }}
+    button {{ font: inherit; color: inherit; }}
     .is-hidden {{ display: none !important; }}
     .app-shell {{
+      position: relative;
+      z-index: 1;
       height: 100dvh;
-      background: transparent;
-      max-width: 607px;
+      max-width: 850px;
       margin: 0 auto;
-      padding: 88px 33px 86px;
+      padding: max(34px, env(safe-area-inset-top)) 42px calc(106px + env(safe-area-inset-bottom));
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: auto;
+      overscroll-behavior: contain;
     }}
-    .brand-row {{ display: none; }}
-    .wordmark-image {{
-      display: block;
-      width: 121px;
-      height: auto;
-      object-fit: contain;
-      opacity: .96;
-      filter: contrast(1.04) brightness(1.08);
-      mix-blend-mode: lighten;
-    }}
-    .screen-title {{
+    .market-status-header {{
       position: relative;
-      z-index: 4;
-      margin: -16px 0 18px;
-      color: rgba(242, 242, 246, .94);
-      font-size: 18px;
-      font-weight: 500;
-      letter-spacing: -.035em;
-      line-height: 1;
-      text-align: center;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-top: 56px;
+      margin-bottom: 20px;
     }}
+    .market-status-header h1 {{
+      margin: 0 0 14px;
+      font-size: clamp(54px, 10vw, 76px);
+      line-height: .88;
+      letter-spacing: -.065em;
+      font-weight: 780;
+    }}
+    .ai-subhead, .market-open {{
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0 0 13px;
+      color: var(--muted);
+      font-size: clamp(20px, 4vw, 26px);
+      line-height: 1.15;
+      letter-spacing: -.035em;
+      font-weight: 520;
+    }}
+    .ai-subhead span {{ color: var(--purple); text-shadow: 0 0 18px rgba(179, 76, 255, .9); }}
+    .market-open {{ color: var(--green); }}
+    .market-open span {{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 24px rgba(33, 246, 107, .72);
+    }}
+    .ai-powered-pill {{
+      margin-top: 16px;
+      min-height: 58px;
+      padding: 0 21px;
+      border-radius: 13px;
+      border: 1px solid rgba(196, 77, 255, .64);
+      background: rgba(35, 15, 48, .28);
+      color: #d68cff;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      letter-spacing: -.02em;
+      box-shadow: inset 0 0 22px rgba(179, 76, 255, .08), 0 0 26px rgba(179, 76, 255, .18);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }}
+    .ai-powered-pill span {{ text-shadow: 0 0 16px rgba(179, 76, 255, .9); }}
+    .market-insight-card {{
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      align-items: center;
+      min-height: 145px;
+      padding: 26px 28px;
+      border: 1px solid var(--line);
+      border-radius: 25px;
+      background: linear-gradient(145deg, rgba(17, 20, 28, .72), rgba(5, 6, 10, .46));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 22px 70px rgba(0,0,0,.42);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      margin-bottom: 22px;
+    }}
+    .market-insight {{
+      display: grid;
+      grid-template-columns: 75px 1fr;
+      align-items: center;
+      gap: 20px;
+      min-width: 0;
+    }}
+    .market-divider {{ width: 1px; height: 92px; background: rgba(255,255,255,.13); }}
+    .insight-icon {{
+      width: 75px;
+      height: 75px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.035);
+    }}
+    .trend-icon {{ color: var(--green); background: rgba(33,246,107,.12); box-shadow: 0 0 34px rgba(33,246,107,.14); }}
+    .volatility-icon {{ color: var(--purple); background: rgba(179,76,255,.12); box-shadow: 0 0 34px rgba(179,76,255,.14); }}
+    .insight-icon svg {{ width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 3.7; stroke-linecap: round; stroke-linejoin: round; }}
+    .volatility-icon svg {{ fill: currentColor; stroke: none; }}
+    .market-insight span, .market-insight small {{
+      display: block;
+      color: var(--muted);
+      font-size: 17px;
+      letter-spacing: -.02em;
+    }}
+    .market-insight strong {{
+      display: block;
+      color: var(--green);
+      font-size: 27px;
+      line-height: 1.15;
+      margin: 7px 0 6px;
+      letter-spacing: -.035em;
+    }}
+    .market-insight .purple-text {{ color: var(--purple); }}
     .section-switcher {{
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      z-index: 4;
-      flex: 0 0 auto;
-      min-height: 58px;
-      max-width: none;
-      margin: 0;
-      padding: 0;
-      gap: 0;
-      background: transparent;
-      border-bottom: 1px solid rgba(114, 116, 126, .16);
-      overflow-x: auto;
-      scrollbar-width: none;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: end;
+      height: 70px;
+      border-bottom: 1px solid rgba(255, 255, 255, .11);
+      margin-bottom: 20px;
     }}
-    .section-switcher::-webkit-scrollbar {{ display: none; }}
-    .section-switcher.is-hidden {{ display: none; }}
     .section-tab {{
-      min-height: 58px;
       border: 0;
-      border-radius: 0;
       background: transparent;
-      color: rgba(226, 226, 232, .68);
-      padding: 0;
-      font-size: 15px;
-      font-weight: 650;
-      letter-spacing: -.015em;
+      color: rgba(236, 238, 245, .56);
+      min-height: 70px;
+      padding: 0 0 21px;
+      font-size: 25px;
+      font-weight: 710;
+      letter-spacing: -.035em;
       text-align: center;
-      white-space: nowrap;
       cursor: pointer;
-      overflow: hidden;
     }}
-    .section-tab.is-active {{ color: #f1f1f5; font-weight: 750; }}
-    .content {{
-      flex: 1 1 auto;
-      min-height: 0;
-      padding: 32px 0 0;
-      overflow: hidden;
-      overscroll-behavior: contain;
+    .section-tab.is-active {{
+      color: #fff;
+      position: relative;
     }}
-    .watchlist-panel {{
-      display: block;
+    .section-tab.is-active::after {{
+      content: "";
+      position: absolute;
+      left: 22%;
+      right: 22%;
+      bottom: -1px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      box-shadow: 0 0 18px rgba(33,246,107,.9);
+    }}
+    .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
+    .stock-list {{ display: grid; gap: 16px; }}
+    .stock-card {{
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(14, 16, 23, .78), rgba(5, 6, 10, .56));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 24px 60px rgba(0,0,0,.30);
+      overflow: hidden;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      transition: transform .24s ease, border-color .24s ease, background .24s ease;
+    }}
+    .stock-card:active {{ transform: scale(.992); }}
+    .stock-card-main {{
       width: 100%;
-      height: 100%;
-      min-height: 0;
+      min-height: 170px;
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr) 112px;
+      gap: 24px;
+      align-items: center;
+      padding: 20px 24px;
       border: 0;
       background: transparent;
+      text-align: left;
+      cursor: pointer;
     }}
-    .placeholder-panel {{
-      display: none;
-      height: 100%;
-      min-height: 0;
-      border: 1px solid rgba(114, 116, 126, .14);
+    .stock-logo {{
+      width: 104px;
+      height: 104px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.025);
+      color: rgba(255,255,255,.92);
+      font-size: 24px;
+      font-weight: 780;
+      letter-spacing: -.05em;
+      box-shadow: inset 0 0 20px rgba(255,255,255,.025);
+    }}
+    .logo-abnb {{ color: #ff315b; text-shadow: 0 0 22px rgba(255,49,91,.42); }}
+    .logo-panw {{ color: #ff6419; text-shadow: 0 0 22px rgba(255,100,25,.42); }}
+    .logo-bac {{ color: #ff3048; text-shadow: 0 0 22px rgba(255,48,72,.42); }}
+    .stock-copy {{ min-width: 0; }}
+    .stock-copy h2 {{
+      margin: 0 0 4px;
+      font-size: 31px;
+      line-height: 1;
+      letter-spacing: -.045em;
+      font-weight: 760;
+    }}
+    .stock-copy p {{
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 21px;
+      line-height: 1.2;
+      letter-spacing: -.035em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }}
+    .sector-badge {{
+      display: table;
+      color: #d46cff;
+      border: 1px solid rgba(179, 76, 255, .18);
+      background: rgba(179, 76, 255, .08);
       border-radius: 8px;
-      padding: 34px 24px;
-      background: rgba(5, 6, 10, .72);
-      color: rgba(226, 226, 232, .70);
-      font-size: 15px;
-      line-height: 1.5;
-      text-align: center;
-      box-sizing: border-box;
-      overflow: auto;
-      overscroll-behavior: contain;
+      padding: 2px 9px 4px;
+      font-size: 18px;
+      letter-spacing: -.035em;
+      margin-bottom: 13px;
     }}
-    .placeholder-panel.is-active {{ display: grid; place-items: center; }}
-    .watchlist-panel.is-hidden {{ display: none; }}
-    .watchlist-subpanel {{
-      display: none;
-      height: 100%;
+    .ai-rating {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(244, 245, 250, .82);
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.055);
+      border-radius: 10px;
+      padding: 7px 13px;
+      font-size: 18px;
+      letter-spacing: -.035em;
+    }}
+    .ai-rating span {{ color: var(--green); filter: drop-shadow(0 0 8px rgba(33,246,107,.65)); }}
+    .ai-rating strong {{ color: var(--green); font-weight: 600; }}
+    .ai-rating.hold span, .ai-rating.hold strong {{ color: var(--orange); filter: drop-shadow(0 0 8px rgba(255,106,52,.55)); }}
+    .stock-actions {{
+      align-self: stretch;
+      display: grid;
+      align-content: center;
+      justify-items: end;
+      gap: 36px;
+    }}
+    .recommendation {{
+      display: inline-grid;
+      place-items: center;
+      min-width: 84px;
+      min-height: 45px;
+      border-radius: 9px;
+      font-size: 22px;
+      font-weight: 680;
+      letter-spacing: -.035em;
+      border: 1px solid;
+    }}
+    .recommendation.call {{ color: var(--green); border-color: rgba(33,246,107,.50); background: rgba(33,246,107,.06); }}
+    .recommendation.put {{ color: #ff793d; border-color: rgba(255,106,52,.62); background: rgba(255,106,52,.07); }}
+    .chevron {{
+      width: 18px;
+      height: 18px;
+      border-right: 3px solid rgba(255,255,255,.67);
+      border-bottom: 3px solid rgba(255,255,255,.67);
+      transform: rotate(45deg);
+      transition: transform .28s ease;
+      margin-right: 3px;
+    }}
+    .stock-card:not(.is-collapsed) .chevron {{ transform: rotate(225deg); }}
+    .stock-card-detail {{
+      display: grid;
+      grid-template-rows: 1fr;
+      opacity: 1;
+      transition: grid-template-rows .32s cubic-bezier(.2,.8,.2,1), opacity .22s ease;
+    }}
+    .stock-card.is-collapsed .stock-card-detail {{
+      grid-template-rows: 0fr;
+      opacity: 0;
+    }}
+    .stock-card-detail > div {{
       min-height: 0;
-      border: 1px solid rgba(114, 116, 126, .14);
-      border-radius: 8px;
-      padding: 34px 24px;
-      background: rgba(5, 6, 10, .72);
-      color: rgba(226, 226, 232, .72);
-      line-height: 1.5;
-      text-align: center;
-      box-sizing: border-box;
-      overflow: auto;
-      overscroll-behavior: contain;
+      overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,.09);
+      padding: 0 24px 24px 152px;
     }}
-    .watchlist-subpanel.is-active {{ display: grid; place-items: center; }}
+    .stock-card-detail strong {{
+      display: block;
+      margin: 20px 0 9px;
+      font-size: 13px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }}
+    .stock-card-detail p {{
+      margin: 0;
+      color: rgba(236, 238, 245, .76);
+      font-size: 17px;
+      line-height: 1.5;
+      letter-spacing: -.025em;
+    }}
+    .panel-placeholder {{
+      display: none;
+      min-height: 280px;
+      place-items: center;
+      text-align: center;
+      color: rgba(236,238,245,.64);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,.035);
+      padding: 24px;
+    }}
+    .panel-placeholder.is-active {{ display: grid; }}
     .bottom-nav {{
       position: fixed;
       left: 50%;
-      bottom: 28px;
+      bottom: max(14px, env(safe-area-inset-bottom));
       transform: translateX(-50%);
-      width: min(470px, calc(100vw - 66px));
+      width: min(760px, calc(100vw - 24px));
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      align-items: end;
-      gap: 0;
+      align-items: center;
       z-index: 5;
-      pointer-events: auto;
-      padding: 0;
-      border-radius: 0;
-      background: transparent;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      box-shadow: none;
+      padding: 11px 14px 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 30px;
+      background: rgba(8, 10, 15, .72);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 -10px 48px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
     }}
     .nav-item {{
-      min-height: 42px;
+      min-height: 62px;
       border: 0;
       background: transparent;
-      color: rgba(235, 236, 242, .80);
+      color: rgba(235, 236, 242, .66);
       display: grid;
       place-items: center;
       align-content: center;
-      gap: 0;
-      font-size: 0;
-      font-weight: 400;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 520;
+      letter-spacing: -.025em;
       cursor: pointer;
     }}
-    .nav-item span {{ display: none; }}
-    .nav-item.is-active {{ color: #61d94f; }}
+    .nav-item.is-active {{ color: var(--green); }}
     .nav-icon {{
-      width: 31px;
-      height: 31px;
+      width: 29px;
+      height: 29px;
       display: block;
       fill: none;
       stroke: currentColor;
-      stroke-width: 1.6;
+      stroke-width: 1.8;
       stroke-linecap: round;
       stroke-linejoin: round;
     }}
-    .nav-item.is-active .nav-icon {{ stroke-width: 2.2; }}
     .status-probe {{
       position: absolute;
       width: 1px;
@@ -9306,169 +9628,101 @@ def report_dashboard_html() -> str:
       clip: rect(0 0 0 0);
       white-space: nowrap;
     }}
-    @media (max-width: 560px) {{
+    @media (max-width: 720px) {{
       .app-shell {{
-        padding: 88px 33px 86px;
+        padding: max(28px, env(safe-area-inset-top)) 22px calc(98px + env(safe-area-inset-bottom));
       }}
-      .wordmark-image {{ width: 121px; }}
-      .screen-title {{ margin: -14px 0 18px; font-size: 18px; }}
-      .section-switcher {{ min-height: 58px; gap: 0; }}
-      .section-tab {{ min-height: 58px; font-size: 15px; padding: 0; }}
-      .content {{ padding-top: 32px; }}
-      .watchlist-panel {{ height: 100%; min-height: 0; }}
-      .watchlist-subpanel {{ height: 100%; min-height: 0; }}
+      .market-status-header {{ padding-top: 48px; }}
+      .ai-powered-pill {{ min-height: 44px; padding: 0 13px; font-size: 15px; }}
+      .market-insight-card {{ min-height: 112px; padding: 18px 16px; border-radius: 20px; }}
+      .market-insight {{ grid-template-columns: 54px 1fr; gap: 12px; }}
+      .insight-icon {{ width: 54px; height: 54px; }}
+      .insight-icon svg {{ width: 30px; height: 30px; }}
+      .market-insight strong {{ font-size: 21px; }}
+      .market-insight span, .market-insight small {{ font-size: 14px; }}
+      .market-divider {{ height: 70px; }}
+      .section-switcher {{ height: 58px; }}
+      .section-tab {{ min-height: 58px; padding-bottom: 16px; font-size: 20px; }}
+      .stock-card-main {{
+        min-height: 160px;
+        grid-template-columns: 86px minmax(0, 1fr) 82px;
+        gap: 18px;
+        padding: 18px 20px;
+      }}
+      .stock-logo {{ width: 86px; height: 86px; border-radius: 15px; font-size: 21px; }}
+      .stock-copy h2 {{ font-size: 29px; }}
+      .stock-copy p {{ font-size: 20px; }}
+      .sector-badge {{ font-size: 17px; }}
+      .ai-rating {{ font-size: 16px; padding: 7px 11px; }}
+      .recommendation {{ min-width: 72px; min-height: 43px; font-size: 20px; }}
+      .stock-card-detail > div {{ padding-left: 124px; }}
     }}
     @media (max-width: 390px) {{
-      .app-shell {{ padding-left: 33px; padding-right: 33px; }}
-      .section-switcher {{ gap: 0; }}
-      .section-tab {{ font-size: 14px; }}
-      .bottom-nav {{ width: calc(100vw - 66px); }}
+      .app-shell {{ padding-left: 18px; padding-right: 18px; }}
+      .market-status-header h1 {{ font-size: 50px; }}
+      .ai-subhead, .market-open {{ font-size: 18px; }}
+      .stock-card-main {{ grid-template-columns: 72px minmax(0, 1fr) 70px; gap: 14px; padding: 16px; }}
+      .stock-logo {{ width: 72px; height: 72px; }}
+      .stock-copy h2 {{ font-size: 26px; }}
+      .stock-copy p {{ font-size: 17px; }}
+      .sector-badge {{ font-size: 15px; }}
+      .ai-rating {{ font-size: 14px; }}
+      .stock-card-detail > div {{ padding-left: 16px; padding-right: 16px; }}
+      .market-insight-card {{ grid-template-columns: 1fr; gap: 18px; }}
+      .market-divider {{ display: none; }}
     }}
   </style>
 </head>
 <body>
   <main class="app-shell" aria-label="ATLAS">
-    <header class="brand-row">
-      <img class="wordmark-image" src="/atlas_wordmark.jpg" alt="ATLAS">
-    </header>
-    <div class="screen-title" data-screen-title>-Watchlist-</div>
-    <nav class="section-switcher" data-section-switcher="watchlist" aria-label="Watchlist groups">
+    {market_status_header_html()}
+    {market_insight_card_html()}
+    <nav class="section-switcher" aria-label="Watchlist groups">
       <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live</button>
       <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom</button>
       <button class="section-tab" type="button" data-subpanel="alerts">Alerts</button>
     </nav>
-    <nav class="section-switcher is-hidden" data-section-switcher="market" aria-label="Journal groups">
-      <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
-      <button class="section-tab" type="button" data-subpanel="journal-entries">Journal Entries</button>
-      <button class="section-tab" type="button" data-subpanel="trade-logs">Trade Logs</button>
-    </nav>
-    <nav class="section-switcher is-hidden" data-section-switcher="research" aria-label="Research groups">
-      <button class="section-tab is-active" type="button" data-subpanel="research-assistant">Research Assistant</button>
-      <button class="section-tab" type="button" data-subpanel="market-reports">Market Reports</button>
-      <button class="section-tab" type="button" data-subpanel="portfolio-analysis">Portfolio Analysis</button>
-    </nav>
     <section class="content">
-      <iframe class="watchlist-panel" id="watchlistFrame" title="Current Watchlist" data-subpanel-content="live-watchlist" src="/stock_report.html?t={int(time.time())}"></iframe>
-      <section class="watchlist-subpanel" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
-      <section class="watchlist-subpanel" data-subpanel-content="alerts">Alerts will appear here after entry signals or position updates.</section>
-      <section class="placeholder-panel" data-subpanel-content="pl-calendar">P/L Calendar is ready for realized and open position tracking.</section>
-      <section class="placeholder-panel" data-subpanel-content="journal-entries">Journal Entries will store trade notes and post-trade reviews.</section>
-      <section class="placeholder-panel" data-subpanel-content="trade-logs">Trade Logs will show executions, adjustments, exits, and status changes.</section>
-      <section class="placeholder-panel" data-subpanel-content="research-assistant">Research Assistant will hold ticker and market research workflows.</section>
-      <section class="placeholder-panel" data-subpanel-content="market-reports">Market Reports will summarize the broader trading backdrop.</section>
-      <section class="placeholder-panel" data-subpanel-content="portfolio-analysis">Portfolio Analysis will track exposure, risk, and open-position context.</section>
-      <section class="placeholder-panel" id="tbdPanel">TBD</section>
+      <section class="stock-list" data-subpanel-content="live-watchlist">
+        {stock_cards}
+      </section>
+      <section class="panel-placeholder" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
+      <section class="panel-placeholder" data-subpanel-content="alerts">Ready-for-entry alerts and position updates will appear here.</section>
+      <section class="panel-placeholder" data-panel-content="news">News will summarize market-moving headlines from the latest Atlas scan.</section>
+      <section class="panel-placeholder" data-panel-content="search">Search will support ticker research and on-demand analysis.</section>
+      <section class="panel-placeholder" data-panel-content="profile">Profile will hold account and notification settings.</section>
       <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
     </section>
-    <nav class="bottom-nav" aria-label="ATLAS navigation">
-      <button class="nav-item is-active" type="button" data-panel="watchlist" aria-label="Watchlists">
-        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
-          <path d="M15 11h18"></path><path d="M15 20h18"></path><path d="M15 29h18"></path>
-          <circle cx="7" cy="11" r="1.8"></circle><circle cx="7" cy="20" r="1.8"></circle><circle cx="7" cy="29" r="1.8"></circle>
-        </svg>
-      </button>
-      <button class="nav-item" type="button" data-panel="market" aria-label="Journal">
-        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
-          <path d="M17 7h11a4 4 0 0 1 4 4v22H17a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5Z"></path>
-          <path d="M17 7v26"></path><path d="M9 13h8"></path><path d="M9 20h8"></path><path d="M9 27h8"></path>
-        </svg>
-      </button>
-      <button class="nav-item" type="button" data-panel="research" aria-label="Research">
-        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
-          <circle cx="18" cy="18" r="12"></circle><path d="m27 27 8 8"></path>
-        </svg>
-      </button>
-      <button class="nav-item" type="button" data-panel="tbd" aria-label="Profile">
-        <svg class="nav-icon" viewBox="0 0 40 40" aria-hidden="true">
-          <circle cx="20" cy="13" r="5"></circle><path d="M10 32c1.8-7 6-10.5 10-10.5S28.2 25 30 32"></path>
-        </svg>
-      </button>
-    </nav>
+    {bottom_nav_html()}
   </main>
   <script>
     const tabs = Array.from(document.querySelectorAll('.nav-item'));
-    const sectionSwitchers = Array.from(document.querySelectorAll('[data-section-switcher]'));
     const sectionTabs = Array.from(document.querySelectorAll('.section-tab'));
+    const sectionSwitcher = document.querySelector('.section-switcher');
     const subpanelContents = Array.from(document.querySelectorAll('[data-subpanel-content]'));
-    const watchlistFrame = document.getElementById('watchlistFrame');
-    const appShell = document.querySelector('.app-shell');
-    const screenTitle = document.querySelector('[data-screen-title]');
-    const panelTitles = {{
-      watchlist: '-Watchlist-',
-      market: '-Journal-',
-      research: '-Research-',
-      tbd: '-Profile-',
-    }};
-    const panels = {{
-      tbd: document.getElementById('tbdPanel'),
-    }};
-
-    function setSwitchProgress(value) {{
-      const progress = Math.max(0, Math.min(1, value));
-      document.documentElement.style.setProperty('--switch-progress', progress.toFixed(3));
-    }}
-
-    function updateSwitchProgressFromScroll(scrollY = window.scrollY) {{
-      setSwitchProgress(scrollY / 140);
-    }}
+    const panelContents = Array.from(document.querySelectorAll('[data-panel-content]'));
+    const stockCards = Array.from(document.querySelectorAll('.stock-card'));
 
     function showPanel(name) {{
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
-      if (screenTitle) screenTitle.textContent = panelTitles[name] || '';
-      for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher.dataset.sectionSwitcher !== name);
-      for (const [key, panel] of Object.entries(panels)) panel.classList.toggle('is-active', key === name);
-      if (name === 'tbd') {{
-        for (const content of subpanelContents) content.classList.add('is-hidden');
-      }} else {{
-        const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.sectionSwitcher === name);
-        const activeSubpanel = activeSwitcher?.querySelector('.section-tab.is-active')?.dataset.subpanel;
-        showSubpanel(activeSubpanel);
-      }}
+      for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
+      const showWatchlist = name === 'watchlist';
+      sectionSwitcher?.classList.toggle('is-hidden', !showWatchlist);
+      for (const content of subpanelContents) content.classList.toggle('is-hidden', !showWatchlist || content.dataset.subpanelContent !== activeSubpanelName());
     }}
 
     function showSubpanel(name) {{
       if (!name) return;
-      const activeTab = sectionTabs.find((tab) => tab.dataset.subpanel === name);
-      const switcher = activeTab?.closest('[data-section-switcher]');
-      if (switcher) {{
-        for (const tab of switcher.querySelectorAll('.section-tab')) tab.classList.toggle('is-active', tab.dataset.subpanel === name);
-      }}
+      for (const tab of sectionTabs) tab.classList.toggle('is-active', tab.dataset.subpanel === name);
       for (const content of subpanelContents) {{
         const isActive = content.dataset.subpanelContent === name;
-        content.classList.toggle('is-active', isActive && content.classList.contains('watchlist-subpanel'));
         content.classList.toggle('is-hidden', !isActive);
-        if (content.classList.contains('placeholder-panel')) content.classList.toggle('is-active', isActive);
+        content.classList.toggle('is-active', isActive && content.classList.contains('panel-placeholder'));
       }}
-      if (name === 'live-watchlist') watchlistFrame.src = `/stock_report.html?t=${{Date.now()}}`;
     }}
 
-    function activeSwitcher() {{
-      return sectionSwitchers.find((switcher) => !switcher.classList.contains('is-hidden'));
-    }}
-
-    function moveSubpanel(direction) {{
-      const switcher = activeSwitcher();
-      if (!switcher) return;
-      const visibleTabs = Array.from(switcher.querySelectorAll('.section-tab'));
-      const activeIndex = visibleTabs.findIndex((tab) => tab.classList.contains('is-active'));
-      const nextIndex = Math.max(0, Math.min(visibleTabs.length - 1, activeIndex + direction));
-      if (nextIndex !== activeIndex && visibleTabs[nextIndex]) showSubpanel(visibleTabs[nextIndex].dataset.subpanel);
-    }}
-
-    let swipeStartX = 0;
-    let swipeStartY = 0;
-    function rememberSwipeStart(event) {{
-      const point = event.touches ? event.touches[0] : event;
-      swipeStartX = point.clientX;
-      swipeStartY = point.clientY;
-    }}
-    function finishSwipe(event) {{
-      const point = event.changedTouches ? event.changedTouches[0] : event;
-      const deltaX = point.clientX - swipeStartX;
-      const deltaY = point.clientY - swipeStartY;
-      if (Math.abs(deltaX) > 54 && Math.abs(deltaX) > Math.abs(deltaY) * 1.35) {{
-        moveSubpanel(deltaX < 0 ? 1 : -1);
-      }}
+    function activeSubpanelName() {{
+      return sectionTabs.find((tab) => tab.classList.contains('is-active'))?.dataset.subpanel || 'live-watchlist';
     }}
 
     async function refreshStatus() {{
@@ -9483,16 +9737,9 @@ def report_dashboard_html() -> str:
     }}
     for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
     for (const tab of sectionTabs) tab.addEventListener('click', () => showSubpanel(tab.dataset.subpanel));
-    window.addEventListener('scroll', () => updateSwitchProgressFromScroll(), {{ passive: true }});
-    window.addEventListener('message', (event) => {{
-      if (event.data?.type === 'atlas-report-scroll') setSwitchProgress(event.data.progress || 0);
-      if (event.data?.type === 'atlas-subpanel-swipe') moveSubpanel(event.data.direction === 'left' ? 1 : -1);
-    }});
-    appShell.addEventListener('touchstart', rememberSwipeStart, {{ passive: true }});
-    appShell.addEventListener('touchend', finishSwipe, {{ passive: true }});
-    appShell.addEventListener('pointerdown', rememberSwipeStart);
-    appShell.addEventListener('pointerup', finishSwipe);
-    updateSwitchProgressFromScroll();
+    for (const card of stockCards) {{
+      card.querySelector('.stock-card-main')?.addEventListener('click', () => card.classList.toggle('is-collapsed'));
+    }}
     refreshStatus();
     setInterval(refreshStatus, 30000);
   </script>
