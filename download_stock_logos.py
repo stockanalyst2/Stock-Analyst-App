@@ -31,39 +31,90 @@ TICKER_DOMAINS = {
     "ASTS": "ast-science.com",
     "AVGO": "broadcom.com",
     "BAC": "bankofamerica.com",
+    "CL": "colgatepalmolive.com",
     "COST": "costco.com",
     "CRWD": "crowdstrike.com",
     "CVX": "chevron.com",
+    "GIS": "generalmills.com",
     "GOOGL": "abc.xyz",
     "IONQ": "ionq.com",
+    "JNJ": "jnj.com",
     "JPM": "jpmorganchase.com",
+    "KMB": "kimberly-clark.com",
+    "KO": "coca-colacompany.com",
+    "KR": "thekrogerco.com",
     "LLY": "lilly.com",
     "MA": "mastercard.com",
+    "MCD": "mcdonalds.com",
     "META": "meta.com",
+    "MO": "altria.com",
+    "MRK": "merck.com",
     "MSFT": "microsoft.com",
     "NFLX": "netflix.com",
     "NKE": "nike.com",
+    "NOW": "servicenow.com",
     "NVDA": "nvidia.com",
+    "O": "realtyincome.com",
     "ORCL": "oracle.com",
     "PANW": "paloaltonetworks.com",
+    "PEP": "pepsico.com",
     "PG": "pg.com",
+    "PM": "pmi.com",
     "RDW": "redwirespace.com",
     "RIVN": "rivian.com",
     "SHOP": "shopify.com",
     "SNOW": "snowflake.com",
+    "T": "att.com",
     "TSLA": "tesla.com",
     "UNH": "unitedhealthgroup.com",
     "V": "visa.com",
+    "VZ": "verizon.com",
+    "WMT": "walmart.com",
     "XOM": "exxonmobil.com",
 }
 
+SIMPLE_ICON_SLUGS = {
+    "AAPL": "apple",
+    "ABNB": "airbnb",
+    "ADBE": "adobe",
+    "AMD": "amd",
+    "AMZN": "amazon",
+    "AVGO": "broadcom",
+    "BAC": "bankofamerica",
+    "CRWD": "crowdstrike",
+    "CVX": "chevron",
+    "GOOGL": "google",
+    "IONQ": "ionq",
+    "JPM": "jpmorgan",
+    "MA": "mastercard",
+    "META": "meta",
+    "MSFT": "microsoft",
+    "NFLX": "netflix",
+    "NKE": "nike",
+    "NOW": "servicenow",
+    "NVDA": "nvidia",
+    "ORCL": "oracle",
+    "PANW": "paloaltonetworks",
+    "PEP": "pepsi",
+    "PG": "procterandgamble",
+    "SHOP": "shopify",
+    "SNOW": "snowflake",
+    "TSLA": "tesla",
+    "V": "visa",
+    "VZ": "verizon",
+    "WMT": "walmart",
+}
 
-def logo_urls(domain: str) -> list[str]:
+
+def logo_urls(domain: str, simple_icon_slug: str = "") -> list[str]:
     encoded = urllib.parse.quote(domain.strip().lower())
-    return [
+    urls = [
         f"https://logo.clearbit.com/{encoded}?size=256",
         f"https://www.google.com/s2/favicons?domain={encoded}&sz=256",
     ]
+    if simple_icon_slug:
+        urls.append(f"https://cdn.simpleicons.org/{urllib.parse.quote(simple_icon_slug)}/FFFFFF")
+    return urls
 
 
 def request_bytes(url: str, timeout: int = 12) -> bytes:
@@ -136,7 +187,7 @@ def download_logo(symbol: str, domain: str, force: bool = False) -> tuple[bool, 
     if existing.exists() and not force:
         return True, f"kept existing {existing}"
     last_error = ""
-    for url in logo_urls(domain):
+    for url in logo_urls(domain, SIMPLE_ICON_SLUGS.get(symbol, "")):
         try:
             path = save_logo(symbol, request_bytes(url))
             return True, f"saved {path}"

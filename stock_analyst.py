@@ -9269,6 +9269,8 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     rating_class = ai_rating.lower().replace(" ", "-")
     logo_text = "".join(part[0] for part in symbol.split() if part)[:2] or symbol[:2]
     logo_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.png"
+    logo_jpg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.jpg"
+    logo_svg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.svg"
     why = {
         "ABNB": "Airbnb is here because travel demand and consumer-discretionary momentum can reprice quickly when buyers defend a clean pullback. I would treat it as a call idea only if price confirms demand instead of drifting with the broader tape.",
         "PANW": "Palo Alto Networks is here because cybersecurity remains one of the cleaner enterprise-tech themes, and the setup has enough catalyst support to stay on the live list. The trade still needs confirmation because high-quality software names can fade hard when risk appetite cools.",
@@ -9277,7 +9279,7 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
         <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
           <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">
-            <img src="{html.escape(logo_src)}" alt="" loading="lazy" onerror="this.classList.add('is-missing')" />
+            <img src="{html.escape(logo_src)}" data-jpg-src="{html.escape(logo_jpg_src)}" data-svg-src="{html.escape(logo_svg_src)}" alt="" loading="lazy" onerror="if(!this.dataset.usedJpg){{this.dataset.usedJpg='1';this.src=this.dataset.jpgSrc;}}else if(!this.dataset.usedSvg){{this.dataset.usedSvg='1';this.src=this.dataset.svgSrc;}}else{{this.classList.add('is-missing');}}" />
             <span>{html.escape(logo_text)}</span>
           </div>
           <div class="stock-copy">
