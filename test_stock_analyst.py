@@ -401,7 +401,17 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.normalize_on_demand_symbol("NVDA;rm")
 
     def test_dashboard_html_exposes_app_controls(self):
-        document = stock_analyst.report_dashboard_html()
+        document = stock_analyst.report_dashboard_html(
+            {
+                "market_open": True,
+                "market_status": "Markets are open",
+                "trend": "Bullish",
+                "strength": "Strong",
+                "volatility": "Moderate",
+                "vix": 15.6,
+                "updated_at": "2026-06-24T09:30:00-04:00",
+            }
+        )
 
         self.assertIn("<title>ATLAS</title>", document)
         self.assertIn('class="MarketStatusHeader market-status-header"', document)
@@ -413,11 +423,17 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("Markets are open", document)
         self.assertIn("AI powered", document)
         self.assertIn("Market Trend", document)
+        self.assertIn('id="marketOpenText"', document)
+        self.assertIn('id="marketTrendText"', document)
+        self.assertIn('id="marketVixText"', document)
         self.assertIn("Bullish", document)
-        self.assertIn("Strength: Strong", document)
+        self.assertIn("Strength:", document)
+        self.assertIn('id="marketStrengthText">Strong</span>', document)
         self.assertIn("Volatility", document)
         self.assertIn("Moderate", document)
         self.assertIn("VIX 15.6", document)
+        self.assertIn("/api/market-status", document)
+        self.assertIn("refreshMarketStatus", document)
         self.assertIn(">Live</button>", document)
         self.assertIn(">Custom</button>", document)
         self.assertIn(">Alerts</button>", document)
@@ -435,6 +451,8 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("AI Rating <strong>Hold</strong>", document)
         self.assertIn(">Call</span>", document)
         self.assertIn(">Put</span>", document)
+        self.assertIn("Read More", document)
+        self.assertIn("/stock_report.html?detail=ABNB", document)
         self.assertIn(">Watchlist</span>", document)
         self.assertIn(">News</span>", document)
         self.assertIn(">Search</span>", document)
@@ -484,6 +502,17 @@ class StockAnalystTests(unittest.TestCase):
         self.assertNotIn("Close Latest Report", document)
         self.assertNotIn("/api/scan", document)
         self.assertNotIn("/atlas_ai_wordmark.jpg", document)
+
+    def test_market_status_classifiers(self):
+        monday_morning = dt.datetime(2026, 6, 29, 10, 0, tzinfo=stock_analyst.MARKET_TIMEZONE)
+        saturday = dt.datetime(2026, 6, 27, 10, 0, tzinfo=stock_analyst.MARKET_TIMEZONE)
+
+        self.assertEqual(stock_analyst.market_session_state(monday_morning), (True, "Markets are open"))
+        self.assertEqual(stock_analyst.market_session_state(saturday), (False, "Markets are closed"))
+        self.assertEqual(stock_analyst.classify_vix(15.6), "Moderate")
+        self.assertEqual(stock_analyst.classify_vix(25), "Elevated")
+        self.assertEqual(stock_analyst.classify_market_trend([100, 101, 102, 103, 104, 106], [100, 101, 102, 103, 104, 106]), ("Bullish", "Strong"))
+        self.assertEqual(stock_analyst.classify_market_trend([106, 104, 103, 102, 101, 100], [106, 104, 103, 102, 101, 100]), ("Bearish", "Strong"))
 
     def test_app_command_builders_use_expected_outputs(self):
         script = stock_analyst.Path("/tmp/stock_analyst.py")

@@ -5100,6 +5100,116 @@ def market_regime() -> dict[str, float | bool | str]:
     return {"available": True, "bullish": bullish, "bearish": bearish, "label": label}
 
 
+def market_session_state(now: dt.datetime | None = None) -> tuple[bool, str]:
+    current = market_now(now)
+    if current.weekday() >= 5:
+        return False, "Markets are closed"
+    open_time = current.replace(hour=9, minute=30, second=0, microsecond=0)
+    close_time = current.replace(hour=16, minute=0, second=0, microsecond=0)
+    if open_time <= current <= close_time:
+        return True, "Markets are open"
+    return False, "Markets are closed"
+
+
+def classify_market_trend(spy_closes: list[float], qqq_closes: list[float]) -> tuple[str, str]:
+    scores: list[float] = []
+    for closes in (spy_closes, qqq_closes):
+        clean = [float(value) for value in closes if value is not None and value > 0]
+        if len(clean) < 6:
+            continue
+        latest = clean[-1]
+        five_day_return = latest / clean[-6] - 1
+        short_average = sum(clean[-5:]) / 5
+        slope_score = 1 if latest >= short_average else -1
+        scores.append(five_day_return * 100 + slope_score)
+    if not scores:
+        return "Neutral", "Unknown"
+    average_score = sum(scores) / len(scores)
+    if average_score >= 2.0:
+        return "Bullish", "Strong"
+    if average_score >= 0.4:
+        return "Bullish", "Moderate"
+    if average_score <= -2.0:
+        return "Bearish", "Strong"
+    if average_score <= -0.4:
+        return "Bearish", "Moderate"
+    return "Neutral", "Mixed"
+
+
+def classify_vix(value: float | None) -> str:
+    if value is None:
+        return "Unknown"
+    if value < 14:
+        return "Low"
+    if value < 22:
+        return "Moderate"
+    if value < 30:
+        return "Elevated"
+    return "High"
+
+
+def fetch_dashboard_closes(symbol: str, days: int = 30, timeout: int = 5) -> list[float]:
+    now = int(time.time())
+    start = now - days * 24 * 60 * 60
+    encoded = urllib.parse.quote(symbol.upper())
+    url = (
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded}"
+        f"?period1={start}&period2={now}&interval=1d&events=history"
+    )
+    payload = fetch_json(url, timeout=timeout)
+    result = payload.get("chart", {}).get("result") or []
+    if not result:
+        return []
+    quote = (result[0].get("indicators", {}).get("quote") or [{}])[0]
+    closes = quote.get("close") or []
+    return [float(value) for value in closes if isinstance(value, (int, float)) and value > 0]
+
+
+def latest_close(symbol: str, days: int = 90) -> float | None:
+    try:
+        closes = fetch_dashboard_closes(symbol, days=days)
+    except Exception:
+        return None
+    return closes[-1] if closes else None
+
+
+def dashboard_market_snapshot(use_cache: bool = True, now: dt.datetime | None = None) -> dict[str, Any]:
+    current = market_now(now)
+    cached_at = float(MARKET_SNAPSHOT_CACHE.get("timestamp") or 0.0)
+    cached_value = MARKET_SNAPSHOT_CACHE.get("value")
+    if use_cache and cached_value and time.time() - cached_at < 60:
+        return dict(cached_value)
+
+    market_open, market_status = market_session_state(current)
+    trend = "Neutral"
+    strength = "Unknown"
+    try:
+        spy = fetch_dashboard_closes("SPY", days=30)
+        qqq = fetch_dashboard_closes("QQQ", days=30)
+        trend, strength = classify_market_trend(spy, qqq)
+    except Exception:
+        regime = market_regime()
+        if regime.get("available"):
+            if regime.get("bearish"):
+                trend, strength = "Bearish", "Moderate"
+            elif regime.get("bullish"):
+                trend, strength = "Bullish", "Moderate"
+
+    vix_value = latest_close("^VIX", days=90)
+    snapshot: dict[str, Any] = {
+        "market_open": market_open,
+        "market_status": market_status,
+        "trend": trend,
+        "strength": strength,
+        "volatility": classify_vix(vix_value),
+        "vix": round(vix_value, 1) if vix_value is not None else None,
+        "updated_at": current.isoformat(),
+    }
+    MARKET_SNAPSHOT_CACHE["timestamp"] = time.time()
+    MARKET_SNAPSHOT_CACHE["value"] = dict(snapshot)
+    return snapshot
+
+
 def setup_has_confirmation(item: Analysis) -> bool:
     notes = set(item.setup_notes or [])
     return bool(
@@ -7077,6 +7187,7 @@ def send_test_trade_alerts() -> tuple[int, list[str]]:
 
 SCAN_LOCK = threading.Lock()
 MARKET_TIMEZONE = ZoneInfo("America/New_York")
+MARKET_SNAPSHOT_CACHE: dict[str, Any] = {"timestamp": 0.0, "value": None}
 
 
 def market_now(now: dt.datetime | None = None) -> dt.datetime:
@@ -9102,27 +9213,36 @@ def normalize_on_demand_symbol(raw_symbol: str) -> str:
     return symbol
 
 
-def market_status_header_html() -> str:
-    return """<header class="MarketStatusHeader market-status-header">
+def market_status_header_html(snapshot: dict[str, Any]) -> str:
+    status = str(snapshot.get("market_status") or "Markets are unavailable")
+    state_class = "" if snapshot.get("market_open") else " is-closed"
+    return f"""<header class="MarketStatusHeader market-status-header">
       <h1>Watchlist</h1>
       <button class="ai-powered-pill" type="button" aria-label="AI powered">
         <span aria-hidden="true">✦</span> AI powered
       </button>
       <p class="ai-subhead"><span aria-hidden="true">✦</span> AI insights. Real-time markets.</p>
-      <p class="market-open"><span aria-hidden="true"></span> Markets are open</p>
+      <p class="market-open{state_class}" id="marketOpenRow"><span id="marketOpenDot" aria-hidden="true"></span> <span id="marketOpenText">{html.escape(status)}</span></p>
     </header>"""
 
 
-def market_insight_card_html() -> str:
-    return """<section class="MarketInsightCard market-insight-card" aria-label="Market summary">
+def market_insight_card_html(snapshot: dict[str, Any]) -> str:
+    trend = str(snapshot.get("trend") or "Neutral")
+    strength = str(snapshot.get("strength") or "Unknown")
+    volatility = str(snapshot.get("volatility") or "Unknown")
+    vix = snapshot.get("vix")
+    vix_text = f"VIX {float(vix):.1f}" if isinstance(vix, (int, float)) else "VIX unavailable"
+    trend_class = trend.lower()
+    volatility_class = volatility.lower()
+    return f"""<section class="MarketInsightCard market-insight-card" aria-label="Market summary">
       <div class="market-insight">
         <div class="insight-icon trend-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M6 22 L13 15l5 5 8-11"></path><path d="M20 9h6v6"></path></svg>
         </div>
         <div>
           <span>Market Trend</span>
-          <strong>Bullish</strong>
-          <small>Strength: Strong</small>
+          <strong id="marketTrendText" class="{html.escape(trend_class)}">{html.escape(trend)}</strong>
+          <small>Strength: <span id="marketStrengthText">{html.escape(strength)}</span></small>
         </div>
       </div>
       <div class="market-divider" aria-hidden="true"></div>
@@ -9132,8 +9252,8 @@ def market_insight_card_html() -> str:
         </div>
         <div>
           <span>Volatility</span>
-          <strong class="purple-text">Moderate</strong>
-          <small>VIX 15.6</small>
+          <strong id="marketVolatilityText" class="purple-text {html.escape(volatility_class)}">{html.escape(volatility)}</strong>
+          <small id="marketVixText">{html.escape(vix_text)}</small>
         </div>
       </div>
     </section>"""
@@ -9168,6 +9288,7 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
           <div>
             <strong>Why is it on the list?</strong>
             <p>{html.escape(why)}</p>
+            <a class="read-more-link" href="/stock_report.html?detail={urllib.parse.quote(symbol)}">Read More</a>
           </div>
         </div>
       </article>"""
@@ -9194,7 +9315,8 @@ def bottom_nav_html() -> str:
     </nav>"""
 
 
-def report_dashboard_html() -> str:
+def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
+    market_snapshot = market_snapshot or dashboard_market_snapshot()
     stock_cards = "\n".join(
         [
             stock_watchlist_card_html("ABNB", "Airbnb, Inc.", "Travel", "Strong", "Call"),
@@ -9308,12 +9430,17 @@ def report_dashboard_html() -> str:
     .ai-subhead, .market-open {{ grid-column: 1 / -1; }}
     .ai-subhead span {{ color: var(--purple); text-shadow: 0 0 18px rgba(179, 76, 255, .9); }}
     .market-open {{ color: var(--green); }}
-    .market-open span {{
+    .market-open #marketOpenDot {{
       width: 18px;
       height: 18px;
       border-radius: 999px;
       background: var(--green);
       box-shadow: 0 0 24px rgba(33, 246, 107, .72);
+    }}
+    .market-open.is-closed {{ color: var(--orange); }}
+    .market-open.is-closed #marketOpenDot {{
+      background: var(--orange);
+      box-shadow: 0 0 24px rgba(255, 106, 52, .55);
     }}
     .ai-powered-pill {{
       margin-top: 16px;
@@ -9384,6 +9511,8 @@ def report_dashboard_html() -> str:
       letter-spacing: -.035em;
     }}
     .market-insight .purple-text {{ color: var(--purple); }}
+    .market-insight strong.bearish, .market-insight strong.elevated, .market-insight strong.high {{ color: var(--orange); }}
+    .market-insight strong.neutral, .market-insight strong.unknown {{ color: rgba(236,238,245,.70); }}
     .section-switcher {{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -9566,6 +9695,22 @@ def report_dashboard_html() -> str:
       line-height: 1.5;
       letter-spacing: -.025em;
     }}
+    .read-more-link {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      margin-top: 18px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(33,246,107,.42);
+      color: var(--green);
+      background: rgba(33,246,107,.06);
+      font-size: 13px;
+      font-weight: 720;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }}
     .panel-placeholder {{
       display: none;
       min-height: 280px;
@@ -9636,7 +9781,7 @@ def report_dashboard_html() -> str:
       .market-status-header {{ padding-top: 44px; gap: 13px 12px; margin-bottom: 18px; }}
       .market-status-header h1 {{ font-size: 57px; margin-bottom: 2px; letter-spacing: -.07em; }}
       .ai-subhead, .market-open {{ font-size: 19px; margin-bottom: 7px; gap: 9px; }}
-      .market-open span {{ width: 15px; height: 15px; }}
+      .market-open #marketOpenDot {{ width: 15px; height: 15px; }}
       .ai-powered-pill {{ min-height: 44px; padding: 0 13px; font-size: 15px; border-radius: 12px; }}
       .market-insight-card {{ min-height: 112px; padding: 17px 15px; border-radius: 20px; margin-bottom: 18px; }}
       .market-insight {{ grid-template-columns: 54px 1fr; gap: 12px; }}
@@ -9690,8 +9835,8 @@ def report_dashboard_html() -> str:
 </head>
 <body>
   <main class="app-shell" aria-label="ATLAS">
-    {market_status_header_html()}
-    {market_insight_card_html()}
+    {market_status_header_html(market_snapshot)}
+    {market_insight_card_html(market_snapshot)}
     <nav class="section-switcher" aria-label="Watchlist groups">
       <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live</button>
       <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom</button>
@@ -9750,13 +9895,45 @@ def report_dashboard_html() -> str:
         status.textContent = 'Offline';
       }}
     }}
+
+    async function refreshMarketStatus() {{
+      try {{
+        const response = await fetch('/api/market-status', {{ cache: 'no-store' }});
+        if (!response.ok) throw new Error('market unavailable');
+        const snapshot = await response.json();
+        const openRow = document.getElementById('marketOpenRow');
+        const openText = document.getElementById('marketOpenText');
+        const trendText = document.getElementById('marketTrendText');
+        const strengthText = document.getElementById('marketStrengthText');
+        const volatilityText = document.getElementById('marketVolatilityText');
+        const vixText = document.getElementById('marketVixText');
+        if (openRow) openRow.classList.toggle('is-closed', !snapshot.market_open);
+        if (openText) openText.textContent = snapshot.market_status || 'Markets unavailable';
+        if (trendText) {{
+          trendText.textContent = snapshot.trend || 'Neutral';
+          trendText.className = String(snapshot.trend || 'neutral').toLowerCase();
+        }}
+        if (strengthText) strengthText.textContent = snapshot.strength || 'Unknown';
+        if (volatilityText) {{
+          volatilityText.textContent = snapshot.volatility || 'Unknown';
+          volatilityText.className = `purple-text ${{String(snapshot.volatility || 'unknown').toLowerCase()}}`;
+        }}
+        if (vixText) vixText.textContent = typeof snapshot.vix === 'number' ? `VIX ${{snapshot.vix.toFixed(1)}}` : 'VIX unavailable';
+      }} catch (error) {{
+        const openText = document.getElementById('marketOpenText');
+        if (openText) openText.textContent = 'Market data unavailable';
+      }}
+    }}
+
     for (const tab of tabs) tab.addEventListener('click', () => showPanel(tab.dataset.panel));
     for (const tab of sectionTabs) tab.addEventListener('click', () => showSubpanel(tab.dataset.subpanel));
     for (const card of stockCards) {{
       card.querySelector('.stock-card-main')?.addEventListener('click', () => card.classList.toggle('is-collapsed'));
     }}
     refreshStatus();
+    refreshMarketStatus();
     setInterval(refreshStatus, 30000);
+    setInterval(refreshMarketStatus, 60000);
   </script>
 </body>
 </html>"""
@@ -9847,7 +10024,7 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
             return
-        if parsed.path == "/healthz":
+        if parsed.path in {"/healthz", "/api/market-status"}:
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Cache-Control", "no-store")
@@ -9884,6 +10061,9 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
         if parsed.path in {"/api/test-trade-alerts", "/api/test-notifications"}:
             self.handle_test_trade_alerts()
+            return
+        if parsed.path == "/api/market-status":
+            self.send_json(dashboard_market_snapshot(use_cache=False))
             return
         if parsed.path == "/healthz":
             self.send_json({"ok": True, "service": "stock-analyst"})
