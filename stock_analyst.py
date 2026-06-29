@@ -54,6 +54,56 @@ WATCHLISTS = {
     "defensive": ["COST", "WMT", "PG", "KO", "PEP", "JNJ", "MRK", "MCD", "CL", "KMB", "GIS", "KR"],
     "personal": ["MSFT", "GOOGL", "ASTS", "ORCL", "AVGO", "NOW", "META", "NFLX", "RDW", "IONQ", "RIVN", "NKE"],
 }
+LOGO_DOMAINS = {
+    "AAPL": "apple.com",
+    "ABNB": "airbnb.com",
+    "ADBE": "adobe.com",
+    "AMD": "amd.com",
+    "AMZN": "amazon.com",
+    "ASTS": "ast-science.com",
+    "AVGO": "broadcom.com",
+    "BAC": "bankofamerica.com",
+    "CL": "colgatepalmolive.com",
+    "COST": "costco.com",
+    "CRWD": "crowdstrike.com",
+    "CVX": "chevron.com",
+    "GIS": "generalmills.com",
+    "GOOGL": "abc.xyz",
+    "IONQ": "ionq.com",
+    "JNJ": "jnj.com",
+    "JPM": "jpmorganchase.com",
+    "KMB": "kimberly-clark.com",
+    "KO": "coca-colacompany.com",
+    "KR": "thekrogerco.com",
+    "LLY": "lilly.com",
+    "MA": "mastercard.com",
+    "MCD": "mcdonalds.com",
+    "META": "meta.com",
+    "MO": "altria.com",
+    "MRK": "merck.com",
+    "MSFT": "microsoft.com",
+    "NFLX": "netflix.com",
+    "NKE": "nike.com",
+    "NOW": "servicenow.com",
+    "NVDA": "nvidia.com",
+    "O": "realtyincome.com",
+    "ORCL": "oracle.com",
+    "PANW": "panw.com",
+    "PEP": "pepsico.com",
+    "PG": "pg.com",
+    "PM": "pmi.com",
+    "RDW": "redwirespace.com",
+    "RIVN": "rivian.com",
+    "SHOP": "shopify.com",
+    "SNOW": "snowflake.com",
+    "T": "att.com",
+    "TSLA": "tesla.com",
+    "UNH": "unitedhealthgroup.com",
+    "V": "visa.com",
+    "VZ": "verizon.com",
+    "WMT": "walmart.com",
+    "XOM": "exxonmobil.com",
+}
 WATCHLIST_PATTERN_OVERRIDES = {
     "GOOGL": "Inverse head-and-shoulders",
 }
@@ -9271,6 +9321,10 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     logo_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.png"
     logo_jpg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.jpg"
     logo_svg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.svg"
+    logo_domain = LOGO_DOMAINS.get(symbol.upper(), "")
+    logo_live_src = ""
+    if logo_domain:
+        logo_live_src = "https://www.google.com/s2/favicons?" + urllib.parse.urlencode({"domain": logo_domain, "sz": "256"})
     why = {
         "ABNB": "Airbnb is here because travel demand and consumer-discretionary momentum can reprice quickly when buyers defend a clean pullback. I would treat it as a call idea only if price confirms demand instead of drifting with the broader tape.",
         "PANW": "Palo Alto Networks is here because cybersecurity remains one of the cleaner enterprise-tech themes, and the setup has enough catalyst support to stay on the live list. The trade still needs confirmation because high-quality software names can fade hard when risk appetite cools.",
@@ -9279,7 +9333,7 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
         <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
           <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">
-            <img src="{html.escape(logo_src)}" data-jpg-src="{html.escape(logo_jpg_src)}" data-svg-src="{html.escape(logo_svg_src)}" alt="" loading="lazy" onerror="if(!this.dataset.usedJpg){{this.dataset.usedJpg='1';this.src=this.dataset.jpgSrc;}}else if(!this.dataset.usedSvg){{this.dataset.usedSvg='1';this.src=this.dataset.svgSrc;}}else{{this.classList.add('is-missing');}}" />
+            <img src="{html.escape(logo_src)}" data-jpg-src="{html.escape(logo_jpg_src)}" data-svg-src="{html.escape(logo_svg_src)}" data-live-src="{html.escape(logo_live_src)}" alt="" loading="lazy" onerror="if(!this.dataset.usedJpg){{this.dataset.usedJpg='1';this.src=this.dataset.jpgSrc;}}else if(!this.dataset.usedSvg){{this.dataset.usedSvg='1';this.src=this.dataset.svgSrc;}}else if(this.dataset.liveSrc&&!this.dataset.usedLive){{this.dataset.usedLive='1';this.src=this.dataset.liveSrc;}}else{{this.classList.add('is-missing');}}" />
             <span>{html.escape(logo_text)}</span>
           </div>
           <div class="stock-copy">
