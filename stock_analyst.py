@@ -9318,9 +9318,9 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     rec_class = "call" if recommendation.upper() == "CALL" else "put"
     rating_class = ai_rating.lower().replace(" ", "-")
     logo_text = "".join(part[0] for part in symbol.split() if part)[:2] or symbol[:2]
-    logo_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.png"
-    logo_jpg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.jpg"
     logo_svg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.svg"
+    logo_png_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.png"
+    logo_jpg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.jpg"
     logo_domain = LOGO_DOMAINS.get(symbol.upper(), "")
     logo_live_src = ""
     if logo_domain:
@@ -9333,7 +9333,7 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
         <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
           <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">
-            <img src="{html.escape(logo_src)}" data-jpg-src="{html.escape(logo_jpg_src)}" data-svg-src="{html.escape(logo_svg_src)}" data-live-src="{html.escape(logo_live_src)}" alt="" loading="lazy" onerror="if(!this.dataset.usedJpg){{this.dataset.usedJpg='1';this.src=this.dataset.jpgSrc;}}else if(!this.dataset.usedSvg){{this.dataset.usedSvg='1';this.src=this.dataset.svgSrc;}}else if(this.dataset.liveSrc&&!this.dataset.usedLive){{this.dataset.usedLive='1';this.src=this.dataset.liveSrc;}}else{{this.classList.add('is-missing');}}" />
+            <img src="{html.escape(logo_svg_src)}" data-png-src="{html.escape(logo_png_src)}" data-jpg-src="{html.escape(logo_jpg_src)}" data-live-src="{html.escape(logo_live_src)}" alt="" loading="lazy" onerror="if(!this.dataset.usedPng){{this.dataset.usedPng='1';this.src=this.dataset.pngSrc;}}else if(!this.dataset.usedJpg){{this.dataset.usedJpg='1';this.src=this.dataset.jpgSrc;}}else if(this.dataset.liveSrc&&!this.dataset.usedLive){{this.dataset.usedLive='1';this.src=this.dataset.liveSrc;}}else{{this.classList.add('is-missing');}}" />
             <span>{html.escape(logo_text)}</span>
           </div>
           <div class="stock-copy">
@@ -9935,13 +9935,13 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       place-items: center;
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.025);
+      border: 0;
+      background: transparent;
       color: rgba(255,255,255,.92);
       font-size: 24px;
       font-weight: 780;
       letter-spacing: -.05em;
-      box-shadow: inset 0 0 20px rgba(255,255,255,.025);
+      box-shadow: none;
     }}
     .stock-logo img {{
       position: absolute;
@@ -9949,8 +9949,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       width: 100%;
       height: 100%;
       object-fit: contain;
-      padding: 18px;
-      background: rgba(255,255,255,.018);
+      padding: 4px;
+      background: transparent;
       opacity: 1;
       transition: opacity .18s ease;
     }}

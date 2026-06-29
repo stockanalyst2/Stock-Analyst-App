@@ -108,12 +108,15 @@ SIMPLE_ICON_SLUGS = {
 
 def logo_urls(domain: str, simple_icon_slug: str = "") -> list[str]:
     encoded = urllib.parse.quote(domain.strip().lower())
-    urls = [
-        f"https://logo.clearbit.com/{encoded}?size=256",
-        f"https://www.google.com/s2/favicons?domain={encoded}&sz=256",
-    ]
+    urls = []
     if simple_icon_slug:
         urls.append(f"https://cdn.simpleicons.org/{urllib.parse.quote(simple_icon_slug)}/FFFFFF")
+    urls.extend(
+        [
+            f"https://logo.clearbit.com/{encoded}?size=256",
+            f"https://www.google.com/s2/favicons?domain={encoded}&sz=256",
+        ]
+    )
     return urls
 
 
