@@ -54,6 +54,7 @@ WATCHLISTS = {
     "defensive": ["COST", "WMT", "PG", "KO", "PEP", "JNJ", "MRK", "MCD", "CL", "KMB", "GIS", "KR"],
     "personal": ["MSFT", "GOOGL", "ASTS", "ORCL", "AVGO", "NOW", "META", "NFLX", "RDW", "IONQ", "RIVN", "NKE"],
 }
+REPORT_STATE_FILENAME = "stock_report_state.json"
 LOGO_DOMAINS = {
     "AAPL": "apple.com",
     "ABNB": "airbnb.com",
@@ -5968,6 +5969,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 </html>
 """
     output.write_text(document, encoding="utf-8")
+    write_report_state(results, output, profile, generated)
 
 
 def report_block(rank: int, item: Analysis) -> str:
@@ -6061,6 +6063,108 @@ def price_change_html(item: Analysis) -> str:
       <div class="quote-price">${item.price:.2f}</div>
       <div class="quote-change">{sign}{dollar_change:.2f} ({sign}{change * 100:.2f}%)</div>
     </div>"""
+
+
+def report_state_path(output: Path | None = None) -> Path:
+    if output is None:
+        return Path(REPORT_STATE_FILENAME)
+    return output.parent / REPORT_STATE_FILENAME
+
+
+def sector_display_label(item: Analysis) -> str:
+    sector = SYMBOL_SECTORS.get(item.symbol.upper(), "")
+    if sector == "semis":
+        return "Semiconductors"
+    if sector == "software":
+        return "Software"
+    if sector:
+        return sector.title()
+    return "Market"
+
+
+def app_status_class(label: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-") or "watch"
+
+
+def analysis_app_record(rank: int, item: Analysis) -> dict[str, Any]:
+    brief = item.trade_brief
+    status, status_detail = entry_status(item, brief)
+    stance = analyst_stance(item, brief)
+    direction = item.setup_direction or (item.option.side if item.option else "CALL")
+    status_label = status
+    if status_label == "No trade" or status_label.startswith("Pass for now"):
+        status_label = "No trade"
+    option = item.option
+    option_summary = "Contract unavailable"
+    if option is not None:
+        option_summary = f"{option.expiration.isoformat()} {option.strike:g} {option.side}"
+    return {
+        "rank": rank,
+        "symbol": item.symbol,
+        "name": display_company_name(item.symbol, item.name),
+        "sector": sector_display_label(item),
+        "status": status_label,
+        "stance": stance,
+        "status_detail": status_detail,
+        "recommendation": direction.title(),
+        "why": why_on_watchlist_text(item),
+        "detail": {
+            "thesis": professional_read_text(item),
+            "entry": item.entry_plan or status_detail,
+            "option": option_summary,
+            "risk": trader_judgment_text(item, brief),
+            "invalidation": invalidation_summary(item),
+        },
+    }
+
+
+def professional_read_text(item: Analysis) -> str:
+    brief = item.trade_brief
+    setup = plain_setup_read(item)
+    catalyst = clean_preview_catalyst_read(
+        plain_catalyst_preview(
+            item,
+            dedupe_news((relevant_company_news(item.news, item) or item.news) + relevant_macro_news(item.macro_news or [], item.symbol)),
+            relevant_macro_news(item.macro_news or [], item.symbol),
+        ),
+        item.symbol,
+    )
+    stance = analyst_stance(item, brief)
+    return (
+        f"{display_company_name(item.symbol, item.name)} is on the Atlas live list because the current {item.setup_direction or 'trade'} setup has enough structure to monitor, but it still has to earn an entry. "
+        f"The chart read is: {setup.strip()} The catalyst read is: {catalyst.strip()} "
+        f"My current stance is {stance}; I would not treat the ticker being visible as permission to enter unless the trigger quality improves."
+    )
+
+
+def invalidation_summary(item: Analysis) -> str:
+    brief = item.trade_brief
+    if brief and brief.invalidation is not None:
+        return f"Invalid below/above the listed thesis area near {format_price(brief.invalidation)}, depending on direction."
+    return "Invalid if price fails the thesis area or the contract quality becomes too poor to manage."
+
+
+def write_report_state(results: list[Analysis], output: Path, profile: str, generated: str) -> None:
+    state = {
+        "generated": generated,
+        "profile": profile,
+        "items": [analysis_app_record(rank, item) for rank, item in enumerate(results, start=1)],
+    }
+    report_state_path(output).write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def load_report_state(path: Path | None = None) -> dict[str, Any]:
+    state_path = path or report_state_path()
+    try:
+        payload = json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"items": []}
+    if not isinstance(payload, dict):
+        return {"items": []}
+    items = payload.get("items")
+    if not isinstance(items, list):
+        payload["items"] = []
+    return payload
 
 
 def detail_symbol_id(item: Analysis) -> str:
@@ -9314,35 +9418,30 @@ def market_insight_card_html(snapshot: dict[str, Any]) -> str:
     </section>"""
 
 
-def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: str, recommendation: str) -> str:
+def stock_watchlist_card_html(
+    symbol: str,
+    name: str,
+    sector: str,
+    status_label: str,
+    recommendation: str,
+    why: str | None = None,
+) -> str:
     rec_class = "call" if recommendation.upper() == "CALL" else "put"
-    rating_class = ai_rating.lower().replace(" ", "-")
-    logo_text = "".join(part[0] for part in symbol.split() if part)[:2] or symbol[:2]
-    logo_svg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.svg"
-    logo_png_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.png"
-    logo_jpg_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.jpg"
-    logo_domain = LOGO_DOMAINS.get(symbol.upper(), "")
-    logo_live_src = ""
-    if logo_domain:
-        logo_live_src = "https://www.google.com/s2/favicons?" + urllib.parse.urlencode({"domain": logo_domain, "sz": "256"})
-    why = {
+    status_class = app_status_class(status_label)
+    why_text = why or {
         "ABNB": "Airbnb is here because travel demand and consumer-discretionary momentum can reprice quickly when buyers defend a clean pullback. I would treat it as a call idea only if price confirms demand instead of drifting with the broader tape.",
         "PANW": "Palo Alto Networks is here because cybersecurity remains one of the cleaner enterprise-tech themes, and the setup has enough catalyst support to stay on the live list. The trade still needs confirmation because high-quality software names can fade hard when risk appetite cools.",
         "BAC": "Bank of America is here as a put idea because banks remain sensitive to rates, credit expectations, and risk-off flows. If financials weaken while BAC rejects resistance, the setup has a clear bearish path; if buyers hold it, the idea should be left alone.",
     }.get(symbol, "This ticker is on the live list because Atlas found a tradable setup with defined risk and current market context.")
     return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
         <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
-          <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">
-            <img src="{html.escape(logo_svg_src)}" data-png-src="{html.escape(logo_png_src)}" data-jpg-src="{html.escape(logo_jpg_src)}" data-live-src="{html.escape(logo_live_src)}" alt="" loading="lazy" onerror="if(!this.dataset.usedPng){{this.dataset.usedPng='1';this.src=this.dataset.pngSrc;}}else if(!this.dataset.usedJpg){{this.dataset.usedJpg='1';this.src=this.dataset.jpgSrc;}}else if(this.dataset.liveSrc&&!this.dataset.usedLive){{this.dataset.usedLive='1';this.src=this.dataset.liveSrc;}}else{{this.classList.add('is-missing');}}" />
-            <span>{html.escape(logo_text)}</span>
-          </div>
           <div class="stock-copy">
             <div class="stock-title-row">
               <h2>{html.escape(symbol)}</h2>
             </div>
             <p>{html.escape(name)}</p>
             <span class="sector-badge">{html.escape(sector)}</span>
-            <span class="ai-rating {html.escape(rating_class)}"><span aria-hidden="true">★</span> AI Rating <strong>{html.escape(ai_rating)}</strong></span>
+            <span class="atlas-status {html.escape(status_class)}"><span aria-hidden="true">★</span> Atlas Status <strong>{html.escape(status_label)}</strong></span>
           </div>
           <div class="stock-actions">
             <span class="recommendation {rec_class}">{html.escape(recommendation.title())}</span>
@@ -9352,21 +9451,21 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
         <div class="stock-card-detail">
           <div>
             <strong>Why is it on the list?</strong>
-            <p>{html.escape(why)}</p>
+            <p>{html.escape(why_text)}</p>
             <a class="read-more-link" href="/app/detail?symbol={urllib.parse.quote(symbol)}">Read More</a>
           </div>
         </div>
       </article>"""
 
 
-def app_detail_profile(symbol: str) -> dict[str, str]:
-    profiles = {
+def fallback_app_profiles() -> dict[str, dict[str, str]]:
+    return {
         "ABNB": {
             "name": "Airbnb, Inc.",
             "sector": "Travel",
-            "rating": "Strong",
+            "rating": "Live Watchlist",
             "recommendation": "Call",
-            "stance": "Actionable on trigger",
+            "stance": "Live Watchlist",
             "thesis": "ABNB is a cleaner long-side watch because the travel tape can move quickly when consumer-discretionary risk appetite improves. The idea is not to chase a green open; the attractive version is buyers defending a pullback, then forcing short-term sellers to cover through the prior intraday supply area.",
             "entry": "Wait for price to hold above the current demand area on a 5m or 15m retest. The first acceptable trigger is a higher low with expanding volume; the stronger trigger is a reclaim of VWAP followed by a candle close through the nearest resistance shelf.",
             "option": "The call only makes sense if the selected contract is liquid and not stretched by a wide bid/ask spread. Prefer a near-the-money strike with enough time for a two-to-five trading day move instead of a contract that needs an immediate breakout to survive theta.",
@@ -9376,9 +9475,9 @@ def app_detail_profile(symbol: str) -> dict[str, str]:
         "PANW": {
             "name": "Palo Alto Networks",
             "sector": "Cybersecurity",
-            "rating": "Moderate",
+            "rating": "Entry Candidate",
             "recommendation": "Call",
-            "stance": "Watch for confirmation",
+            "stance": "Entry Candidate",
             "thesis": "PANW stays on the list because cybersecurity remains a durable enterprise-spending theme and buyers often defend quality software names when the market is willing to pay for growth. The setup is good enough to track, but not good enough to blindly buy without confirmation.",
             "entry": "Look for a controlled pullback that stops making lower lows, then wait for the 5m or 15m chart to reclaim VWAP with buyers stepping in above the prior reaction low. I would not force the trade if the first move of the day is a straight gap into resistance.",
             "option": "A call contract should be close enough to the money to respond to a moderate move, with expiration far enough out to avoid needing a same-day expansion. If premium is inflated or the spread is loose, the stock can be right while the contract is still wrong.",
@@ -9388,9 +9487,9 @@ def app_detail_profile(symbol: str) -> dict[str, str]:
         "BAC": {
             "name": "Bank of America",
             "sector": "Banking",
-            "rating": "Hold",
+            "rating": "Live Watchlist",
             "recommendation": "Put",
-            "stance": "Conditional put watch",
+            "stance": "Live Watchlist",
             "thesis": "BAC is a bearish watch because banks can reprice fast when rate expectations, credit concerns, or risk-off flows pressure financials. The setup is only useful if the broader financial tape confirms weakness instead of buyers rotating into banks as a defensive value trade.",
             "entry": "The put trigger needs rejection from resistance or a clean break under the nearest support area with weak reclaim attempts. A starter entry can work near resistance, but only if sellers are clearly controlling the tape on lower timeframes.",
             "option": "Use a put contract that is liquid enough to enter and exit without giving up too much edge. Avoid far out-of-the-money contracts unless the breakdown is already confirmed and momentum is expanding.",
@@ -9398,6 +9497,38 @@ def app_detail_profile(symbol: str) -> dict[str, str]:
             "invalidation": "Do not stay bearish if BAC reclaims resistance, if XLF strengthens while BAC holds support, or if the put spread is too wide to manage the trade tightly.",
         },
     }
+
+
+def app_record_to_profile(record: dict[str, Any]) -> dict[str, str]:
+    detail = record.get("detail") if isinstance(record.get("detail"), dict) else {}
+    symbol = str(record.get("symbol") or "").upper()
+    return {
+        "name": str(record.get("name") or symbol),
+        "sector": str(record.get("sector") or "Market"),
+        "rating": str(record.get("status") or record.get("stance") or "Live Watchlist"),
+        "recommendation": str(record.get("recommendation") or "Call"),
+        "stance": str(record.get("stance") or record.get("status") or "Live Watchlist"),
+        "thesis": str(detail.get("thesis") or record.get("why") or "Atlas is monitoring this ticker until the live scanner confirms a cleaner entry trigger."),
+        "entry": str(detail.get("entry") or record.get("status_detail") or "Wait for the listed trigger to confirm before treating the setup as actionable."),
+        "option": str(detail.get("option") or "Verify contract quality before acting."),
+        "risk": str(detail.get("risk") or "Risk remains conditional until the setup confirms."),
+        "invalidation": str(detail.get("invalidation") or "Invalid if price fails the thesis area or contract quality deteriorates."),
+    }
+
+
+def find_app_record(symbol: str, state: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    payload = state if state is not None else load_report_state()
+    for record in payload.get("items", []):
+        if isinstance(record, dict) and str(record.get("symbol") or "").upper() == symbol.upper():
+            return record
+    return None
+
+
+def app_detail_profile(symbol: str, state: dict[str, Any] | None = None) -> dict[str, str]:
+    record = find_app_record(symbol, state)
+    if record is not None:
+        return app_record_to_profile(record)
+    profiles = fallback_app_profiles()
     return profiles.get(
         symbol,
         {
@@ -9415,8 +9546,8 @@ def app_detail_profile(symbol: str) -> dict[str, str]:
     )
 
 
-def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None) -> str:
-    profile = app_detail_profile(symbol)
+def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, state: dict[str, Any] | None = None) -> str:
+    profile = app_detail_profile(symbol, state)
     snapshot = market_snapshot or dashboard_market_snapshot()
     recommendation = profile["recommendation"]
     rec_class = "call" if recommendation.upper() == "CALL" else "put"
@@ -9635,7 +9766,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None) 
     <section class="summary-grid" aria-label="Trade summary">
       <div class="metric"><span>Stance</span><strong>{html.escape(profile["stance"])}</strong></div>
       <div class="metric"><span>Sector</span><strong>{html.escape(profile["sector"])}</strong></div>
-      <div class="metric"><span>AI Rating</span><strong>{html.escape(profile["rating"])}</strong></div>
+      <div class="metric"><span>Atlas Status</span><strong>{html.escape(profile["rating"])}</strong></div>
     </section>
     <section class="detail-grid" aria-label="Trade detail">
       {section_html}
@@ -9669,14 +9800,36 @@ def bottom_nav_html() -> str:
     </nav>"""
 
 
-def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
+def dashboard_card_records(state: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    payload = state if state is not None else load_report_state()
+    records = [record for record in payload.get("items", []) if isinstance(record, dict)]
+    if records:
+        return records
+    return [
+        {
+            "symbol": symbol,
+            "name": profile["name"],
+            "sector": profile["sector"],
+            "status": profile["rating"],
+            "recommendation": profile["recommendation"],
+            "why": profile["thesis"],
+        }
+        for symbol, profile in fallback_app_profiles().items()
+    ]
+
+
+def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: dict[str, Any] | None = None) -> str:
     market_snapshot = market_snapshot or dashboard_market_snapshot()
     stock_cards = "\n".join(
-        [
-            stock_watchlist_card_html("ABNB", "Airbnb, Inc.", "Travel", "Strong", "Call"),
-            stock_watchlist_card_html("PANW", "Palo Alto Networks", "Cybersecurity", "Moderate", "Call"),
-            stock_watchlist_card_html("BAC", "Bank of America", "Banking", "Hold", "Put"),
-        ]
+        stock_watchlist_card_html(
+            str(record.get("symbol") or ""),
+            str(record.get("name") or record.get("symbol") or ""),
+            str(record.get("sector") or "Market"),
+            str(record.get("status") or record.get("stance") or "Live Watchlist"),
+            str(record.get("recommendation") or "Call"),
+            str(record.get("why") or ""),
+        )
+        for record in dashboard_card_records(state)
     )
     return f"""<!doctype html>
 <html lang="en">
@@ -9916,58 +10069,17 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
     .stock-card:active {{ transform: scale(.992); }}
     .stock-card-main {{
       width: 100%;
-      min-height: 170px;
+      min-height: 148px;
       display: grid;
-      grid-template-columns: 104px minmax(0, 1fr) 112px;
-      gap: 24px;
+      grid-template-columns: minmax(0, 1fr) 116px;
+      gap: 28px;
       align-items: center;
-      padding: 20px 24px;
+      padding: 20px 26px;
       border: 0;
       background: transparent;
       text-align: left;
       cursor: pointer;
     }}
-    .stock-logo {{
-      width: 104px;
-      height: 104px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      position: relative;
-      overflow: hidden;
-      border: 0;
-      background: transparent;
-      color: rgba(255,255,255,.92);
-      font-size: 24px;
-      font-weight: 780;
-      letter-spacing: -.05em;
-      box-shadow: none;
-    }}
-    .stock-logo img {{
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 4px;
-      background: transparent;
-      opacity: 1;
-      transition: opacity .18s ease;
-    }}
-    .stock-logo img.is-missing {{
-      opacity: 0;
-      pointer-events: none;
-    }}
-    .stock-logo span {{
-      position: relative;
-      z-index: 1;
-    }}
-    .stock-logo img:not(.is-missing) + span {{
-      opacity: 0;
-    }}
-    .logo-abnb {{ color: #ff315b; text-shadow: 0 0 22px rgba(255,49,91,.42); }}
-    .logo-panw {{ color: #ff6419; text-shadow: 0 0 22px rgba(255,100,25,.42); }}
-    .logo-bac {{ color: #ff3048; text-shadow: 0 0 22px rgba(255,48,72,.42); }}
     .stock-copy {{ min-width: 0; }}
     .stock-copy h2 {{
       margin: 0 0 4px;
@@ -9997,7 +10109,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       letter-spacing: -.035em;
       margin-bottom: 13px;
     }}
-    .ai-rating {{
+    .atlas-status {{
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -10010,9 +10122,11 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       font-size: 18px;
       letter-spacing: -.035em;
     }}
-    .ai-rating span {{ color: var(--green); filter: drop-shadow(0 0 8px rgba(33,246,107,.65)); }}
-    .ai-rating strong {{ color: var(--green); font-weight: 600; }}
-    .ai-rating.hold span, .ai-rating.hold strong {{ color: var(--orange); filter: drop-shadow(0 0 8px rgba(255,106,52,.55)); }}
+    .atlas-status span {{ color: var(--green); filter: drop-shadow(0 0 8px rgba(33,246,107,.65)); }}
+    .atlas-status strong {{ color: var(--green); font-weight: 600; }}
+    .atlas-status.entry-candidate span, .atlas-status.entry-candidate strong {{ color: #facc15; filter: drop-shadow(0 0 8px rgba(250,204,21,.55)); }}
+    .atlas-status.pass span, .atlas-status.pass strong,
+    .atlas-status.no-trade span, .atlas-status.no-trade strong {{ color: var(--orange); filter: drop-shadow(0 0 8px rgba(255,106,52,.55)); }}
     .stock-actions {{
       align-self: stretch;
       display: grid;
@@ -10057,7 +10171,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       min-height: 0;
       overflow: hidden;
       border-top: 1px solid rgba(255,255,255,.09);
-      padding: 0 24px 24px 152px;
+      padding: 0 26px 24px;
     }}
     .stock-card-detail strong {{
       display: block;
@@ -10172,19 +10286,18 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       .section-tab {{ min-height: 54px; padding-bottom: 14px; font-size: 20px; }}
       .stock-list {{ gap: 14px; }}
       .stock-card-main {{
-        min-height: 148px;
-        grid-template-columns: 84px minmax(0, 1fr) 78px;
-        gap: 16px;
-        padding: 16px 20px;
+        min-height: 126px;
+        grid-template-columns: minmax(0, 1fr) 78px;
+        gap: 18px;
+        padding: 17px 20px;
       }}
-      .stock-logo {{ width: 84px; height: 84px; border-radius: 15px; font-size: 20px; }}
       .stock-copy h2 {{ font-size: 28px; margin-bottom: 4px; }}
       .stock-copy p {{ font-size: 18px; margin-bottom: 8px; }}
       .sector-badge {{ font-size: 15px; margin-bottom: 11px; padding: 2px 8px 3px; }}
-      .ai-rating {{ font-size: 14px; padding: 6px 10px; gap: 7px; }}
+      .atlas-status {{ font-size: 14px; padding: 6px 10px; gap: 7px; }}
       .stock-actions {{ gap: 31px; }}
       .recommendation {{ min-width: 66px; min-height: 40px; font-size: 19px; }}
-      .stock-card-detail > div {{ padding-left: 124px; }}
+      .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
@@ -10199,12 +10312,11 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       .market-insight strong {{ font-size: 18px; }}
       .market-insight span, .market-insight small {{ font-size: 12px; }}
       .market-divider {{ display: block; height: 58px; }}
-      .stock-card-main {{ min-height: 138px; grid-template-columns: 74px minmax(0, 1fr) 64px; gap: 14px; padding: 14px; }}
-      .stock-logo {{ width: 74px; height: 74px; border-radius: 14px; font-size: 18px; }}
+      .stock-card-main {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 64px; gap: 14px; padding: 15px 16px; }}
       .stock-copy h2 {{ font-size: 25px; }}
       .stock-copy p {{ font-size: 16px; }}
       .sector-badge {{ font-size: 13px; margin-bottom: 9px; }}
-      .ai-rating {{ font-size: 12px; padding: 5px 8px; }}
+      .atlas-status {{ font-size: 12px; padding: 5px 8px; }}
       .recommendation {{ min-width: 58px; min-height: 36px; font-size: 17px; }}
       .chevron {{ width: 15px; height: 15px; border-width: 2px; }}
       .stock-card-detail > div {{ padding-left: 16px; padding-right: 16px; }}

@@ -410,7 +410,8 @@ class StockAnalystTests(unittest.TestCase):
                 "volatility": "Moderate",
                 "vix": 15.6,
                 "updated_at": "2026-06-24T09:30:00-04:00",
-            }
+            },
+            state={"items": []},
         )
 
         self.assertIn("<title>ATLAS</title>", document)
@@ -440,30 +441,59 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("ABNB", document)
         self.assertIn("Airbnb, Inc.", document)
         self.assertIn("Travel", document)
-        self.assertIn('src="/static/logos/ABNB.svg"', document)
-        self.assertIn('data-png-src="/static/logos/ABNB.png"', document)
-        self.assertIn('data-jpg-src="/static/logos/ABNB.jpg"', document)
-        self.assertIn("data-live-src=", document)
-        self.assertIn("domain=airbnb.com", document)
-        self.assertIn('loading="lazy"', document)
-        self.assertIn("this.dataset.usedPng", document)
-        self.assertIn("this.dataset.usedJpg", document)
-        self.assertIn("this.dataset.usedLive", document)
-        self.assertIn(".stock-logo img", document)
-        self.assertIn("AI Rating <strong>Strong</strong>", document)
+        self.assertNotIn('class="stock-logo', document)
+        self.assertNotIn('src="/static/logos/ABNB.svg"', document)
+        self.assertNotIn("data-live-src=", document)
+        self.assertNotIn(".stock-logo", document)
+        self.assertIn("Atlas Status <strong>Live Watchlist</strong>", document)
         self.assertIn("PANW", document)
         self.assertIn("Palo Alto Networks", document)
         self.assertIn("Cybersecurity", document)
-        self.assertIn("AI Rating <strong>Moderate</strong>", document)
+        self.assertIn("Atlas Status <strong>Entry Candidate</strong>", document)
         self.assertIn("BAC", document)
         self.assertIn("Bank of America", document)
         self.assertIn("Banking", document)
-        self.assertIn("AI Rating <strong>Hold</strong>", document)
+        self.assertNotIn("AI Rating", document)
+        self.assertNotIn("AI Rating <strong>Hold</strong>", document)
         self.assertIn(">Call</span>", document)
         self.assertIn(">Put</span>", document)
         self.assertIn("Read More", document)
         self.assertIn("/app/detail?symbol=ABNB", document)
         self.assertNotIn("stock_report.html?detail=ABNB", document)
+
+    def test_dashboard_uses_latest_report_state_statuses(self):
+        state = {
+            "items": [
+                {
+                    "symbol": "NVDA",
+                    "name": "NVIDIA Corporation",
+                    "sector": "Semiconductors",
+                    "status": "Ready for Entry",
+                    "stance": "Ready for Entry",
+                    "recommendation": "Call",
+                    "why": "NVDA is on the list because Atlas found a confirmed entry-quality setup.",
+                }
+            ]
+        }
+
+        document = stock_analyst.report_dashboard_html(
+            {
+                "market_open": True,
+                "market_status": "Markets are open",
+                "trend": "Bullish",
+                "strength": "Strong",
+                "volatility": "Moderate",
+                "vix": 15.6,
+            },
+            state=state,
+        )
+
+        self.assertIn("NVDA", document)
+        self.assertIn("NVIDIA Corporation", document)
+        self.assertIn("Atlas Status <strong>Ready for Entry</strong>", document)
+        self.assertIn("NVDA is on the list because Atlas found a confirmed entry-quality setup.", document)
+        self.assertNotIn("ABNB", document)
+        self.assertNotIn("AI Rating", document)
         self.assertIn(">Watchlist</span>", document)
         self.assertIn(">News</span>", document)
         self.assertIn(">Search</span>", document)
@@ -492,12 +522,14 @@ class StockAnalystTests(unittest.TestCase):
                 "market_open": True,
                 "market_status": "Markets are open",
             },
+            state={"items": []},
         )
 
         self.assertIn("<title>ATLAS | ABNB</title>", document)
         self.assertIn('href="/app"', document)
         self.assertIn("Airbnb, Inc.", document)
-        self.assertIn("Actionable on trigger", document)
+        self.assertIn("Live Watchlist", document)
+        self.assertIn("Atlas Status", document)
         self.assertIn("Thesis", document)
         self.assertIn("Entry Logic", document)
         self.assertIn("Option Focus", document)
@@ -637,6 +669,7 @@ class StockAnalystTests(unittest.TestCase):
             stock_analyst.write_report([item], output, "balanced", [])
 
             report = output.read_text()
+            state = stock_analyst.json.loads((stock_analyst.Path(temp_dir) / stock_analyst.REPORT_STATE_FILENAME).read_text())
 
         self.assertFalse((stock_analyst.Path(temp_dir) / "stock_details.html").exists())
         self.assertFalse((stock_analyst.Path(temp_dir) / "stock_detail_TEST.html").exists())
@@ -650,6 +683,9 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("initialParams.get('detail')", report)
         self.assertIn("Entry Plan", report)
         self.assertIn("Trader Judgment", report)
+        self.assertEqual(state["items"][0]["symbol"], "TEST")
+        self.assertIn(state["items"][0]["status"], {"Live Watchlist", "Entry Candidate", "Ready for Entry", "No trade"})
+        self.assertIn("why", state["items"][0])
 
     def test_legacy_detail_urls_map_to_in_report_detail_view(self):
         parsed = stock_analyst.urllib.parse.urlparse("/stock_details.html?symbol=TEST")
