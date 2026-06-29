@@ -9293,10 +9293,299 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
           <div>
             <strong>Why is it on the list?</strong>
             <p>{html.escape(why)}</p>
-            <a class="read-more-link" href="/stock_report.html?detail={urllib.parse.quote(symbol)}&return=app">Read More</a>
+            <a class="read-more-link" href="/app/detail?symbol={urllib.parse.quote(symbol)}">Read More</a>
           </div>
         </div>
       </article>"""
+
+
+def app_detail_profile(symbol: str) -> dict[str, str]:
+    profiles = {
+        "ABNB": {
+            "name": "Airbnb, Inc.",
+            "sector": "Travel",
+            "rating": "Strong",
+            "recommendation": "Call",
+            "stance": "Actionable on trigger",
+            "thesis": "ABNB is a cleaner long-side watch because the travel tape can move quickly when consumer-discretionary risk appetite improves. The idea is not to chase a green open; the attractive version is buyers defending a pullback, then forcing short-term sellers to cover through the prior intraday supply area.",
+            "entry": "Wait for price to hold above the current demand area on a 5m or 15m retest. The first acceptable trigger is a higher low with expanding volume; the stronger trigger is a reclaim of VWAP followed by a candle close through the nearest resistance shelf.",
+            "option": "The call only makes sense if the selected contract is liquid and not stretched by a wide bid/ask spread. Prefer a near-the-money strike with enough time for a two-to-five trading day move instead of a contract that needs an immediate breakout to survive theta.",
+            "risk": "The main risk is that travel and consumer names lose sponsorship if the broader market turns defensive. If ABNB cannot hold the defended zone after entry, the trade loses its reason to exist quickly.",
+            "invalidation": "Pass if buyers fail to defend the pullback, if the breakout candle fades back under VWAP, or if the option spread becomes too wide to exit cleanly.",
+        },
+        "PANW": {
+            "name": "Palo Alto Networks",
+            "sector": "Cybersecurity",
+            "rating": "Moderate",
+            "recommendation": "Call",
+            "stance": "Watch for confirmation",
+            "thesis": "PANW stays on the list because cybersecurity remains a durable enterprise-spending theme and buyers often defend quality software names when the market is willing to pay for growth. The setup is good enough to track, but not good enough to blindly buy without confirmation.",
+            "entry": "Look for a controlled pullback that stops making lower lows, then wait for the 5m or 15m chart to reclaim VWAP with buyers stepping in above the prior reaction low. I would not force the trade if the first move of the day is a straight gap into resistance.",
+            "option": "A call contract should be close enough to the money to respond to a moderate move, with expiration far enough out to avoid needing a same-day expansion. If premium is inflated or the spread is loose, the stock can be right while the contract is still wrong.",
+            "risk": "The weakness is valuation sensitivity. If mega-cap tech or software loses momentum, PANW can look technically fine and still fail because the market is rotating away from the group.",
+            "invalidation": "Drop the idea if price rejects the reclaim area twice, if software peers weaken at the same time, or if the trade starts requiring a perfect breakout to reach the first target.",
+        },
+        "BAC": {
+            "name": "Bank of America",
+            "sector": "Banking",
+            "rating": "Hold",
+            "recommendation": "Put",
+            "stance": "Conditional put watch",
+            "thesis": "BAC is a bearish watch because banks can reprice fast when rate expectations, credit concerns, or risk-off flows pressure financials. The setup is only useful if the broader financial tape confirms weakness instead of buyers rotating into banks as a defensive value trade.",
+            "entry": "The put trigger needs rejection from resistance or a clean break under the nearest support area with weak reclaim attempts. A starter entry can work near resistance, but only if sellers are clearly controlling the tape on lower timeframes.",
+            "option": "Use a put contract that is liquid enough to enter and exit without giving up too much edge. Avoid far out-of-the-money contracts unless the breakdown is already confirmed and momentum is expanding.",
+            "risk": "The biggest risk is a sudden rates or macro shift that helps banks. BAC can reverse sharply if yields move in its favor or if financials catch a broad bid.",
+            "invalidation": "Do not stay bearish if BAC reclaims resistance, if XLF strengthens while BAC holds support, or if the put spread is too wide to manage the trade tightly.",
+        },
+    }
+    return profiles.get(
+        symbol,
+        {
+            "name": symbol,
+            "sector": "Market",
+            "rating": "Watch",
+            "recommendation": "Call",
+            "stance": "Needs confirmation",
+            "thesis": f"{symbol} is on the detail screen because it was selected from the Atlas watchlist flow. Treat it as a monitored setup until the live scanner confirms a cleaner entry trigger.",
+            "entry": "Wait for price to confirm direction on the lower timeframe instead of entering because the ticker is visible. The cleaner setup is a defended level, a reclaim, or a breakdown with follow-through depending on the listed direction.",
+            "option": "Use only liquid contracts with a manageable spread and enough time for the expected swing. If the contract quality is poor, skip the trade even if the chart looks workable.",
+            "risk": "The risk is incomplete confirmation. A ticker can look interesting but still be a poor trade if market context, liquidity, or timing does not line up.",
+            "invalidation": "Avoid the setup if price fails the trigger area, if the thesis depends on stale news, or if the option structure makes the risk/reward unattractive.",
+        },
+    )
+
+
+def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None) -> str:
+    profile = app_detail_profile(symbol)
+    snapshot = market_snapshot or dashboard_market_snapshot()
+    recommendation = profile["recommendation"]
+    rec_class = "call" if recommendation.upper() == "CALL" else "put"
+    status = str(snapshot.get("market_status") or "Market status unavailable")
+    status_class = "" if snapshot.get("market_open") else " closed"
+    sections = [
+        ("Thesis", profile["thesis"]),
+        ("Entry Logic", profile["entry"]),
+        ("Option Focus", profile["option"]),
+        ("Risk", profile["risk"]),
+        ("What Changes My Mind", profile["invalidation"]),
+    ]
+    section_html = "\n".join(
+        f"""<article class="detail-card">
+          <span>{html.escape(title)}</span>
+          <p>{html.escape(body)}</p>
+        </article>"""
+        for title, body in sections
+    )
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATLAS | {html.escape(symbol)}</title>
+  <link rel="icon" href="/atlas_wordmark.jpg">
+  <style>
+    :root {{
+      color-scheme: dark;
+      font-family: Inter, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --bg: #020305;
+      --card: rgba(12, 14, 20, .72);
+      --line: rgba(255,255,255,.12);
+      --muted: rgba(235,237,244,.62);
+      --text: #f7f8fb;
+      --green: #21f66b;
+      --purple: #b34cff;
+      --orange: #ff6a34;
+    }}
+    * {{ box-sizing: border-box; }}
+    html, body {{ margin: 0; min-height: 100%; background: #000; color: var(--text); }}
+    body {{
+      background:
+        radial-gradient(circle at 78% 8%, rgba(179,76,255,.20), transparent 31%),
+        radial-gradient(circle at 48% -8%, rgba(33,246,107,.18), transparent 30%),
+        linear-gradient(180deg, #030406 0%, #000 100%);
+    }}
+    body::before {{
+      content: "";
+      position: fixed;
+      inset: -22% -35% auto 20%;
+      height: 390px;
+      pointer-events: none;
+      background: linear-gradient(112deg, transparent 20%, rgba(33,246,107,.28), rgba(60,145,255,.15), rgba(179,76,255,.34), transparent 74%);
+      filter: blur(30px);
+      opacity: .76;
+      transform: rotate(-8deg);
+    }}
+    a {{ color: inherit; text-decoration: none; }}
+    .detail-shell {{
+      position: relative;
+      z-index: 1;
+      width: min(850px, 100%);
+      max-width: 850px;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: max(34px, env(safe-area-inset-top)) 26px calc(34px + env(safe-area-inset-bottom));
+      overflow: auto;
+    }}
+    .back-link {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      color: var(--muted);
+      font-size: 15px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }}
+    .hero {{
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 24px;
+    }}
+    .eyebrow {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-size: 16px;
+      margin-bottom: 14px;
+    }}
+    .dot {{
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(33,246,107,.8);
+    }}
+    .dot.closed {{ background: var(--orange); box-shadow: 0 0 18px rgba(255,106,52,.7); }}
+    h1 {{
+      margin: 0;
+      font-size: clamp(58px, 15vw, 96px);
+      line-height: .86;
+      letter-spacing: -.075em;
+    }}
+    .company {{
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: clamp(20px, 4.8vw, 28px);
+      letter-spacing: -.04em;
+    }}
+    .direction {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 88px;
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid rgba(33,246,107,.55);
+      color: var(--green);
+      font-size: 18px;
+      font-weight: 780;
+      letter-spacing: .02em;
+      background: rgba(33,246,107,.08);
+      box-shadow: inset 0 0 16px rgba(33,246,107,.06);
+    }}
+    .direction.put {{ border-color: rgba(255,106,52,.62); color: var(--orange); background: rgba(255,106,52,.08); }}
+    .summary-grid {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }}
+    .metric, .detail-card {{
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(17,20,28,.72), rgba(4,5,9,.54));
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 22px 60px rgba(0,0,0,.30);
+    }}
+    .metric {{
+      border-radius: 18px;
+      padding: 16px;
+    }}
+    .metric span, .detail-card span {{
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }}
+    .metric strong {{
+      display: block;
+      margin-top: 9px;
+      font-size: 20px;
+      letter-spacing: -.04em;
+    }}
+    .detail-grid {{
+      display: grid;
+      gap: 14px;
+    }}
+    .detail-card {{
+      border-radius: 22px;
+      padding: 22px;
+    }}
+    .detail-card p {{
+      margin: 13px 0 0;
+      color: rgba(245,246,250,.82);
+      font-size: 17px;
+      line-height: 1.55;
+      letter-spacing: -.025em;
+    }}
+    .footer-actions {{
+      display: grid;
+      grid-template-columns: 1fr;
+      margin-top: 18px;
+    }}
+    .primary-link {{
+      min-height: 54px;
+      border-radius: 16px;
+      border: 1px solid rgba(33,246,107,.45);
+      color: var(--green);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      background: rgba(33,246,107,.06);
+    }}
+    @media (max-width: 560px) {{
+      .detail-shell {{ padding-left: 20px; padding-right: 20px; }}
+      .hero {{ grid-template-columns: 1fr; }}
+      .direction {{ justify-self: start; }}
+      .summary-grid {{ grid-template-columns: 1fr; }}
+      .detail-card {{ padding: 20px; }}
+      .detail-card p {{ font-size: 16px; }}
+    }}
+  </style>
+</head>
+<body>
+  <main class="detail-shell">
+    <a class="back-link" href="/app">← Back to Watchlist</a>
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot{html.escape(status_class)}"></span>{html.escape(status)}</div>
+        <h1>{html.escape(symbol)}</h1>
+        <p class="company">{html.escape(profile["name"])}</p>
+      </div>
+      <span class="direction {rec_class}">{html.escape(recommendation)}</span>
+    </section>
+    <section class="summary-grid" aria-label="Trade summary">
+      <div class="metric"><span>Stance</span><strong>{html.escape(profile["stance"])}</strong></div>
+      <div class="metric"><span>Sector</span><strong>{html.escape(profile["sector"])}</strong></div>
+      <div class="metric"><span>AI Rating</span><strong>{html.escape(profile["rating"])}</strong></div>
+    </section>
+    <section class="detail-grid" aria-label="Trade detail">
+      {section_html}
+    </section>
+    <div class="footer-actions">
+      <a class="primary-link" href="/app">Return to Watchlist</a>
+    </div>
+  </main>
+</body>
+</html>"""
 
 
 def bottom_nav_html() -> str:
@@ -10044,6 +10333,18 @@ class ReportRequestHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path in {"/app", "/dashboard"}:
             self.send_html(report_dashboard_html())
+            return
+        if parsed.path == "/app/detail":
+            params = urllib.parse.parse_qs(parsed.query)
+            try:
+                symbol = normalize_on_demand_symbol((params.get("symbol") or [""])[0])
+            except ValueError:
+                self.send_response(302)
+                self.send_header("Location", "/app")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                return
+            self.send_html(app_detail_html(symbol))
             return
         legacy_symbol = legacy_detail_symbol(parsed)
         if legacy_symbol is not None:
