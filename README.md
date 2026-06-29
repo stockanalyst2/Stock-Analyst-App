@@ -62,6 +62,34 @@ STOCK_ANALYST_PASSWORD="choose-a-strong-password" python3 stock_analyst.py --ser
 
 The login username is `stock`. Use HTTPS if this is exposed outside your home network.
 
+## Local Company Logos
+
+Atlas displays local company logos from:
+
+```text
+static/logos/TICKER.png
+```
+
+To populate logos automatically, run:
+
+```bash
+python3 download_stock_logos.py --all-watchlists
+```
+
+Or download only specific tickers:
+
+```bash
+python3 download_stock_logos.py NVDA AAPL ABNB PANW BAC
+```
+
+If a ticker needs a domain that is not built in, pass it manually:
+
+```bash
+python3 download_stock_logos.py BRK.B --domain BRK.B=berkshirehathaway.com
+```
+
+Commit the downloaded files in `static/logos/` so Render serves them locally. If a logo is missing, the app falls back to ticker initials.
+
 ## Cloud Phone Setup
 
 Use this when you want the scanner available from your phone while your laptop is closed.

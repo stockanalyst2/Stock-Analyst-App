@@ -9268,6 +9268,7 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     rec_class = "call" if recommendation.upper() == "CALL" else "put"
     rating_class = ai_rating.lower().replace(" ", "-")
     logo_text = "".join(part[0] for part in symbol.split() if part)[:2] or symbol[:2]
+    logo_src = f"/static/logos/{urllib.parse.quote(symbol.upper())}.png"
     why = {
         "ABNB": "Airbnb is here because travel demand and consumer-discretionary momentum can reprice quickly when buyers defend a clean pullback. I would treat it as a call idea only if price confirms demand instead of drifting with the broader tape.",
         "PANW": "Palo Alto Networks is here because cybersecurity remains one of the cleaner enterprise-tech themes, and the setup has enough catalyst support to stay on the live list. The trade still needs confirmation because high-quality software names can fade hard when risk appetite cools.",
@@ -9275,7 +9276,10 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
     }.get(symbol, "This ticker is on the live list because Atlas found a tradable setup with defined risk and current market context.")
     return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
         <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
-          <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">{html.escape(logo_text)}</div>
+          <div class="stock-logo logo-{html.escape(symbol.lower())}" aria-hidden="true">
+            <img src="{html.escape(logo_src)}" alt="" loading="lazy" onerror="this.classList.add('is-missing')" />
+            <span>{html.escape(logo_text)}</span>
+          </div>
           <div class="stock-copy">
             <div class="stock-title-row">
               <h2>{html.escape(symbol)}</h2>
@@ -9873,6 +9877,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       border-radius: 18px;
       display: grid;
       place-items: center;
+      position: relative;
+      overflow: hidden;
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.025);
       color: rgba(255,255,255,.92);
@@ -9880,6 +9886,28 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None) -> str:
       font-weight: 780;
       letter-spacing: -.05em;
       box-shadow: inset 0 0 20px rgba(255,255,255,.025);
+    }}
+    .stock-logo img {{
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 18px;
+      background: rgba(255,255,255,.018);
+      opacity: 1;
+      transition: opacity .18s ease;
+    }}
+    .stock-logo img.is-missing {{
+      opacity: 0;
+      pointer-events: none;
+    }}
+    .stock-logo span {{
+      position: relative;
+      z-index: 1;
+    }}
+    .stock-logo img:not(.is-missing) + span {{
+      opacity: 0;
     }}
     .logo-abnb {{ color: #ff315b; text-shadow: 0 0 22px rgba(255,49,91,.42); }}
     .logo-panw {{ color: #ff6419; text-shadow: 0 0 22px rgba(255,100,25,.42); }}
