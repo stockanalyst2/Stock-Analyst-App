@@ -6436,12 +6436,25 @@ def trade_decision(item: Analysis, brief: TradeBrief | None) -> TradeDecision:
     near_zone = price_is_near_starter_zone(item)
     rr_ok = brief.risk_reward is not None and brief.risk_reward >= 1.0
     rr_strong = brief.risk_reward is not None and brief.risk_reward >= 1.5
-    contract_clean = contract_score >= 55 and not (item.option and item.option.estimated) and not (spread is not None and spread > 0.35)
+    contract_clean = contract_score >= 50 and not (item.option and item.option.estimated) and not (spread is not None and spread > 0.40)
     catalyst_ok = catalyst >= 58
     catalyst_strong = catalyst >= 62
-    setup_good = brief.setup_grade in {"A+", "A", "B"} or trader_score >= 66
-    timing_ok = near_zone or intraday_ok
+    setup_good = brief.setup_grade in {"A+", "A", "B"} or trader_score >= 62
+    timing_ok = near_zone or intraday_ok or volume_ok
     confirmation_ok = intraday_ok or volume_ok
+    quality_points = sum(
+        (
+            trader_score >= 60,
+            contract_score >= 55,
+            catalyst_ok,
+            rr_ok,
+            setup_good,
+            near_zone,
+            confirmation_ok,
+            rr_strong,
+            catalyst_strong,
+        )
+    )
 
     if not contract_clean:
         reasons.extend(contract_risks[:2] or ["Contract is usable only with extra fill discipline."])
@@ -6455,13 +6468,12 @@ def trade_decision(item: Analysis, brief: TradeBrief | None) -> TradeDecision:
         reasons.append("Waiting for either 15m direction or volume to confirm.")
 
     ready = (
-        trader_score >= 66
+        trader_score >= 60
         and contract_clean
-        and catalyst_strong
+        and catalyst_ok
         and rr_ok
-        and setup_good
         and timing_ok
-        and confirmation_ok
+        and quality_points >= 5
     )
     if ready:
         return TradeDecision(
@@ -6739,7 +6751,7 @@ def is_high_confidence_entry_alert(item: Analysis, stance: str, status: str) -> 
     if brief is None:
         return False
     judgment = real_money_trader_judgment(item, brief)
-    min_score = float(os.environ.get("STOCK_ANALYST_READY_ALERT_MIN_SCORE", "66") or "66")
+    min_score = float(os.environ.get("STOCK_ANALYST_READY_ALERT_MIN_SCORE", "60") or "60")
     return not bool(judgment.get("veto")) and float(judgment.get("score") or 0.0) >= min_score
 
 
