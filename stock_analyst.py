@@ -5872,6 +5872,11 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       document.getElementById('detailView').scrollIntoView({{ block: 'start' }});
     }}
     document.getElementById('backToWatchlist')?.addEventListener('click', () => {{
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('return') === 'app') {{
+        window.location.href = '/app';
+        return;
+      }}
       document.body.classList.remove('show-detail');
       window.scrollTo({{ top: 0, behavior: 'smooth' }});
     }});
@@ -9288,7 +9293,7 @@ def stock_watchlist_card_html(symbol: str, name: str, sector: str, ai_rating: st
           <div>
             <strong>Why is it on the list?</strong>
             <p>{html.escape(why)}</p>
-            <a class="read-more-link" href="/stock_report.html?detail={urllib.parse.quote(symbol)}">Read More</a>
+            <a class="read-more-link" href="/stock_report.html?detail={urllib.parse.quote(symbol)}&return=app">Read More</a>
           </div>
         </div>
       </article>"""
