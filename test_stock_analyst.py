@@ -581,6 +581,19 @@ class StockAnalystTests(unittest.TestCase):
             notes=[],
             news=[],
             setup_direction="CALL",
+            catalyst_score=58,
+            option=stock_analyst.OptionContract(
+                contract_symbol="TEST260626C00100000",
+                side="CALL",
+                strike=100,
+                expiration=dt.date.today() + dt.timedelta(days=14),
+                bid=1.0,
+                ask=1.1,
+                last_price=1.05,
+                volume=1000,
+                open_interest=1000,
+                implied_volatility=0.08,
+            ),
         )
         with tempfile.TemporaryDirectory() as temp_dir:
             output = stock_analyst.Path(temp_dir) / "stock_report.html"
@@ -961,6 +974,19 @@ class StockAnalystTests(unittest.TestCase):
             notes=[],
             news=[],
             setup_direction="CALL",
+            catalyst_score=58,
+            option=stock_analyst.OptionContract(
+                contract_symbol="TEST260626C00100000",
+                side="CALL",
+                strike=100,
+                expiration=dt.date.today() + dt.timedelta(days=14),
+                bid=1.0,
+                ask=1.1,
+                last_price=1.05,
+                volume=1000,
+                open_interest=1000,
+                implied_volatility=0.08,
+            ),
         )
         news = stock_analyst.NewsItem("Iran oil shock lifts crude prices", "", dt.datetime.now(dt.timezone.utc).isoformat(), "Reuters")
 
@@ -1477,12 +1503,24 @@ class StockAnalystTests(unittest.TestCase):
             chart_closes=[98 + index * 0.04 for index in range(60)],
             catalyst_score=80,
             catalyst_label="Strong catalyst support",
+            option=stock_analyst.OptionContract(
+                contract_symbol="TEST260626C00100000",
+                side="CALL",
+                strike=100,
+                expiration=dt.date.today() + dt.timedelta(days=14),
+                bid=1.0,
+                ask=1.1,
+                last_price=1.05,
+                volume=1000,
+                open_interest=1000,
+                implied_volatility=0.08,
+            ),
         )
 
         brief = stock_analyst.build_trade_brief(item, {"available": True, "bullish": True, "bearish": False, "label": "bullish/neutral tape"})
         brief.risk_reward = 0.4
 
-        self.assertEqual(stock_analyst.analyst_stance(item, brief), "Early watch - needs a better entry")
+        self.assertEqual(stock_analyst.analyst_stance(item, brief), "Live Watchlist")
 
     def test_final_trade_candidate_requires_real_money_quality(self):
         item = stock_analyst.Analysis(
@@ -1570,6 +1608,19 @@ class StockAnalystTests(unittest.TestCase):
             notes=[],
             news=[],
             setup_direction="CALL",
+            catalyst_score=58,
+            option=stock_analyst.OptionContract(
+                contract_symbol="TEST260626C00100000",
+                side="CALL",
+                strike=100,
+                expiration=dt.date.today() + dt.timedelta(days=14),
+                bid=1.0,
+                ask=1.1,
+                last_price=1.05,
+                volume=1000,
+                open_interest=1000,
+                implied_volatility=0.08,
+            ),
         )
         item.trade_brief = stock_analyst.TradeBrief(
             thesis="watch setup",
@@ -1608,8 +1659,8 @@ class StockAnalystTests(unittest.TestCase):
             final_recommendation="Watch only",
         )
 
-        with mock.patch("stock_analyst.entry_status", return_value=("Watch only", "not ready")), \
-            mock.patch("stock_analyst.analyst_stance", return_value="Watch only"):
+        with mock.patch("stock_analyst.entry_status", return_value=("Live Watchlist", "not ready")), \
+            mock.patch("stock_analyst.analyst_stance", return_value="Live Watchlist"):
             self.assertTrue(stock_analyst.is_report_candidate(item))
             self.assertFalse(stock_analyst.is_final_trade_candidate(item))
 
@@ -1672,7 +1723,7 @@ class StockAnalystTests(unittest.TestCase):
 
         status, detail = stock_analyst.entry_status(item, brief)
 
-        self.assertEqual(status, "Confirmed entry")
+        self.assertEqual(status, "Ready for Entry")
         self.assertIn("aligned", detail)
 
     def test_entry_status_rejects_vetoed_trade(self):
@@ -1717,13 +1768,25 @@ class StockAnalystTests(unittest.TestCase):
             intraday_closes=[98 + index * 0.2 for index in range(30)],
             catalyst_score=60,
             catalyst_label="Catalyst support",
+            option=stock_analyst.OptionContract(
+                contract_symbol="GOOGL260626C00100000",
+                side="CALL",
+                strike=100,
+                expiration=dt.date.today() + dt.timedelta(days=14),
+                bid=1.0,
+                ask=1.1,
+                last_price=1.05,
+                volume=1000,
+                open_interest=1000,
+                implied_volatility=0.45,
+            ),
         )
         brief = stock_analyst.build_trade_brief(item, {"available": True, "oil_shock": True, "label": "oil shock"})
 
         status, detail = stock_analyst.entry_status(item, brief)
 
-        self.assertEqual(status, "Avoid / invalidated")
-        self.assertIn("vetoed", detail)
+        self.assertEqual(status, "No trade")
+        self.assertIn("veto", detail.lower())
 
     def test_alert_candidates_only_notify_confirmed_entries(self):
         item = stock_analyst.sample_trade_alert_item()
@@ -1767,8 +1830,8 @@ class StockAnalystTests(unittest.TestCase):
         original_status = stock_analyst.entry_status
         original_judgment = stock_analyst.real_money_trader_judgment
         try:
-            stock_analyst.analyst_stance = lambda _item, _brief: "Actionable on trigger"
-            stock_analyst.entry_status = lambda _item, _brief: ("Confirmed entry", "aligned")
+            stock_analyst.analyst_stance = lambda _item, _brief: "Ready for Entry"
+            stock_analyst.entry_status = lambda _item, _brief: ("Ready for Entry", "aligned")
             stock_analyst.real_money_trader_judgment = lambda _item, _brief: {"score": 82, "verdict": "Ready", "veto": False, "reasons": []}
 
             candidates = stock_analyst.alert_candidates_from_transitions([item], {})
@@ -1784,8 +1847,8 @@ class StockAnalystTests(unittest.TestCase):
                 "TEST:CALL": {
                     "symbol": "TEST",
                     "direction": "CALL",
-                    "stance": "Actionable on trigger",
-                    "status": "Confirmed entry",
+                    "stance": "Ready for Entry",
+                    "status": "Ready for Entry",
                 }
             }
             self.assertEqual(stock_analyst.alert_candidates_from_transitions([item], prior), [])
@@ -1822,8 +1885,8 @@ class StockAnalystTests(unittest.TestCase):
         original_stance = stock_analyst.analyst_stance
         original_status = stock_analyst.entry_status
         try:
-            stock_analyst.analyst_stance = lambda _item, _brief: "Actionable on trigger"
-            stock_analyst.entry_status = lambda _item, _brief: ("Confirmed entry", "aligned")
+            stock_analyst.analyst_stance = lambda _item, _brief: "Ready for Entry"
+            stock_analyst.entry_status = lambda _item, _brief: ("Ready for Entry", "aligned")
             events = stock_analyst.position_events_from_active([item], active)
         finally:
             stock_analyst.analyst_stance = original_stance

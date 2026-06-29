@@ -695,6 +695,19 @@ class TradeBrief:
     final_recommendation: str
 
 
+@dataclass
+class TradeDecision:
+    tier: str
+    status: str
+    stance: str
+    notify: bool
+    trader_score: float
+    contract_score: float
+    catalyst_score: float
+    reasons: list[str]
+    blockers: list[str]
+
+
 def fetch_json(url: str, timeout: int = 20) -> dict[str, Any]:
     request = urllib.request.Request(
         url,
@@ -6356,60 +6369,171 @@ def is_final_trade_candidate(item: Analysis) -> bool:
     brief = item.trade_brief
     if brief is None:
         return False
-    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
-    if rejection.action == "NO_TRADE":
-        return False
-    if analyst_stance(item, brief).startswith("Pass"):
-        return False
-    judgment = real_money_trader_judgment(item, brief)
-    return not bool(judgment.get("veto")) and float(judgment.get("score") or 0.0) >= 62.0
+    decision = trade_decision(item, brief)
+    return decision.tier == "Ready for Entry"
 
 
 def is_report_candidate(item: Analysis) -> bool:
     brief = item.trade_brief
     if brief is None:
         return False
-    status, _detail = entry_status(item, brief)
-    if status in {"Avoid / invalidated", "No trade"}:
-        return False
-    stance = analyst_stance(item, brief)
-    if stance.startswith("Pass"):
-        return False
-    return status in {"Watch only", "Trigger forming", "Starter entry active", "Confirmed entry"}
+    decision = trade_decision(item, brief)
+    return decision.tier in {"Live Watchlist", "Entry Candidate", "Ready for Entry"}
 
 
-def entry_status(item: Analysis, brief: TradeBrief | None) -> tuple[str, str]:
+def trade_decision(item: Analysis, brief: TradeBrief | None) -> TradeDecision:
     if brief is None:
-        return "No trade", "Trade brief is unavailable, so entry cannot be evaluated."
+        return TradeDecision(
+            tier="Pass",
+            status="No trade",
+            stance="Pass for now",
+            notify=False,
+            trader_score=35.0,
+            contract_score=30.0,
+            catalyst_score=0.0,
+            reasons=["Trade brief is unavailable."],
+            blockers=["Missing trade brief"],
+        )
+    rejection = item.opportunity_rejection if item.opportunity_rejection is not None else opportunity_rejection_engine(item)
     judgment = real_money_trader_judgment(item, brief)
     trader_score = float(judgment.get("score") or 0.0)
+    contract_score, _contract_missing, contract_risks = option_chain_quality(item.option, item)
+    catalyst = float(item.catalyst_score if item.catalyst_score is not None else 50.0)
     direction = item.setup_direction or "CALL"
     price = item.price
     invalidation = brief.invalidation
+    blockers: list[str] = []
+    reasons: list[str] = []
 
+    if rejection.action == "NO_TRADE":
+        blockers.extend(reason for reason in rejection.reasons if reason.startswith("NO_TRADE"))
     if bool(judgment.get("veto")):
-        return "Avoid / invalidated", "The real-money quality screen vetoed this setup."
+        blockers.append("Real-money quality screen vetoed this setup")
     if invalidation is not None:
         if direction == "CALL" and price <= invalidation:
-            return "Avoid / invalidated", f"Price is at or below invalidation near {format_price(invalidation)}."
+            blockers.append(f"Price is at or below invalidation near {format_price(invalidation)}")
         if direction == "PUT" and price >= invalidation:
-            return "Avoid / invalidated", f"Price is at or above invalidation near {format_price(invalidation)}."
+            blockers.append(f"Price is at or above invalidation near {format_price(invalidation)}")
 
+    if blockers:
+        return TradeDecision(
+            tier="Pass",
+            status="No trade",
+            stance="Pass for now",
+            notify=False,
+            trader_score=trader_score,
+            contract_score=contract_score,
+            catalyst_score=catalyst,
+            reasons=list(dict.fromkeys(blockers + list(judgment.get("reasons") or [])[:2])),
+            blockers=list(dict.fromkeys(blockers)),
+        )
+
+    spread = option_spread_pct(item.option)
     intraday = trend_label(item.intraday_closes or [], 8, 20)
     wanted = "bullish" if direction == "CALL" else "bearish"
+    intraday_ok = intraday == wanted
     volume_ok = item.volume_ratio is not None and item.volume_ratio >= 1.1
     near_zone = price_is_near_starter_zone(item)
-    high_quality = trader_score >= 70 and item.catalyst_score is not None and item.catalyst_score >= 62
+    rr_ok = brief.risk_reward is not None and brief.risk_reward >= 1.0
+    rr_strong = brief.risk_reward is not None and brief.risk_reward >= 1.5
+    contract_clean = contract_score >= 55 and not (item.option and item.option.estimated) and not (spread is not None and spread > 0.35)
+    catalyst_ok = catalyst >= 58
+    catalyst_strong = catalyst >= 62
+    setup_good = brief.setup_grade in {"A+", "A", "B"} or trader_score >= 66
+    timing_ok = near_zone or intraday_ok
+    confirmation_ok = intraday_ok or volume_ok
 
-    if high_quality and intraday == wanted and volume_ok:
-        return "Confirmed entry", "Trigger, intraday trend, volume, catalyst, and trader-quality checks are aligned."
-    if trader_score >= 62 and near_zone:
-        return "Starter entry active", "Price is near the intended starter zone; use the listed confirmation rules and size smaller."
-    if trader_score >= 62:
-        return "Trigger forming", "Setup quality is acceptable, but price still needs the listed confirmation."
-    if trader_score >= 50:
-        return "Watch only", "The setup is interesting, but the trade quality is not strong enough for entry yet."
-    return "No trade", "Current trade quality is too weak for a real-money entry."
+    if not contract_clean:
+        reasons.extend(contract_risks[:2] or ["Contract is usable only with extra fill discipline."])
+    if not catalyst_ok:
+        reasons.append("Catalyst support is not strong enough for an entry-level trade.")
+    if not rr_ok:
+        reasons.append("Risk/reward still needs a cleaner entry.")
+    if not near_zone:
+        reasons.append("Price is not close enough to the preferred inflection zone.")
+    if not confirmation_ok:
+        reasons.append("Waiting for either 15m direction or volume to confirm.")
+
+    ready = (
+        trader_score >= 66
+        and contract_clean
+        and catalyst_strong
+        and rr_ok
+        and setup_good
+        and timing_ok
+        and confirmation_ok
+    )
+    if ready:
+        return TradeDecision(
+            tier="Ready for Entry",
+            status="Ready for Entry",
+            stance="Ready for Entry",
+            notify=True,
+            trader_score=trader_score,
+            contract_score=contract_score,
+            catalyst_score=catalyst,
+            reasons=["Strong enough catalyst, contract, risk/reward, and timing alignment for an actionable entry."],
+            blockers=[],
+        )
+
+    entry_candidate = (
+        trader_score >= 58
+        and contract_score >= 45
+        and catalyst_ok
+        and rr_ok
+        and (near_zone or rr_strong or intraday_ok or volume_ok)
+    )
+    if entry_candidate:
+        return TradeDecision(
+            tier="Entry Candidate",
+            status="Entry Candidate",
+            stance="Entry Candidate",
+            notify=False,
+            trader_score=trader_score,
+            contract_score=contract_score,
+            catalyst_score=catalyst,
+            reasons=list(dict.fromkeys(reasons or ["Trade is close, but not ready enough to notify."])),
+            blockers=[],
+        )
+
+    live_watchlist = trader_score >= 45 or catalyst >= 55 or brief.confidence_score >= 55
+    if live_watchlist:
+        return TradeDecision(
+            tier="Live Watchlist",
+            status="Live Watchlist",
+            stance="Live Watchlist",
+            notify=False,
+            trader_score=trader_score,
+            contract_score=contract_score,
+            catalyst_score=catalyst,
+            reasons=list(dict.fromkeys(reasons or ["Credible developing setup, but not close enough for an entry alert."])),
+            blockers=[],
+        )
+
+    return TradeDecision(
+        tier="Pass",
+        status="No trade",
+        stance="Pass for now",
+        notify=False,
+        trader_score=trader_score,
+        contract_score=contract_score,
+        catalyst_score=catalyst,
+        reasons=list(dict.fromkeys(reasons or ["Setup quality is too weak for the live list."])),
+        blockers=[],
+    )
+
+
+def entry_status(item: Analysis, brief: TradeBrief | None) -> tuple[str, str]:
+    decision = trade_decision(item, brief)
+    if decision.status == "Ready for Entry":
+        return decision.status, "Entry-level conditions are aligned enough to notify."
+    if decision.status == "Entry Candidate":
+        return decision.status, "Trade is close, but one or more timing/quality checks are still missing."
+    if decision.status == "Live Watchlist":
+        return decision.status, "Credible developing setup; monitor it, but do not enter yet."
+    if decision.blockers:
+        return "No trade", "; ".join(decision.blockers[:2])
+    return "No trade", decision.reasons[0] if decision.reasons else "Current trade quality is too weak."
 
 
 def price_is_near_starter_zone(item: Analysis) -> bool:
@@ -6425,6 +6549,14 @@ def price_is_near_starter_zone(item: Analysis) -> bool:
 
 
 def analyst_stance(item: Analysis, brief: TradeBrief | None) -> str:
+    decision = trade_decision(item, brief)
+    if decision.status in {"Ready for Entry", "Entry Candidate", "Live Watchlist", "No trade"}:
+        if decision.status == "No trade":
+            judgment = real_money_trader_judgment(item, brief)
+            if judgment.get("veto"):
+                return f"Pass for now - {judgment['verdict']}"
+            return "Pass for now"
+        return decision.status
     if brief is None:
         return "Watch only"
     judgment = real_money_trader_judgment(item, brief)
@@ -6582,7 +6714,9 @@ class AlertEvent:
 
 def is_watch_or_wait_state(stance: str, status: str) -> bool:
     return (
-        stance.startswith("Watch")
+        stance in {"Live Watchlist", "Entry Candidate"}
+        or status in {"Live Watchlist", "Entry Candidate"}
+        or stance.startswith("Watch")
         or stance.startswith("Wait")
         or stance.startswith("Early watch")
         or stance.startswith("Conditional")
@@ -6591,25 +6725,22 @@ def is_watch_or_wait_state(stance: str, status: str) -> bool:
 
 
 def is_enter_now_state(stance: str, status: str) -> bool:
-    entry_mode = os.environ.get("STOCK_ANALYST_ALERT_ENTRY_MODE", "confirmed").strip().lower()
-    if status == "Confirmed entry":
-        return True
-    if entry_mode in {"starter", "early"} and status == "Starter entry active":
+    if status in {"Ready for Entry", "Confirmed entry"}:
         return True
     return False
 
 
 def is_high_confidence_entry_alert(item: Analysis, stance: str, status: str) -> bool:
-    if status != "Confirmed entry":
+    if status != "Ready for Entry":
         return False
-    if not stance.startswith("Actionable"):
+    if stance != "Ready for Entry":
         return False
     brief = item.trade_brief
     if brief is None:
         return False
     judgment = real_money_trader_judgment(item, brief)
-    min_score = float(os.environ.get("STOCK_ANALYST_READY_ALERT_MIN_SCORE", "70") or "70")
-    return float(judgment.get("score") or 0.0) >= min_score
+    min_score = float(os.environ.get("STOCK_ANALYST_READY_ALERT_MIN_SCORE", "66") or "66")
+    return not bool(judgment.get("veto")) and float(judgment.get("score") or 0.0) >= min_score
 
 
 def current_alert_observations(results: list[Analysis]) -> dict[str, dict[str, str]]:
@@ -6661,10 +6792,12 @@ def alert_candidates_from_transitions(
 
 
 def alert_notification_label(stance: str, status: str) -> str:
-    if status == "Confirmed entry":
+    if status in {"Ready for Entry", "Confirmed entry"}:
         return "Enter now"
-    if status == "Starter entry active":
-        return "Potential entry"
+    if status == "Entry Candidate":
+        return "Entry Candidate"
+    if status == "Live Watchlist":
+        return "Live Watchlist"
     if stance.startswith("Watch"):
         return "Watch only"
     if stance.startswith("Wait"):
@@ -6748,7 +6881,7 @@ def position_update_action(event: AlertEvent) -> str:
         return "recommended action: watch closely; cut on another weak candle"
     if pct >= 25:
         status = event.status
-        if status in {"Confirmed entry", "Starter entry active", "Trigger forming"}:
+        if status in {"Ready for Entry", "Confirmed entry", "Entry Candidate", "Starter entry active", "Trigger forming"}:
             return "recommended action: take partial profit and hold a runner"
         return "recommended action: take profit"
     if pct >= 20:
@@ -6915,9 +7048,9 @@ def sample_trade_alert_item() -> Analysis:
 def sample_trade_alert_events() -> list[AlertEvent]:
     item = sample_trade_alert_item()
     return [
-        AlertEvent(kind="entry", symbol=item.symbol, direction="CALL", stance="Actionable on trigger", status="Confirmed entry", item=item),
-        AlertEvent(kind="position", symbol=item.symbol, direction="CALL", stance="Actionable on trigger", status="Confirmed entry", item=item, position_key="TEST:CALL:TEST260629C00105000", percent_change=22.0),
-        AlertEvent(kind="position", symbol=item.symbol, direction="CALL", stance="Watch only", status="Watch only", item=item, position_key="TEST:CALL:TEST260629C00105000", percent_change=-21.0),
+        AlertEvent(kind="entry", symbol=item.symbol, direction="CALL", stance="Ready for Entry", status="Ready for Entry", item=item),
+        AlertEvent(kind="position", symbol=item.symbol, direction="CALL", stance="Ready for Entry", status="Ready for Entry", item=item, position_key="TEST:CALL:TEST260629C00105000", percent_change=22.0),
+        AlertEvent(kind="position", symbol=item.symbol, direction="CALL", stance="Live Watchlist", status="Live Watchlist", item=item, position_key="TEST:CALL:TEST260629C00105000", percent_change=-21.0),
     ]
 
 
