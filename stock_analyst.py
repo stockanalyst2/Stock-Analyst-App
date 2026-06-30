@@ -5871,7 +5871,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       {blocks}
     </section>
     <section class="detail-view" id="detailView" aria-label="Ticker details">
-      <button type="button" class="back-link" id="backToWatchlist">Back to Watchlist</button>
+      <button type="button" class="back-link" id="backToWatchlist">Back to Home</button>
       {"".join(detail_article(rank, item) for rank, item in enumerate(results, start=1))}
     </section>
     {failed_html}
@@ -9676,7 +9676,7 @@ def market_status_header_html(snapshot: dict[str, Any]) -> str:
     status = str(snapshot.get("market_status") or "Markets are unavailable")
     state_class = "" if snapshot.get("market_open") else " is-closed"
     return f"""<header class="MarketStatusHeader market-status-header">
-      <h1 id="pageTitle">Watchlists</h1>
+      <h1 id="pageTitle">Home</h1>
       <button class="ai-powered-pill" type="button" aria-label="AI powered">
         <span aria-hidden="true">✦</span> AI powered
       </button>
@@ -10054,7 +10054,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
 </head>
 <body>
   <main class="detail-shell">
-    <a class="back-link" href="/app">← Back to Watchlist</a>
+    <a class="back-link" href="/app">← Back to Home</a>
     <section class="hero">
       <div>
         <div class="eyebrow"><span class="dot{html.escape(status_class)}"></span>{html.escape(status)}</div>
@@ -10072,7 +10072,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       {section_html}
     </section>
     <div class="footer-actions">
-      <a class="primary-link" href="/app">Return to Watchlist</a>
+      <a class="primary-link" href="/app">Return to Home</a>
     </div>
   </main>
 </body>
@@ -10081,21 +10081,9 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
 
 def bottom_nav_html() -> str:
     return """<nav class="BottomNav bottom-nav" aria-label="ATLAS navigation">
-      <button class="nav-item is-active" type="button" data-panel="watchlist" aria-label="Watchlist">
-        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 8h18"></path><path d="M9 16h18"></path><path d="M9 24h18"></path><circle cx="4.5" cy="8" r="1.4"></circle><circle cx="4.5" cy="16" r="1.4"></circle><circle cx="4.5" cy="24" r="1.4"></circle></svg>
-        <span>Watchlist</span>
-      </button>
-      <button class="nav-item" type="button" data-panel="journal" aria-label="Journal">
-        <svg class="nav-icon journal-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5h14a3 3 0 0 1 3 3v19H10a5 5 0 0 1-5-5V10a5 5 0 0 1 5-5Z"></path><path d="M10 5v22"></path><path d="M14 11h8"></path><path d="M14 16h7"></path><path d="M14 21h6"></path></svg>
-        <span>Journal</span>
-      </button>
-      <button class="nav-item" type="button" data-panel="search" aria-label="Search">
-        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="9"></circle><path d="m21 21 7 7"></path></svg>
-        <span>Search</span>
-      </button>
-      <button class="nav-item" type="button" data-panel="profile" aria-label="Profile">
-        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10.5" r="4"></circle><path d="M8 27c1.5-6 5-9 8-9s6.5 3 8 9"></path></svg>
-        <span>Profile</span>
+      <button class="nav-item is-active" type="button" data-panel="home" aria-label="Home">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15.5 16 6l11 9.5"></path><path d="M8 14.5V27h6v-7h4v7h6V14.5"></path></svg>
+        <span>Home</span>
       </button>
     </nav>"""
 
@@ -11880,9 +11868,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       left: 50%;
       bottom: max(14px, env(safe-area-inset-bottom));
       transform: translateX(-50%);
-      width: min(760px, calc(100vw - 24px));
+      width: min(220px, calc(100vw - 24px));
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr;
       align-items: center;
       z-index: 5;
       padding: 11px 14px 10px;
@@ -11962,12 +11950,6 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .recommendation {{ min-width: 66px; min-height: 40px; font-size: 19px; }}
       .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
       .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
-      body[data-panel="journal"] .market-status-header {{
-        display: grid !important;
-      }}
-      body[data-panel="journal"] [data-panel-switcher="journal"] {{
-        display: grid !important;
-      }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
@@ -12000,27 +11982,17 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
   <main class="app-shell" aria-label="ATLAS">
     {market_status_header_html(market_snapshot)}
     {market_insight_card_html(market_snapshot)}
-    <nav class="section-switcher" data-panel-switcher="watchlist" aria-label="Watchlist groups">
-      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live</button>
-      <button class="section-tab" type="button" data-subpanel="custom-watchlist">Custom</button>
-      <button class="section-tab" type="button" data-subpanel="alerts">Alerts</button>
-    </nav>
-    <nav class="section-switcher is-hidden" data-panel-switcher="journal" aria-label="Journal groups">
-      <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
-      <button class="section-tab" type="button" data-subpanel="personal-journal">Personal</button>
-      <button class="section-tab" type="button" data-subpanel="atlas-journal">Entries</button>
+    <nav class="section-switcher" data-panel-switcher="home" aria-label="Home tools">
+      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live Watchlist</button>
+      <button class="section-tab" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
+      <button class="section-tab" type="button" data-subpanel="atlas-journal">Trade Logs</button>
     </nav>
     <section class="content">
       <section class="stock-list" data-subpanel-content="live-watchlist">
         {stock_cards}
       </section>
-      <section class="panel-placeholder" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
-      <section class="panel-placeholder" data-subpanel-content="alerts">Ready-for-entry alerts and position updates will appear here.</section>
       {pl_calendar_html()}
-      <section class="panel-placeholder" data-subpanel-content="personal-journal">Personal will hold your trade notes and observations.</section>
       {atlas_journal_html(alert_state)}
-      <section class="panel-placeholder" data-panel-content="search">Search will support ticker research and on-demand analysis.</section>
-      <section class="panel-placeholder" data-panel-content="profile">Profile will hold account and notification settings.</section>
       <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
     </section>
     {bottom_nav_html()}
@@ -12035,17 +12007,14 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     const pageTitle = document.getElementById('pageTitle');
     const marketInsightCard = document.getElementById('marketInsightCard');
     const panelTitles = {{
-      watchlist: 'Watchlists',
-      journal: 'Journal',
-      search: 'Search',
-      profile: 'Profile'
+      home: 'Home'
     }};
 
     function showPanel(name) {{
       document.body.dataset.panel = name;
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
       if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
-      marketInsightCard?.classList.toggle('is-hidden', name !== 'watchlist');
+      marketInsightCard?.classList.toggle('is-hidden', name !== 'home');
       for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
       const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
       document.body.dataset.subpanel = activeSubpanelName(name);
@@ -12120,7 +12089,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     {pl_calendar_script()}
     initPLCalendar();
-    showPanel('watchlist');
+    showPanel('home');
     refreshStatus();
     refreshMarketStatus();
     setInterval(refreshStatus, 30000);
