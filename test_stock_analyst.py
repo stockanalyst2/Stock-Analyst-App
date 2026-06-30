@@ -2068,6 +2068,66 @@ class StockAnalystTests(unittest.TestCase):
         self.assertEqual(len(entry["updates"]), 1)
         self.assertIn("take profit", entry["updates"][0]["action"])
 
+    def test_trade_journal_marks_update_even_without_notification(self):
+        item = stock_analyst.sample_trade_alert_item()
+        item.option = stock_analyst.OptionContract(
+            contract_symbol="TEST260629C00105000",
+            side="CALL",
+            strike=105.0,
+            expiration=dt.date(2026, 6, 29),
+            bid=2.30,
+            ask=2.32,
+            last_price=2.31,
+            volume=100,
+            open_interest=500,
+            implied_volatility=0.45,
+        )
+        position_key = "TEST:CALL:TEST260629C00105000"
+        state: dict[str, object] = {
+            "sent": [],
+            "observed": {},
+            "heartbeat_dates": [],
+            "active_positions": {
+                position_key: {
+                    "symbol": "TEST",
+                    "direction": "CALL",
+                    "contract": "TEST260629C00105000",
+                    "entry_option_price": 2.10,
+                    "last_alert_bucket": 10,
+                    "closed": False,
+                }
+            },
+            "trade_journal": [
+                {
+                    "position_key": position_key,
+                    "symbol": "TEST",
+                    "name": "Test Setup",
+                    "opened_date": "2026-06-29",
+                    "entry_option_price": 2.10,
+                    "marks": [],
+                    "max_gain_pct": 0.0,
+                    "max_loss_pct": 0.0,
+                    "closed": False,
+                }
+            ],
+        }
+        saved: dict[str, object] = {}
+
+        with mock.patch("stock_analyst.telegram_configured", return_value=True), \
+            mock.patch("stock_analyst.load_alert_state", side_effect=lambda: dict(state)), \
+            mock.patch("stock_analyst.save_alert_state", side_effect=lambda payload: saved.update(payload)), \
+            mock.patch("stock_analyst.position_events_from_active", return_value=[]), \
+            mock.patch("stock_analyst.alert_candidates_from_transitions", return_value=[]), \
+            mock.patch("stock_analyst.send_telegram_message") as send:
+            self.assertEqual(stock_analyst.maybe_send_trade_alerts([item], "stock_report.html"), 0)
+
+        send.assert_not_called()
+        entry = saved["trade_journal"][0]
+        self.assertAlmostEqual(entry["last_percent_change"], 10.0)
+        self.assertAlmostEqual(entry["max_gain_pct"], 10.0)
+        self.assertEqual(len(entry["marks"]), 1)
+        self.assertTrue(entry["reached_10_pct"])
+
     def test_atlas_journal_html_renders_daily_success_rates(self):
         state = {
             "trade_journal": [
@@ -2095,6 +2155,10 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("Daily Report", document)
         self.assertIn("2026-06-29", document)
         self.assertIn("Hit +10%", document)
+        self.assertIn("Hit +15%", document)
+        self.assertIn("Hit +20%", document)
+        self.assertIn("Best exact move", document)
+        self.assertIn("Exact max move +22.4%", document)
         self.assertIn("1/1 (100.0%)", document)
         self.assertIn("TEST260629C00105000", document)
 

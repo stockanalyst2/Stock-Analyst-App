@@ -7252,11 +7252,22 @@ def trade_journal_entry_from_alert(
         "volume_ratio": journal_float(item.volume_ratio, 2),
         "trade_brief": journal_trade_brief_snapshot(item, event.stance, event.status),
         "updates": [],
+        "marks": [
+            {
+                "timestamp": opened_at,
+                "option_price": journal_float(position.get("entry_option_price"), 4),
+                "stock_price": journal_float(item.price, 2),
+                "percent_change": 0.0,
+            }
+        ],
         "last_percent_change": 0.0,
+        "last_option_price": journal_float(position.get("entry_option_price"), 4),
+        "last_stock_price": journal_float(item.price, 2),
         "last_bucket": 0,
         "max_gain_pct": 0.0,
         "max_loss_pct": 0.0,
         "reached_10_pct": False,
+        "reached_15_pct": False,
         "reached_20_pct": False,
     }
 
@@ -7316,12 +7327,81 @@ def update_trade_journal_for_position(
     entry["max_gain_pct"] = max(float(entry.get("max_gain_pct") or 0.0), percent_change)
     entry["max_loss_pct"] = min(float(entry.get("max_loss_pct") or 0.0), percent_change)
     entry["reached_10_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 10
+    entry["reached_15_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 15
     entry["reached_20_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 20
     entry["last_update_at"] = now
     if should_close:
         entry["closed"] = True
         entry["closed_at"] = now
         entry["close_action"] = position_update_action(event)
+
+
+def refresh_trade_journal_marks_from_results(
+    state: dict[str, Any],
+    results: list[Analysis],
+    active_positions: dict[str, dict[str, Any]],
+) -> None:
+    journal = state.get("trade_journal") or []
+    if not isinstance(journal, list):
+        return
+    items_by_key = {observed_alert_key(item): item for item in results}
+    entries_by_position = {
+        str(entry.get("position_key") or ""): entry
+        for entry in journal
+        if isinstance(entry, dict)
+    }
+    now = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    for position_key, position in active_positions.items():
+        if not isinstance(position, dict) or position.get("closed"):
+            continue
+        entry = entries_by_position.get(str(position_key))
+        if entry is None:
+            continue
+        symbol = str(position.get("symbol") or "").upper()
+        direction = str(position.get("direction") or "")
+        item = items_by_key.get(f"{symbol}:{direction}")
+        if item is None:
+            continue
+        current_option_price = option_mid_price(item.option)
+        entry_option_price = float(position.get("entry_option_price") or 0.0)
+        if current_option_price is None or current_option_price <= 0 or entry_option_price <= 0:
+            continue
+        percent_change = round(((current_option_price - entry_option_price) / entry_option_price) * 100, 2)
+        marks = entry.get("marks") if isinstance(entry.get("marks"), list) else []
+        marks.append(
+            {
+                "timestamp": now,
+                "option_price": journal_float(current_option_price, 4),
+                "stock_price": journal_float(item.price, 2),
+                "percent_change": percent_change,
+            }
+        )
+        entry["marks"] = marks[-250:]
+        entry["last_percent_change"] = percent_change
+        entry["last_mark_at"] = now
+        entry["last_option_price"] = journal_float(current_option_price, 4)
+        entry["last_stock_price"] = journal_float(item.price, 2)
+        entry["max_gain_pct"] = max(float(entry.get("max_gain_pct") or 0.0), percent_change)
+        entry["max_loss_pct"] = min(float(entry.get("max_loss_pct") or 0.0), percent_change)
+        entry["reached_10_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 10
+        entry["reached_15_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 15
+        entry["reached_20_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 20
+
+
+def trade_journal_tp_text(entry: dict[str, Any]) -> str:
+    max_gain = float(entry.get("max_gain_pct") or 0.0)
+    last_change = float(entry.get("last_percent_change") or 0.0)
+    if max_gain >= 20:
+        reached = "TP hit: reached the +20% profit zone"
+    elif max_gain >= 15:
+        reached = "TP progress: reached +15%, short of the +20% target"
+    elif max_gain >= 10:
+        reached = "TP progress: reached +10%, short of the main target"
+    elif max_gain > 0:
+        reached = "No TP hit yet"
+    else:
+        reached = "No positive TP progress logged yet"
+    return f"{reached}. Exact max move {pct_text(max_gain)}; latest mark {pct_text(last_change)}."
 
 
 def trade_journal_day_groups(journal: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
@@ -7336,16 +7416,22 @@ def trade_journal_day_groups(journal: list[dict[str, Any]]) -> list[tuple[str, l
 
 def trade_journal_day_stats(entries: list[dict[str, Any]]) -> dict[str, Any]:
     count = len(entries)
+    max_gains = [float(entry.get("max_gain_pct") or 0.0) for entry in entries]
     reached_10 = sum(1 for entry in entries if float(entry.get("max_gain_pct") or 0.0) >= 10)
+    reached_15 = sum(1 for entry in entries if float(entry.get("max_gain_pct") or 0.0) >= 15)
     reached_20 = sum(1 for entry in entries if float(entry.get("max_gain_pct") or 0.0) >= 20)
     closed = sum(1 for entry in entries if entry.get("closed"))
     return {
         "count": count,
         "reached_10": reached_10,
+        "reached_15": reached_15,
         "reached_20": reached_20,
         "closed": closed,
         "reached_10_rate": round((reached_10 / count) * 100, 1) if count else 0.0,
+        "reached_15_rate": round((reached_15 / count) * 100, 1) if count else 0.0,
         "reached_20_rate": round((reached_20 / count) * 100, 1) if count else 0.0,
+        "best_gain": round(max(max_gains), 1) if max_gains else 0.0,
+        "average_max_gain": round(statistics.fmean(max_gains), 1) if max_gains else 0.0,
     }
 
 
@@ -7484,6 +7570,7 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
     state["sent"] = sorted(sent_keys)
     state["observed"] = current_alert_observations(results)
     state["active_positions"] = active_positions
+    refresh_trade_journal_marks_from_results(state, results, active_positions)
     save_alert_state(state)
     return sent_count
 
@@ -10069,10 +10156,11 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
                 latest = updates[-1]
                 latest_update = html.escape(str(latest.get("action") or latest.get("message") or "Position update logged."))
             else:
-                latest_update = "Open from entry alert; no 10%+ position update has fired yet."
+                latest_update = "Open from entry alert; exact performance is marked on each scan."
             status = "Closed" if entry.get("closed") else "Open"
             brief = entry.get("trade_brief") if isinstance(entry.get("trade_brief"), dict) else {}
             thesis = html.escape(str(brief.get("thesis") or "Entry was logged from a high-confidence Atlas ready-for-entry alert."))
+            tp_text = html.escape(trade_journal_tp_text(entry))
             rows.append(
                 f"""
                 <article class="journal-trade">
@@ -10085,11 +10173,12 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
                   </div>
                   <div class="journal-metrics">
                     <span>Entry <strong>{entry_price_text}</strong></span>
-                    <span>Max gain <strong>{pct_text(entry.get("max_gain_pct"))}</strong></span>
-                    <span>Max loss <strong>{pct_text(entry.get("max_loss_pct"))}</strong></span>
-                    <span>Last <strong>{pct_text(entry.get("last_percent_change"))}</strong></span>
+                    <span>Exact high <strong>{pct_text(entry.get("max_gain_pct"))}</strong></span>
+                    <span>Exact low <strong>{pct_text(entry.get("max_loss_pct"))}</strong></span>
+                    <span>Latest mark <strong>{pct_text(entry.get("last_percent_change"))}</strong></span>
                   </div>
                   <p class="journal-contract">{contract} · alerted {opened}</p>
+                  <p class="journal-tp">{tp_text}</p>
                   <p>{thesis}</p>
                   <p class="journal-latest">{latest_update}</p>
                 </article>
@@ -10107,7 +10196,9 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
               </header>
               <div class="journal-stats">
                 <span>Hit +10% <strong>{stats["reached_10"]}/{stats["count"]} ({stats["reached_10_rate"]}%)</strong></span>
+                <span>Hit +15% <strong>{stats["reached_15"]}/{stats["count"]} ({stats["reached_15_rate"]}%)</strong></span>
                 <span>Hit +20% <strong>{stats["reached_20"]}/{stats["count"]} ({stats["reached_20_rate"]}%)</strong></span>
+                <span>Best exact move <strong>{pct_text(stats["best_gain"])}</strong></span>
                 <span>Closed <strong>{stats["closed"]}/{stats["count"]}</strong></span>
               </div>
               <div class="journal-trades">
@@ -10678,9 +10769,13 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       color: var(--text);
       font-size: 14px;
     }}
-    .journal-contract, .journal-latest {{
+    .journal-contract, .journal-latest, .journal-tp {{
       color: rgba(236,238,245,.55) !important;
       font-size: 12px !important;
+    }}
+    .journal-tp {{
+      color: rgba(33,246,107,.78) !important;
+      margin-top: 8px !important;
     }}
     .bottom-nav {{
       position: fixed;
