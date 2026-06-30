@@ -5714,7 +5714,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Current Watchlist</title>
+  <title>ATLAS Intelligence Dossier</title>
   <style>
     :root {{ color-scheme: dark; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }}
     body {{ margin: 0; background: #020307; color: #eeeeee; }}
@@ -5862,7 +5862,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
 </head>
 <body>
   <main>
-    <h1>Current Watchlist</h1>
+    <h1>ATLAS Intelligence Dossier</h1>
     <section class="toolbar" aria-label="Watchlist controls">
       <button type="button" id="collapseAll">Collapse all</button>
       <button type="button" id="expandAll">Expand all</button>
@@ -5871,7 +5871,7 @@ def write_report(results: list[Analysis], output: Path, profile: str, failed: li
       {blocks}
     </section>
     <section class="detail-view" id="detailView" aria-label="Ticker details">
-      <button type="button" class="back-link" id="backToWatchlist">Back to Home</button>
+      <button type="button" class="back-link" id="backToWatchlist">Return to Private Office</button>
       {"".join(detail_article(rank, item) for rank, item in enumerate(results, start=1))}
     </section>
     {failed_html}
@@ -6175,8 +6175,8 @@ def detail_symbol_id(item: Analysis) -> str:
 def watchlist_preview_panel(rank: int, item: Analysis) -> str:
     symbol_id = detail_symbol_id(item)
     return f"""<section class="watchlist-preview">
-  {theme_panel("Why is it on the list?", why_on_watchlist_text(item), open_panel=True)}
-  <button type="button" class="read-more-link" data-detail-target="{html.escape(symbol_id)}">Read More</button>
+  {theme_panel("Current Thesis", why_on_watchlist_text(item), open_panel=True)}
+  <button type="button" class="read-more-link" data-detail-target="{html.escape(symbol_id)}">Open Dossier</button>
 </section>"""
 
 
@@ -9678,16 +9678,15 @@ def market_status_header_html(snapshot: dict[str, Any]) -> str:
     return f"""<header class="MarketStatusHeader market-status-header">
       <div class="terminal-masthead">
         <span class="atlas-wordmark">ATLAS</span>
-        <span class="terminal-security">PRIVATE TERMINAL</span>
+        <span class="terminal-security">PRIVATE INVESTMENT OFFICE</span>
       </div>
       <h1 id="pageTitle">Home</h1>
-      <button class="ai-powered-pill" type="button" aria-label="AI powered">
-        <span aria-hidden="true">◆</span> ATLAS ACTIVE
+      <button class="classification-pill" type="button" aria-label="Confidential terminal">
+        <span aria-hidden="true">◆</span> CONFIDENTIAL
       </button>
-      <span class="legacy-test-copy">AI powered</span>
-      <p class="ai-subhead"><span aria-hidden="true">◆</span> Intelligence for disciplined execution.</p>
-      <span class="legacy-test-copy">AI insights. Real-time markets.</span>
+      <p class="terminal-subhead"><span aria-hidden="true">◆</span> Market intelligence for disciplined execution.</p>
       <p class="market-open{state_class}" id="marketOpenRow"><span id="marketOpenDot" aria-hidden="true"></span> <span id="marketOpenText">{html.escape(status)}</span></p>
+      <p class="terminal-maxim">Capital first. Wait for confirmation.</p>
     </header>"""
 
 
@@ -9705,9 +9704,9 @@ def market_insight_card_html(snapshot: dict[str, Any]) -> str:
           <svg viewBox="0 0 32 32"><path d="M6 22 L13 15l5 5 8-11"></path><path d="M20 9h6v6"></path></svg>
         </div>
         <div>
-          <span>Market Trend</span>
+          <span>Market Structure</span>
           <strong id="marketTrendText" class="{html.escape(trend_class)}">{html.escape(trend)}</strong>
-          <small class="strength-rating">Strength Rating: <span id="marketStrengthText">{html.escape(strength)}</span></small>
+          <small class="strength-rating">Conviction: <span id="marketStrengthText">{html.escape(strength)}</span></small>
         </div>
       </div>
       <div class="market-divider" aria-hidden="true"></div>
@@ -9716,7 +9715,7 @@ def market_insight_card_html(snapshot: dict[str, Any]) -> str:
           <svg viewBox="0 0 32 32"><path d="m18 3-9 14h7l-2 12 10-16h-7z"></path></svg>
         </div>
         <div>
-          <span>Volatility</span>
+          <span>Risk Temperature</span>
           <strong id="marketVolatilityText" class="purple-text {html.escape(volatility_class)}">{html.escape(volatility)}</strong>
           <small id="marketVixText">{html.escape(vix_text)}</small>
         </div>
@@ -9735,10 +9734,10 @@ def stock_watchlist_card_html(
     rec_class = "call" if recommendation.upper() == "CALL" else "put"
     status_class = app_status_class(status_label)
     why_text = why or {
-        "ABNB": "Airbnb is here because travel demand and consumer-discretionary momentum can reprice quickly when buyers defend a clean pullback. I would treat it as a call idea only if price confirms demand instead of drifting with the broader tape.",
-        "PANW": "Palo Alto Networks is here because cybersecurity remains one of the cleaner enterprise-tech themes, and the setup has enough catalyst support to stay on the live list. The trade still needs confirmation because high-quality software names can fade hard when risk appetite cools.",
-        "BAC": "Bank of America is here as a put idea because banks remain sensitive to rates, credit expectations, and risk-off flows. If financials weaken while BAC rejects resistance, the setup has a clear bearish path; if buyers hold it, the idea should be left alone.",
-    }.get(symbol, "This ticker is on the live list because Atlas found a tradable setup with defined risk and current market context.")
+        "ABNB": "ABNB remains in the dossier because the travel tape has room to reprice if buyers defend the current pullback. The position is not a chase; it is a conditional file waiting for confirmation that demand is still present.",
+        "PANW": "PANW remains under review because cybersecurity sponsorship is durable, but the execution window must stay precise. The file is worth monitoring only while software risk appetite and lower-timeframe demand continue to cooperate.",
+        "BAC": "BAC is filed as a bearish observation because financials can weaken quickly when rates, credit expectations, or risk appetite turn against banks. The thesis requires rejection or failed reclaim behavior, not a blind put entry.",
+    }.get(symbol, "Atlas retained this dossier because the scanner found a defined thesis, current market context, and a risk area that can be judged without emotion.")
     return f"""<article class="StockWatchlistCard stock-card is-collapsed" data-symbol="{html.escape(symbol)}">
         <button class="stock-card-main" type="button" aria-label="Expand {html.escape(symbol)}">
           <div class="stock-copy">
@@ -9747,7 +9746,7 @@ def stock_watchlist_card_html(
             </div>
             <p>{html.escape(name)}</p>
             <span class="sector-badge">{html.escape(sector)}</span>
-            <span class="atlas-status {html.escape(status_class)}"><span aria-hidden="true">★</span> Atlas Status <strong>{html.escape(status_label)}</strong></span>
+            <span class="atlas-status {html.escape(status_class)}"><span aria-hidden="true">◆</span> Atlas Signal <strong>{html.escape(status_label)}</strong></span>
           </div>
           <div class="stock-actions">
             <span class="recommendation {rec_class}">{html.escape(recommendation.title())}</span>
@@ -9756,9 +9755,9 @@ def stock_watchlist_card_html(
         </button>
         <div class="stock-card-detail">
           <div>
-            <strong>Why is it on the list?</strong>
+            <strong>Current Thesis</strong>
             <p>{html.escape(why_text)}</p>
-            <a class="read-more-link" href="/app/detail?symbol={urllib.parse.quote(symbol)}">Read More</a>
+            <a class="read-more-link" href="/app/detail?symbol={urllib.parse.quote(symbol)}">Open Dossier</a>
           </div>
         </div>
       </article>"""
@@ -9843,10 +9842,10 @@ def app_detail_profile(symbol: str, state: dict[str, Any] | None = None) -> dict
             "rating": "Watch",
             "recommendation": "Call",
             "stance": "Needs confirmation",
-            "thesis": f"{symbol} is on the detail screen because it was selected from the Atlas watchlist flow. Treat it as a monitored setup until the live scanner confirms a cleaner entry trigger.",
-            "entry": "Wait for price to confirm direction on the lower timeframe instead of entering because the ticker is visible. The cleaner setup is a defended level, a reclaim, or a breakdown with follow-through depending on the listed direction.",
-            "option": "Use only liquid contracts with a manageable spread and enough time for the expected swing. If the contract quality is poor, skip the trade even if the chart looks workable.",
-            "risk": "The risk is incomplete confirmation. A ticker can look interesting but still be a poor trade if market context, liquidity, or timing does not line up.",
+            "thesis": f"{symbol} is present because Atlas retained it as an active observation. It remains a monitored file until price, catalyst, and execution quality align.",
+            "entry": "Wait for confirmation from the listed level before allocating capital. The preferred entry is controlled: defended demand, failed supply, reclaim, or breakdown with follow-through depending on direction.",
+            "option": "Use only contracts with clean liquidity, manageable spread, and enough duration for the expected move. If the contract structure is poor, the stock thesis is not enough.",
+            "risk": "The risk is incomplete confirmation. A file can look useful and still be unworthy of capital if context, liquidity, or timing deteriorates.",
             "invalidation": "Avoid the setup if price fails the trigger area, if the thesis depends on stale news, or if the option structure makes the risk/reward unattractive.",
         },
     )
@@ -9860,11 +9859,11 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     status = str(snapshot.get("market_status") or "Market status unavailable")
     status_class = "" if snapshot.get("market_open") else " closed"
     sections = [
-        ("Thesis", profile["thesis"]),
-        ("Entry Logic", profile["entry"]),
-        ("Option Focus", profile["option"]),
-        ("Risk", profile["risk"]),
-        ("What Changes My Mind", profile["invalidation"]),
+        ("Current Thesis", profile["thesis"]),
+        ("Entry Conditions", profile["entry"]),
+        ("Contract Exposure", profile["option"]),
+        ("Risk Profile", profile["risk"]),
+        ("Invalidation", profile["invalidation"]),
     ]
     section_html = "\n".join(
         f"""<article class="detail-card">
@@ -9961,9 +9960,9 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
 	      width: 6px;
 	      height: 6px;
       border-radius: 99px;
-      background: var(--green);
+      background: var(--brass);
     }}
-    .dot.closed {{ background: var(--orange); }}
+    .dot.closed {{ background: var(--ash); }}
     h1 {{
       margin: 0;
 	      font-family: var(--serif);
@@ -10070,25 +10069,25 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
 </head>
 <body>
   <main class="detail-shell">
-    <a class="back-link" href="/app">← Back to Home</a>
+    <a class="back-link" href="/app">← Return to Private Office</a>
     <section class="hero">
       <div>
-        <div class="eyebrow"><span class="dot{html.escape(status_class)}"></span>{html.escape(status)}</div>
+        <div class="eyebrow"><span class="dot{html.escape(status_class)}"></span>Operational Status · {html.escape(status)}</div>
         <h1>{html.escape(symbol)}</h1>
         <p class="company">{html.escape(profile["name"])}</p>
       </div>
       <span class="direction {rec_class}">{html.escape(recommendation)}</span>
     </section>
     <section class="summary-grid" aria-label="Trade summary">
-      <div class="metric"><span>Stance</span><strong>{html.escape(profile["stance"])}</strong></div>
+      <div class="metric"><span>Position File</span><strong>{html.escape(profile["stance"])}</strong></div>
       <div class="metric"><span>Sector</span><strong>{html.escape(profile["sector"])}</strong></div>
-      <div class="metric"><span>Atlas Status</span><strong>{html.escape(profile["rating"])}</strong></div>
+      <div class="metric"><span>Atlas Signal</span><strong>{html.escape(profile["rating"])}</strong></div>
     </section>
     <section class="detail-grid" aria-label="Trade detail">
       {section_html}
     </section>
     <div class="footer-actions">
-      <a class="primary-link" href="/app">Return to Home</a>
+      <a class="primary-link" href="/app">Return to Private Office</a>
     </div>
   </main>
 </body>
@@ -10137,8 +10136,8 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
         return """
         <section class="journal-panel is-hidden" data-subpanel-content="atlas-journal">
           <article class="journal-empty">
-            <strong>No trade alerts logged yet.</strong>
-            <p>When Atlas sends a ready-for-entry alert, the contract, entry price, targets, stop area, and all later position updates will be recorded here by trading day.</p>
+            <strong>No Positions Recorded.</strong>
+            <p>When Atlas authorizes a ready-for-entry file, the contract, entry mark, exposure, targets, stop area, and later position updates will be preserved in this ledger.</p>
           </article>
         </section>
         """
@@ -10181,7 +10180,7 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
                     <span>Exact low <strong>{pct_text(entry.get("max_loss_pct"))}</strong></span>
                     <span>Latest mark <strong>{pct_text(entry.get("last_percent_change"))}</strong></span>
                   </div>
-                  <p class="journal-contract">{contract} · alerted {opened}</p>
+                  <p class="journal-contract">{contract} · authorized {opened}</p>
                   <p class="journal-tp">{tp_text}</p>
                   <p>{thesis}</p>
                   <p class="journal-latest">{latest_update}</p>
@@ -10193,10 +10192,10 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
             <article class="journal-day">
               <header>
                 <div>
-                  <span>Daily Report</span>
+                  <span>Daily Ledger</span>
                   <h2>{html.escape(day)}</h2>
                 </div>
-                <strong>{stats["count"]} entries</strong>
+	                <strong>{stats["count"]} positions</strong>
               </header>
               <div class="journal-stats">
                 <span>Hit +10% <strong>{stats["reached_10"]}/{stats["count"]} ({stats["reached_10_rate"]}%)</strong></span>
@@ -10223,7 +10222,7 @@ def pl_calendar_html() -> str:
     <section class="pl-calendar-panel is-hidden" data-subpanel-content="pl-calendar">
       <div class="pl-topline">
         <div>
-          <span>Personal P/L Calendar</span>
+          <span>Capital Ledger</span>
           <h2 id="plMonthTitle">Month</h2>
         </div>
         <div class="pl-actions">
@@ -10273,12 +10272,12 @@ def pl_calendar_html() -> str:
           </div>
           <div id="plTradeList" class="pl-trade-list"></div>
         </section>
-        <button type="button" class="pl-enter-trade-button" data-pl-open-entry>Enter Trade</button>
+        <button type="button" class="pl-enter-trade-button" data-pl-open-entry>Log Position</button>
         <form class="pl-entry-form is-collapsed" id="plEntryForm">
           <div class="pl-entry-grabber" aria-hidden="true"></div>
           <div class="pl-entry-topbar">
             <button type="button" data-pl-close-entry>Cancel</button>
-            <strong>Add Entry</strong>
+            <strong>Record Position</strong>
             <button type="submit" class="pl-top-save">Save</button>
           </div>
           <div class="pl-entry-date-card">
@@ -10287,7 +10286,7 @@ def pl_calendar_html() -> str:
               <span>Date</span>
               <h3 id="plEntryDateLabel">Today</h3>
             </div>
-            <button type="button" class="pl-select-day" data-pl-pick-date>Select Day</button>
+            <button type="button" class="pl-select-day" data-pl-pick-date>Select Date</button>
           </div>
           <div class="pl-entry-summary">
             <span>P/L $ <strong id="plEntrySelectedTotal">$0.00</strong></span>
@@ -10303,7 +10302,7 @@ def pl_calendar_html() -> str:
           </label>
           <label class="pl-entry-row">
             <span class="pl-row-icon pl-icon-blue" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 12h15"></path><path d="m18 7 5 5-5 5"></path><path d="M24 20H9"></path><path d="m14 15-5 5 5 5"></path></svg></span>
-            <span class="pl-row-copy"><strong>Call or Put</strong><small>Select option type</small></span>
+	            <span class="pl-row-copy"><strong>Exposure Type</strong><small>Call, put, shares, or other</small></span>
             <select id="plDirection">
               <option value="">Select</option>
               <option>CALL</option>
@@ -10314,7 +10313,7 @@ def pl_calendar_html() -> str:
           </label>
           <label class="pl-entry-row">
             <span class="pl-row-icon pl-icon-purple" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M10 11h12v5a6 6 0 0 1-12 0z"></path><path d="M8 11H5v3a4 4 0 0 0 4 4"></path><path d="M24 11h3v3a4 4 0 0 1-4 4"></path><path d="M16 22v4"></path><path d="M11 27h10"></path></svg></span>
-            <span class="pl-row-copy"><strong>Win or Loss</strong><small>Select result</small></span>
+	            <span class="pl-row-copy"><strong>Outcome</strong><small>Mark the result</small></span>
             <select id="plResult">
               <option value="">Select</option>
               <option value="WIN">Win</option>
@@ -10328,24 +10327,24 @@ def pl_calendar_html() -> str:
           </label>
           <label class="pl-entry-row pl-notes-field">
             <span class="pl-row-icon pl-icon-teal" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M9 8h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-7l-5 4v-4H9a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3z"></path></svg></span>
-            <span class="pl-row-copy"><strong>Notes</strong><small>Add notes about your trade</small></span>
+	            <span class="pl-row-copy"><strong>Operational Notes</strong><small>Record execution context</small></span>
             <textarea id="plNotes" rows="2" placeholder="Optional"></textarea>
           </label>
           <label class="pl-entry-row pl-extra-field">
-            <span class="pl-row-copy"><strong>Strategy</strong><small>Optional setup label</small></span>
+	            <span class="pl-row-copy"><strong>Strategy</strong><small>Optional classification</small></span>
             <input id="plStrategy" type="text" placeholder="Optional">
           </label>
           <label class="pl-entry-row pl-extra-field">
-            <span class="pl-row-copy"><strong>P/L %</strong><small>Optional percent return</small></span>
+	            <span class="pl-row-copy"><strong>P/L %</strong><small>Optional return profile</small></span>
             <input id="plPnlPct" type="number" step="0.01" placeholder="Optional">
           </label>
           <div class="pl-form-actions">
-            <button type="submit" class="pl-primary">Save Entry</button>
-            <button type="button" data-pl-save-add>Save & Add Another</button>
+            <button type="submit" class="pl-primary">Save Record</button>
+            <button type="button" data-pl-save-add>Save & Record Another</button>
           </div>
           <button type="button" class="pl-utility-hidden" data-pl-reset>Reset</button>
           <button type="button" class="pl-utility-hidden" data-pl-export>Export CSV</button>
-          <p class="pl-private-note">All entries are private and only visible to you.</p>
+          <p class="pl-private-note">Private ledger. Local to this terminal.</p>
         </form>
       </div>
     </section>
@@ -11465,9 +11464,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       font-weight: 500;
       text-transform: uppercase;
     }}
-	    .ai-subhead, .market-open {{
-      display: flex;
-      align-items: center;
+	    .terminal-subhead, .market-open {{
+	      display: flex;
+	      align-items: center;
       gap: 8px;
       margin: 0 0 8px;
       color: var(--muted);
@@ -11475,22 +11474,30 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       line-height: 1.15;
       letter-spacing: .08em;
       font-weight: 500;
-      text-transform: uppercase;
-    }}
-    .ai-subhead, .market-open {{ grid-column: 1 / -1; }}
-    .ai-subhead span {{ color: var(--brass); }}
-    .market-open {{ color: var(--green); }}
-	    .market-open #marketOpenDot {{
-	      width: 6px;
-	      height: 6px;
-      border-radius: 999px;
-      background: var(--green);
-    }}
-    .market-open.is-closed {{ color: var(--orange); }}
-    .market-open.is-closed #marketOpenDot {{
-      background: var(--orange);
-    }}
-	    .ai-powered-pill {{
+	      text-transform: uppercase;
+	    }}
+	    .terminal-subhead, .market-open, .terminal-maxim {{ grid-column: 1 / -1; }}
+	    .terminal-subhead span {{ color: var(--brass); }}
+	    .terminal-maxim {{
+	      margin: 4px 0 0;
+	      color: rgba(222,218,205,.44);
+	      font-family: var(--serif);
+	      font-size: 13px;
+	      letter-spacing: .16em;
+	      text-transform: uppercase;
+	    }}
+	    .market-open {{ color: var(--brass); }}
+		    .market-open #marketOpenDot {{
+		      width: 6px;
+		      height: 6px;
+	      border-radius: 999px;
+	      background: var(--brass);
+	    }}
+	    .market-open.is-closed {{ color: var(--ash); }}
+	    .market-open.is-closed #marketOpenDot {{
+	      background: var(--ash);
+	    }}
+	    .classification-pill {{
 	      margin-top: 8px;
 	      min-height: 32px;
 	      padding: 0 13px;
@@ -11508,7 +11515,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }}
-    .ai-powered-pill span {{ color: var(--brass); }}
+	    .classification-pill span {{ color: var(--brass); }}
 	    .market-insight-card {{
       display: grid;
       grid-template-columns: 1fr 1px 1fr;
@@ -11567,7 +11574,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       display: inline;
     }}
     .market-insight .purple-text {{ color: var(--brass); }}
-    .market-insight strong.bearish, .market-insight strong.elevated, .market-insight strong.high {{ color: var(--orange); }}
+	    .market-insight strong.bearish, .market-insight strong.elevated, .market-insight strong.high {{ color: #b98d67; }}
     .market-insight strong.neutral, .market-insight strong.unknown {{ color: rgba(236,238,245,.70); }}
     .section-switcher {{
       display: grid;
@@ -11609,15 +11616,26 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
     .stock-list {{ display: grid; gap: 16px; }}
-    .stock-card {{
-      border: 1px solid var(--line);
+	    .stock-card {{
+	      position: relative;
+	      border: 1px solid var(--line);
 	      border-radius: 5px;
       background: linear-gradient(145deg, rgba(13, 13, 12, .92), rgba(6, 6, 6, .90));
       box-shadow: 0 18px 42px rgba(0,0,0,.26);
       overflow: hidden;
-      transition: transform .24s ease, border-color .24s ease, background .24s ease;
-    }}
-    .stock-card:active {{ transform: scale(.992); }}
+	      transition: transform .46s cubic-bezier(.18,.76,.15,1), border-color .46s ease, background .46s ease;
+	    }}
+	    .stock-card::before {{
+	      content: "";
+	      position: absolute;
+	      left: 0;
+	      top: 0;
+	      bottom: 0;
+	      width: 2px;
+	      background: linear-gradient(180deg, transparent, rgba(200,173,106,.38), transparent);
+	      opacity: .42;
+	    }}
+	    .stock-card:active {{ transform: none; }}
     .stock-card-main {{
       width: 100%;
 	      min-height: 116px;
@@ -11708,7 +11726,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	      border-right: 1px solid rgba(222,218,205,.68);
 	      border-bottom: 1px solid rgba(222,218,205,.68);
       transform: rotate(45deg);
-      transition: transform .28s ease;
+	      transition: transform .46s cubic-bezier(.18,.76,.15,1);
       margin-right: 3px;
     }}
     .stock-card:not(.is-collapsed) .chevron {{ transform: rotate(225deg); }}
@@ -11716,7 +11734,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       display: grid;
       grid-template-rows: 1fr;
       opacity: 1;
-      transition: grid-template-rows .32s cubic-bezier(.2,.8,.2,1), opacity .22s ease;
+	      transition: grid-template-rows .52s cubic-bezier(.18,.76,.15,1), opacity .34s ease;
     }}
     .stock-card.is-collapsed .stock-card-detail {{
       grid-template-rows: 0fr;
@@ -12000,10 +12018,11 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	      .terminal-masthead {{ padding-bottom: 13px; }}
 	      .atlas-wordmark {{ font-size: 13px; letter-spacing: .38em; }}
 	      .terminal-security {{ display: none; }}
-	      .market-status-header h1 {{ font-size: 30px; margin-bottom: 0; letter-spacing: .18em; }}
-	      .ai-subhead, .market-open {{ font-size: 10px; margin-bottom: 4px; gap: 7px; letter-spacing: .12em; }}
+		      .market-status-header h1 {{ font-size: 30px; margin-bottom: 0; letter-spacing: .18em; }}
+		      .terminal-subhead, .market-open {{ font-size: 10px; margin-bottom: 4px; gap: 7px; letter-spacing: .12em; }}
+		      .terminal-maxim {{ font-size: 10px; letter-spacing: .13em; }}
 	      .market-open #marketOpenDot {{ width: 6px; height: 6px; }}
-	      .ai-powered-pill {{ min-height: 29px; padding: 0 10px; font-size: 9px; border-radius: 2px; }}
+		      .classification-pill {{ min-height: 29px; padding: 0 10px; font-size: 9px; border-radius: 2px; }}
 	      .market-insight-card {{ min-height: 70px; padding: 10px 10px; border-radius: 4px; margin-bottom: 12px; }}
 	      .market-insight {{ grid-template-columns: 32px 1fr; gap: 9px; }}
 	      .insight-icon {{ width: 32px; height: 32px; }}
@@ -12032,9 +12051,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	    @media (max-width: 390px) {{
 	      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
 	      .market-status-header {{ padding-top: 16px; }}
-	      .market-status-header h1 {{ font-size: 26px; }}
-	      .ai-subhead, .market-open {{ font-size: 9px; }}
-	      .ai-powered-pill {{ min-height: 27px; padding: 0 9px; font-size: 8px; }}
+		      .market-status-header h1 {{ font-size: 26px; }}
+		      .terminal-subhead, .market-open {{ font-size: 9px; }}
+		      .terminal-maxim {{ font-size: 9px; }}
+		      .classification-pill {{ min-height: 27px; padding: 0 9px; font-size: 8px; }}
 	      .market-insight-card {{ grid-template-columns: 1fr 1px 1fr; gap: 0; padding: 9px 8px; min-height: 66px; }}
 	      .market-insight {{ grid-template-columns: 28px 1fr; gap: 7px; }}
 	      .insight-icon {{ width: 28px; height: 28px; }}
@@ -12063,9 +12083,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     {market_status_header_html(market_snapshot)}
     {market_insight_card_html(market_snapshot)}
     <nav class="section-switcher" data-panel-switcher="home" aria-label="Home tools">
-      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Live Watchlist</button>
-      <button class="section-tab" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
-      <button class="section-tab" type="button" data-subpanel="atlas-journal">Trade Logs</button>
+      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Watchlist</button>
+      <button class="section-tab" type="button" data-subpanel="pl-calendar">Capital</button>
+      <button class="section-tab" type="button" data-subpanel="atlas-journal">Positions</button>
     </nav>
     <section class="content">
       <section class="stock-list" data-subpanel-content="live-watchlist">
