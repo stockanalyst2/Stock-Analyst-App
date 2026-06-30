@@ -9393,7 +9393,7 @@ def market_insight_card_html(snapshot: dict[str, Any]) -> str:
     vix_text = f"VIX {float(vix):.1f}" if isinstance(vix, (int, float)) else "VIX unavailable"
     trend_class = trend.lower()
     volatility_class = volatility.lower()
-    return f"""<section class="MarketInsightCard market-insight-card" aria-label="Market summary">
+    return f"""<section class="MarketInsightCard market-insight-card" id="marketInsightCard" aria-label="Market summary">
       <div class="market-insight">
         <div class="insight-icon trend-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M6 22 L13 15l5 5 8-11"></path><path d="M20 9h6v6"></path></svg>
@@ -10375,6 +10375,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     const panelContents = Array.from(document.querySelectorAll('[data-panel-content]'));
     const stockCards = Array.from(document.querySelectorAll('.stock-card'));
     const pageTitle = document.getElementById('pageTitle');
+    const marketInsightCard = document.getElementById('marketInsightCard');
     const panelTitles = {{
       watchlist: 'Watchlists',
       journal: 'Journal',
@@ -10385,6 +10386,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     function showPanel(name) {{
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
       if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
+      marketInsightCard?.classList.toggle('is-hidden', name !== 'watchlist');
       for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
       const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
       for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher !== activeSwitcher);
