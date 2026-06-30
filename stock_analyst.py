@@ -9912,24 +9912,24 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
-      gap: 18px;
-      padding-top: 56px;
-      margin-bottom: 20px;
+      gap: 10px 14px;
+      padding-top: 36px;
+      margin-bottom: 14px;
     }}
     .market-status-header h1 {{
-      margin: 0 0 14px;
-      font-size: clamp(54px, 10vw, 76px);
-      line-height: .88;
-      letter-spacing: -.065em;
-      font-weight: 780;
+      margin: 0 0 8px;
+      font-size: clamp(36px, 7vw, 52px);
+      line-height: .95;
+      letter-spacing: -.055em;
+      font-weight: 740;
     }}
     .ai-subhead, .market-open {{
       display: flex;
       align-items: center;
-      gap: 11px;
-      margin: 0 0 13px;
+      gap: 8px;
+      margin: 0 0 8px;
       color: var(--muted);
-      font-size: clamp(20px, 4vw, 26px);
+      font-size: clamp(15px, 3vw, 19px);
       line-height: 1.15;
       letter-spacing: -.035em;
       font-weight: 520;
@@ -9938,8 +9938,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .ai-subhead span {{ color: var(--purple); text-shadow: 0 0 18px rgba(179, 76, 255, .9); }}
     .market-open {{ color: var(--green); }}
     .market-open #marketOpenDot {{
-      width: 18px;
-      height: 18px;
+      width: 11px;
+      height: 11px;
       border-radius: 999px;
       background: var(--green);
       box-shadow: 0 0 24px rgba(33, 246, 107, .72);
@@ -9950,17 +9950,17 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       box-shadow: 0 0 24px rgba(255, 106, 52, .55);
     }}
     .ai-powered-pill {{
-      margin-top: 16px;
-      min-height: 58px;
-      padding: 0 21px;
-      border-radius: 13px;
+      margin-top: 8px;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 11px;
       border: 1px solid rgba(196, 77, 255, .64);
       background: rgba(35, 15, 48, .28);
       color: #d68cff;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      font-size: 20px;
+      gap: 8px;
+      font-size: 14px;
       letter-spacing: -.02em;
       white-space: nowrap;
       box-shadow: inset 0 0 22px rgba(179, 76, 255, .08), 0 0 26px rgba(179, 76, 255, .18);
@@ -9972,27 +9972,27 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       display: grid;
       grid-template-columns: 1fr 1px 1fr;
       align-items: center;
-      min-height: 145px;
-      padding: 26px 28px;
+      min-height: 92px;
+      padding: 15px 18px;
       border: 1px solid var(--line);
-      border-radius: 25px;
+      border-radius: 19px;
       background: linear-gradient(145deg, rgba(17, 20, 28, .72), rgba(5, 6, 10, .46));
       box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 22px 70px rgba(0,0,0,.42);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }}
     .market-insight {{
       display: grid;
-      grid-template-columns: 75px 1fr;
+      grid-template-columns: 48px 1fr;
       align-items: center;
-      gap: 20px;
+      gap: 13px;
       min-width: 0;
     }}
-    .market-divider {{ width: 1px; height: 92px; background: rgba(255,255,255,.13); }}
+    .market-divider {{ width: 1px; height: 58px; background: rgba(255,255,255,.13); }}
     .insight-icon {{
-      width: 75px;
-      height: 75px;
+      width: 48px;
+      height: 48px;
       border-radius: 999px;
       display: grid;
       place-items: center;
@@ -10001,20 +10001,20 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     .trend-icon {{ color: var(--green); background: rgba(33,246,107,.12); box-shadow: 0 0 34px rgba(33,246,107,.14); }}
     .volatility-icon {{ color: var(--purple); background: rgba(179,76,255,.12); box-shadow: 0 0 34px rgba(179,76,255,.14); }}
-    .insight-icon svg {{ width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 3.7; stroke-linecap: round; stroke-linejoin: round; }}
+    .insight-icon svg {{ width: 27px; height: 27px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }}
     .volatility-icon svg {{ fill: currentColor; stroke: none; }}
     .market-insight span, .market-insight small {{
       display: block;
       color: var(--muted);
-      font-size: 17px;
+      font-size: 13px;
       letter-spacing: -.02em;
     }}
     .market-insight strong {{
       display: block;
       color: var(--green);
-      font-size: 27px;
+      font-size: 20px;
       line-height: 1.15;
-      margin: 7px 0 6px;
+      margin: 3px 0 3px;
       letter-spacing: -.035em;
     }}
     .market-insight .purple-text {{ color: var(--purple); }}
@@ -10276,18 +10276,18 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .app-shell {{
         padding: max(28px, env(safe-area-inset-top)) 30px calc(98px + env(safe-area-inset-bottom));
       }}
-      .market-status-header {{ padding-top: 44px; gap: 13px 12px; margin-bottom: 18px; }}
-      .market-status-header h1 {{ font-size: 57px; margin-bottom: 2px; letter-spacing: -.07em; }}
-      .ai-subhead, .market-open {{ font-size: 19px; margin-bottom: 7px; gap: 9px; }}
-      .market-open #marketOpenDot {{ width: 15px; height: 15px; }}
-      .ai-powered-pill {{ min-height: 44px; padding: 0 13px; font-size: 15px; border-radius: 12px; }}
-      .market-insight-card {{ min-height: 112px; padding: 17px 15px; border-radius: 20px; margin-bottom: 18px; }}
-      .market-insight {{ grid-template-columns: 54px 1fr; gap: 12px; }}
-      .insight-icon {{ width: 54px; height: 54px; }}
-      .insight-icon svg {{ width: 30px; height: 30px; }}
-      .market-insight strong {{ font-size: 21px; }}
-      .market-insight span, .market-insight small {{ font-size: 14px; }}
-      .market-divider {{ height: 70px; }}
+      .market-status-header {{ padding-top: 28px; gap: 8px 10px; margin-bottom: 12px; }}
+      .market-status-header h1 {{ font-size: 38px; margin-bottom: 0; letter-spacing: -.06em; }}
+      .ai-subhead, .market-open {{ font-size: 14px; margin-bottom: 5px; gap: 7px; }}
+      .market-open #marketOpenDot {{ width: 10px; height: 10px; }}
+      .ai-powered-pill {{ min-height: 34px; padding: 0 11px; font-size: 12px; border-radius: 10px; }}
+      .market-insight-card {{ min-height: 84px; padding: 13px 12px; border-radius: 17px; margin-bottom: 14px; }}
+      .market-insight {{ grid-template-columns: 42px 1fr; gap: 10px; }}
+      .insight-icon {{ width: 42px; height: 42px; }}
+      .insight-icon svg {{ width: 24px; height: 24px; }}
+      .market-insight strong {{ font-size: 17px; }}
+      .market-insight span, .market-insight small {{ font-size: 11px; }}
+      .market-divider {{ height: 52px; }}
       .section-switcher {{ height: 54px; margin-bottom: 14px; }}
       .section-tab {{ min-height: 54px; padding-bottom: 14px; font-size: 20px; }}
       .stock-list {{ gap: 14px; }}
@@ -10307,17 +10307,17 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
-      .market-status-header {{ padding-top: 42px; }}
-      .market-status-header h1 {{ font-size: 48px; }}
-      .ai-subhead, .market-open {{ font-size: 16px; }}
-      .ai-powered-pill {{ min-height: 40px; padding: 0 11px; font-size: 13px; }}
-      .market-insight-card {{ grid-template-columns: 1fr 1px 1fr; gap: 0; padding: 14px 13px; min-height: 100px; }}
-      .market-insight {{ grid-template-columns: 44px 1fr; gap: 10px; }}
-      .insight-icon {{ width: 44px; height: 44px; }}
-      .insight-icon svg {{ width: 25px; height: 25px; }}
-      .market-insight strong {{ font-size: 18px; }}
-      .market-insight span, .market-insight small {{ font-size: 12px; }}
-      .market-divider {{ display: block; height: 58px; }}
+      .market-status-header {{ padding-top: 24px; }}
+      .market-status-header h1 {{ font-size: 34px; }}
+      .ai-subhead, .market-open {{ font-size: 13px; }}
+      .ai-powered-pill {{ min-height: 31px; padding: 0 10px; font-size: 11px; }}
+      .market-insight-card {{ grid-template-columns: 1fr 1px 1fr; gap: 0; padding: 11px 10px; min-height: 78px; }}
+      .market-insight {{ grid-template-columns: 36px 1fr; gap: 8px; }}
+      .insight-icon {{ width: 36px; height: 36px; }}
+      .insight-icon svg {{ width: 21px; height: 21px; }}
+      .market-insight strong {{ font-size: 15px; }}
+      .market-insight span, .market-insight small {{ font-size: 10px; }}
+      .market-divider {{ display: block; height: 46px; }}
       .stock-card-main {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 64px; gap: 14px; padding: 15px 16px; }}
       .stock-copy h2 {{ font-size: 25px; }}
       .stock-copy p {{ font-size: 16px; }}
