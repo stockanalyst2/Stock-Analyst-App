@@ -11933,8 +11933,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .market-insight strong {{ font-size: 17px; }}
       .market-insight span, .market-insight small {{ font-size: 11px; }}
       .market-divider {{ height: 52px; }}
-      .section-switcher {{ height: 54px; margin-bottom: 14px; }}
-      .section-tab {{ min-height: 54px; padding-bottom: 14px; font-size: 20px; }}
+      .section-switcher {{ height: 50px; margin-bottom: 14px; column-gap: 8px; }}
+      .section-tab {{ min-height: 50px; padding: 0 2px 13px; font-size: 15px; letter-spacing: -.025em; white-space: nowrap; }}
       .stock-list {{ gap: 14px; }}
       .stock-card-main {{
         min-height: 126px;
@@ -11964,6 +11964,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .market-insight strong {{ font-size: 15px; }}
       .market-insight span, .market-insight small {{ font-size: 10px; }}
       .market-divider {{ display: block; height: 46px; }}
+      .section-switcher {{ column-gap: 5px; }}
+      .section-tab {{ font-size: 13px; padding-left: 0; padding-right: 0; }}
       .stock-card-main {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 64px; gap: 14px; padding: 15px 16px; }}
       .stock-copy h2 {{ font-size: 25px; }}
       .stock-copy p {{ font-size: 16px; }}
