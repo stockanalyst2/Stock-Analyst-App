@@ -6910,22 +6910,26 @@ def load_alert_state() -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return {"sent": [], "observed": {}, "heartbeat_dates": [], "active_positions": {}}
+        return {"sent": [], "observed": {}, "heartbeat_dates": [], "active_positions": {}, "trade_journal": []}
     if not isinstance(payload, dict):
-        payload = {"sent": payload, "observed": {}, "heartbeat_dates": [], "active_positions": {}}
+        payload = {"sent": payload, "observed": {}, "heartbeat_dates": [], "active_positions": {}, "trade_journal": []}
     sent = payload.get("sent") or []
     observed = payload.get("observed") or {}
     heartbeat_dates = payload.get("heartbeat_dates") or []
     active_positions = payload.get("active_positions") or {}
+    trade_journal = payload.get("trade_journal") or []
     if not isinstance(observed, dict):
         observed = {}
     if not isinstance(active_positions, dict):
         active_positions = {}
+    if not isinstance(trade_journal, list):
+        trade_journal = []
     return {
         "sent": [str(key) for key in sent if str(key).strip()],
         "observed": {str(key): value for key, value in observed.items() if isinstance(value, dict)},
         "heartbeat_dates": [str(value) for value in heartbeat_dates if str(value).strip()],
         "active_positions": {str(key): value for key, value in active_positions.items() if isinstance(value, dict)},
+        "trade_journal": [entry for entry in trade_journal if isinstance(entry, dict)],
     }
 
 
@@ -6935,6 +6939,7 @@ def save_alert_state(state: dict[str, Any]) -> None:
     observed = state.get("observed") or {}
     heartbeat_dates = [str(value) for value in state.get("heartbeat_dates", []) if str(value).strip()]
     active_positions = state.get("active_positions") or {}
+    trade_journal = state.get("trade_journal") or []
     path.write_text(
         json.dumps(
             {
@@ -6942,6 +6947,7 @@ def save_alert_state(state: dict[str, Any]) -> None:
                 "observed": observed if isinstance(observed, dict) else {},
                 "heartbeat_dates": sorted(set(heartbeat_dates))[-30:],
                 "active_positions": active_positions if isinstance(active_positions, dict) else {},
+                "trade_journal": trade_journal[-1000:] if isinstance(trade_journal, list) else [],
             },
             indent=2,
         ),
@@ -7144,6 +7150,205 @@ def build_active_position(item: Analysis) -> dict[str, Any] | None:
     }
 
 
+def journal_float(value: Any, digits: int = 4) -> float | None:
+    try:
+        if value is None:
+            return None
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(number):
+        return None
+    return round(number, digits)
+
+
+def journal_option_snapshot(option: OptionContract | None) -> dict[str, Any]:
+    if option is None:
+        return {}
+    return {
+        "contract": option.contract_symbol,
+        "side": option.side,
+        "strike": journal_float(option.strike, 2),
+        "expiration": option.expiration.isoformat(),
+        "bid": journal_float(option.bid, 4),
+        "ask": journal_float(option.ask, 4),
+        "last_price": journal_float(option.last_price, 4),
+        "mid": journal_float(option_mid_price(option), 4),
+        "volume": option.volume,
+        "open_interest": option.open_interest,
+        "implied_volatility": journal_float(option.implied_volatility, 4),
+        "estimated": bool(option.estimated),
+    }
+
+
+def journal_trade_brief_snapshot(item: Analysis, stance: str, status: str) -> dict[str, Any]:
+    brief = item.trade_brief
+    judgment = real_money_trader_judgment(item, brief)
+    decision = trade_decision(item, brief)
+    goals = [
+        {"label": label, "stock_target": journal_float(target, 2), "profit_pct": goal}
+        for label, target, goal in target_profit_levels(item)[:3]
+    ]
+    if brief is None:
+        return {
+            "stance": stance,
+            "status": status,
+            "trader_score": journal_float(judgment.get("score"), 1),
+            "trader_verdict": str(judgment.get("verdict") or ""),
+            "decision_reasons": list(decision.reasons[:4]),
+            "targets": goals,
+        }
+    return {
+        "stance": stance,
+        "status": status,
+        "pattern": brief.pattern,
+        "pattern_status": brief.pattern_status,
+        "confirmation_level": journal_float(brief.confirmation_level, 2),
+        "setup_grade": brief.setup_grade,
+        "risk_reward": journal_float(brief.risk_reward, 2),
+        "invalidation": journal_float(brief.invalidation, 2),
+        "stop_loss": journal_float(brief.stop_loss, 2),
+        "targets": goals,
+        "thesis": brief.thesis,
+        "market_structure": brief.market_structure,
+        "catalyst_analysis": brief.catalyst_analysis,
+        "event_risk": brief.event_risk,
+        "trader_score": journal_float(judgment.get("score"), 1),
+        "trader_verdict": str(judgment.get("verdict") or ""),
+        "decision_reasons": list(decision.reasons[:4]),
+        "decision_blockers": list(decision.blockers[:4]),
+    }
+
+
+def trade_journal_entry_from_alert(
+    item: Analysis,
+    position_key: str,
+    position: dict[str, Any],
+    event: AlertEvent,
+    message: str,
+    report_url: str = "",
+) -> dict[str, Any]:
+    opened_at = str(position.get("opened_at") or dt.datetime.now().astimezone().isoformat(timespec="seconds"))
+    opened_date = opened_at[:10]
+    return {
+        "id": position_key,
+        "position_key": position_key,
+        "symbol": item.symbol,
+        "name": item.name,
+        "direction": item.setup_direction or (item.option.side if item.option else event.direction),
+        "status": event.status,
+        "stance": event.stance,
+        "opened_at": opened_at,
+        "opened_date": opened_date,
+        "closed": False,
+        "entry_stock_price": journal_float(item.price, 2),
+        "entry_option_price": journal_float(position.get("entry_option_price"), 4),
+        "option": journal_option_snapshot(item.option),
+        "alert_message": message,
+        "report_url": report_url,
+        "catalyst_score": journal_float(item.catalyst_score, 1),
+        "final_trade_score": journal_float(item.final_trade_score, 1),
+        "setup_score": journal_float(item.setup_score, 1),
+        "volume_ratio": journal_float(item.volume_ratio, 2),
+        "trade_brief": journal_trade_brief_snapshot(item, event.stance, event.status),
+        "updates": [],
+        "last_percent_change": 0.0,
+        "last_bucket": 0,
+        "max_gain_pct": 0.0,
+        "max_loss_pct": 0.0,
+        "reached_10_pct": False,
+        "reached_20_pct": False,
+    }
+
+
+def upsert_trade_journal_entry(state: dict[str, Any], entry: dict[str, Any]) -> None:
+    journal = state.get("trade_journal") or []
+    if not isinstance(journal, list):
+        journal = []
+    position_key = str(entry.get("position_key") or "")
+    journal = [
+        existing
+        for existing in journal
+        if not (isinstance(existing, dict) and str(existing.get("position_key") or "") == position_key)
+    ]
+    journal.append(entry)
+    state["trade_journal"] = journal
+
+
+def update_trade_journal_for_position(
+    state: dict[str, Any],
+    event: AlertEvent,
+    message: str,
+    should_close: bool,
+) -> None:
+    journal = state.get("trade_journal") or []
+    if not isinstance(journal, list):
+        return
+    position_key = str(event.position_key or "")
+    entry = next(
+        (
+            candidate
+            for candidate in reversed(journal)
+            if isinstance(candidate, dict) and str(candidate.get("position_key") or "") == position_key
+        ),
+        None,
+    )
+    if entry is None:
+        return
+    percent_change = journal_float(event.percent_change, 2) or 0.0
+    bucket = pct_change_bucket(percent_change)
+    now = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    updates = entry.get("updates") if isinstance(entry.get("updates"), list) else []
+    current_option_price = option_mid_price(event.item.option) if event.item is not None else None
+    updates.append(
+        {
+            "timestamp": now,
+            "percent_change": percent_change,
+            "bucket": bucket,
+            "current_option_price": journal_float(current_option_price, 4),
+            "action": position_update_action(event),
+            "message": message,
+        }
+    )
+    entry["updates"] = updates[-200:]
+    entry["last_percent_change"] = percent_change
+    entry["last_bucket"] = bucket
+    entry["max_gain_pct"] = max(float(entry.get("max_gain_pct") or 0.0), percent_change)
+    entry["max_loss_pct"] = min(float(entry.get("max_loss_pct") or 0.0), percent_change)
+    entry["reached_10_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 10
+    entry["reached_20_pct"] = float(entry.get("max_gain_pct") or 0.0) >= 20
+    entry["last_update_at"] = now
+    if should_close:
+        entry["closed"] = True
+        entry["closed_at"] = now
+        entry["close_action"] = position_update_action(event)
+
+
+def trade_journal_day_groups(journal: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for entry in journal:
+        if not isinstance(entry, dict):
+            continue
+        day = str(entry.get("opened_date") or str(entry.get("opened_at") or "")[:10] or "Unknown")
+        groups.setdefault(day, []).append(entry)
+    return sorted(groups.items(), reverse=True)
+
+
+def trade_journal_day_stats(entries: list[dict[str, Any]]) -> dict[str, Any]:
+    count = len(entries)
+    reached_10 = sum(1 for entry in entries if float(entry.get("max_gain_pct") or 0.0) >= 10)
+    reached_20 = sum(1 for entry in entries if float(entry.get("max_gain_pct") or 0.0) >= 20)
+    closed = sum(1 for entry in entries if entry.get("closed"))
+    return {
+        "count": count,
+        "reached_10": reached_10,
+        "reached_20": reached_20,
+        "closed": closed,
+        "reached_10_rate": round((reached_10 / count) * 100, 1) if count else 0.0,
+        "reached_20_rate": round((reached_20 / count) * 100, 1) if count else 0.0,
+    }
+
+
 def pct_change_bucket(percent_change: float) -> int:
     absolute = abs(percent_change)
     if absolute < 10:
@@ -7251,19 +7456,27 @@ def maybe_send_trade_alerts(results: list[Analysis], output: Path | str) -> int:
         if key in sent_keys:
             continue
         try:
-            if send_telegram_message(format_trade_alert(event, report_url)):
+            message = format_trade_alert(event, report_url)
+            if send_telegram_message(message):
                 sent_keys.add(key)
                 sent_count += 1
                 if event.kind == "entry" and event.item is not None:
                     position = build_active_position(event.item)
                     if position is not None:
-                        active_positions[position_key_from_item(event.item)] = position
+                        position_key = position_key_from_item(event.item)
+                        active_positions[position_key] = position
+                        upsert_trade_journal_entry(
+                            state,
+                            trade_journal_entry_from_alert(event.item, position_key, position, event, message, report_url),
+                        )
                 if event.kind == "position" and event.position_key:
                     position = active_positions.get(event.position_key)
                     if isinstance(position, dict):
                         position["last_alert_bucket"] = pct_change_bucket(event.percent_change or 0.0)
                         position["last_alert_at"] = dt.datetime.now().astimezone().isoformat(timespec="seconds")
-                        if should_close_tracked_position(event):
+                        should_close = should_close_tracked_position(event)
+                        update_trade_journal_for_position(state, event, message, should_close)
+                        if should_close:
                             position["closed"] = True
                             position["closed_at"] = dt.datetime.now().astimezone().isoformat(timespec="seconds")
         except Exception as exc:
@@ -9818,8 +10031,101 @@ def dashboard_card_records(state: dict[str, Any] | None = None) -> list[dict[str
     ]
 
 
+def pct_text(value: Any) -> str:
+    number = journal_float(value, 1)
+    if number is None:
+        return "0%"
+    sign = "+" if number > 0 else ""
+    return f"{sign}{number:.1f}%"
+
+
+def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
+    payload = state if state is not None else load_alert_state()
+    journal = payload.get("trade_journal") or []
+    if not isinstance(journal, list) or not journal:
+        return """
+        <section class="journal-panel is-hidden" data-subpanel-content="atlas-journal">
+          <article class="journal-empty">
+            <strong>No trade alerts logged yet.</strong>
+            <p>When Atlas sends a ready-for-entry alert, the contract, entry price, targets, stop area, and all later position updates will be recorded here by trading day.</p>
+          </article>
+        </section>
+        """
+    day_sections: list[str] = []
+    for day, entries in trade_journal_day_groups([entry for entry in journal if isinstance(entry, dict)]):
+        stats = trade_journal_day_stats(entries)
+        rows: list[str] = []
+        for entry in entries:
+            symbol = html.escape(str(entry.get("symbol") or ""))
+            name = html.escape(str(entry.get("name") or ""))
+            direction = html.escape(str(entry.get("direction") or ""))
+            contract = html.escape(str((entry.get("option") or {}).get("contract") or "Contract TBD"))
+            opened = html.escape(str(entry.get("opened_at") or "")[11:16])
+            entry_price = journal_float(entry.get("entry_option_price"), 2)
+            entry_price_text = f"${entry_price:.2f}" if entry_price is not None else "Entry TBD"
+            latest_update = ""
+            updates = entry.get("updates") if isinstance(entry.get("updates"), list) else []
+            if updates:
+                latest = updates[-1]
+                latest_update = html.escape(str(latest.get("action") or latest.get("message") or "Position update logged."))
+            else:
+                latest_update = "Open from entry alert; no 10%+ position update has fired yet."
+            status = "Closed" if entry.get("closed") else "Open"
+            brief = entry.get("trade_brief") if isinstance(entry.get("trade_brief"), dict) else {}
+            thesis = html.escape(str(brief.get("thesis") or "Entry was logged from a high-confidence Atlas ready-for-entry alert."))
+            rows.append(
+                f"""
+                <article class="journal-trade">
+                  <div class="journal-trade-top">
+                    <div>
+                      <h3>{symbol} <span>{direction}</span></h3>
+                      <p>{name}</p>
+                    </div>
+                    <em>{status}</em>
+                  </div>
+                  <div class="journal-metrics">
+                    <span>Entry <strong>{entry_price_text}</strong></span>
+                    <span>Max gain <strong>{pct_text(entry.get("max_gain_pct"))}</strong></span>
+                    <span>Max loss <strong>{pct_text(entry.get("max_loss_pct"))}</strong></span>
+                    <span>Last <strong>{pct_text(entry.get("last_percent_change"))}</strong></span>
+                  </div>
+                  <p class="journal-contract">{contract} · alerted {opened}</p>
+                  <p>{thesis}</p>
+                  <p class="journal-latest">{latest_update}</p>
+                </article>
+                """
+            )
+        day_sections.append(
+            f"""
+            <article class="journal-day">
+              <header>
+                <div>
+                  <span>Daily Report</span>
+                  <h2>{html.escape(day)}</h2>
+                </div>
+                <strong>{stats["count"]} entries</strong>
+              </header>
+              <div class="journal-stats">
+                <span>Hit +10% <strong>{stats["reached_10"]}/{stats["count"]} ({stats["reached_10_rate"]}%)</strong></span>
+                <span>Hit +20% <strong>{stats["reached_20"]}/{stats["count"]} ({stats["reached_20_rate"]}%)</strong></span>
+                <span>Closed <strong>{stats["closed"]}/{stats["count"]}</strong></span>
+              </div>
+              <div class="journal-trades">
+                {''.join(rows)}
+              </div>
+            </article>
+            """
+        )
+    return f"""
+    <section class="journal-panel is-hidden" data-subpanel-content="atlas-journal">
+      {''.join(day_sections)}
+    </section>
+    """
+
+
 def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: dict[str, Any] | None = None) -> str:
     market_snapshot = market_snapshot or dashboard_market_snapshot()
+    alert_state = load_alert_state()
     stock_cards = "\n".join(
         stock_watchlist_card_html(
             str(record.get("symbol") or ""),
@@ -10227,6 +10533,155 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       padding: 24px;
     }}
     .panel-placeholder.is-active {{ display: grid; }}
+    .journal-panel {{
+      display: grid;
+      gap: 18px;
+    }}
+    .journal-empty, .journal-day {{
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(14, 16, 23, .76), rgba(5, 6, 10, .54));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 24px 60px rgba(0,0,0,.28);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }}
+    .journal-empty {{
+      padding: 26px;
+      color: rgba(236,238,245,.72);
+    }}
+    .journal-empty strong {{
+      display: block;
+      color: var(--text);
+      font-size: 22px;
+      margin-bottom: 8px;
+      letter-spacing: -.035em;
+    }}
+    .journal-empty p {{
+      margin: 0;
+      line-height: 1.55;
+      letter-spacing: -.025em;
+    }}
+    .journal-day {{
+      padding: 22px;
+    }}
+    .journal-day header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }}
+    .journal-day header span {{
+      display: block;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 740;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }}
+    .journal-day h2 {{
+      margin: 4px 0 0;
+      font-size: 27px;
+      letter-spacing: -.045em;
+      line-height: 1;
+    }}
+    .journal-day header > strong {{
+      color: rgba(236,238,245,.72);
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }}
+    .journal-stats {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }}
+    .journal-stats span {{
+      display: grid;
+      gap: 5px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.035);
+      color: rgba(236,238,245,.58);
+      font-size: 12px;
+      letter-spacing: -.02em;
+    }}
+    .journal-stats strong {{
+      color: var(--text);
+      font-size: 16px;
+      letter-spacing: -.035em;
+    }}
+    .journal-trades {{
+      display: grid;
+      gap: 12px;
+    }}
+    .journal-trade {{
+      padding: 16px;
+      border-radius: 17px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.22);
+    }}
+    .journal-trade-top {{
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }}
+    .journal-trade h3 {{
+      margin: 0;
+      font-size: 22px;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }}
+    .journal-trade h3 span {{
+      color: var(--green);
+      font-size: 12px;
+      letter-spacing: .12em;
+      vertical-align: middle;
+      margin-left: 6px;
+    }}
+    .journal-trade-top p, .journal-trade p {{
+      margin: 6px 0 0;
+      color: rgba(236,238,245,.70);
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: -.025em;
+    }}
+    .journal-trade em {{
+      align-self: flex-start;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(33,246,107,.32);
+      color: var(--green);
+      font-style: normal;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }}
+    .journal-metrics {{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }}
+    .journal-metrics span {{
+      display: grid;
+      gap: 3px;
+      color: rgba(236,238,245,.54);
+      font-size: 11px;
+    }}
+    .journal-metrics strong {{
+      color: var(--text);
+      font-size: 14px;
+    }}
+    .journal-contract, .journal-latest {{
+      color: rgba(236,238,245,.55) !important;
+      font-size: 12px !important;
+    }}
     .bottom-nav {{
       position: fixed;
       left: 50%;
@@ -10313,6 +10768,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .stock-actions {{ gap: 31px; }}
       .recommendation {{ min-width: 66px; min-height: 40px; font-size: 19px; }}
       .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
+      .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
@@ -10335,6 +10791,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .recommendation {{ min-width: 58px; min-height: 36px; font-size: 17px; }}
       .chevron {{ width: 15px; height: 15px; border-width: 2px; }}
       .stock-card-detail > div {{ padding-left: 16px; padding-right: 16px; }}
+      .journal-day {{ padding: 18px; }}
+      .journal-stats, .journal-metrics {{ grid-template-columns: 1fr; }}
     }}
   </style>
 </head>
@@ -10360,7 +10818,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       <section class="panel-placeholder" data-subpanel-content="alerts">Ready-for-entry alerts and position updates will appear here.</section>
       <section class="panel-placeholder" data-subpanel-content="pl-calendar">P/L Calendar will track closed trade performance by date.</section>
       <section class="panel-placeholder" data-subpanel-content="personal-journal">Personal Journal will hold your trade notes and observations.</section>
-      <section class="panel-placeholder" data-subpanel-content="atlas-journal">ATLAS Journal will summarize scanner decisions and position updates.</section>
+      {atlas_journal_html(alert_state)}
       <section class="panel-placeholder" data-panel-content="search">Search will support ticker research and on-demand analysis.</section>
       <section class="panel-placeholder" data-panel-content="profile">Profile will hold account and notification settings.</section>
       <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>

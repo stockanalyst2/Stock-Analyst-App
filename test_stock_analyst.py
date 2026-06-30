@@ -1977,6 +1977,127 @@ class StockAnalystTests(unittest.TestCase):
             "Your TEST contract has gained more than 20% (recommended action: take profit on part; hold only if momentum stays strong)",
         )
 
+    def test_trade_entry_alert_is_logged_to_journal(self):
+        item = stock_analyst.sample_trade_alert_item()
+        event = stock_analyst.AlertEvent(
+            kind="entry",
+            symbol=item.symbol,
+            direction="CALL",
+            stance="Ready for Entry",
+            status="Ready for Entry",
+            item=item,
+        )
+        state: dict[str, object] = {"sent": [], "observed": {}, "heartbeat_dates": [], "active_positions": {}, "trade_journal": []}
+        saved: dict[str, object] = {}
+
+        with mock.patch("stock_analyst.telegram_configured", return_value=True), \
+            mock.patch("stock_analyst.load_alert_state", side_effect=lambda: dict(state)), \
+            mock.patch("stock_analyst.save_alert_state", side_effect=lambda payload: saved.update(payload)), \
+            mock.patch("stock_analyst.position_events_from_active", return_value=[]), \
+            mock.patch("stock_analyst.alert_candidates_from_transitions", return_value=[event]), \
+            mock.patch("stock_analyst.send_telegram_message", return_value=True):
+            self.assertEqual(stock_analyst.maybe_send_trade_alerts([item], "stock_report.html"), 1)
+
+        journal = saved["trade_journal"]
+        self.assertEqual(len(journal), 1)
+        entry = journal[0]
+        self.assertEqual(entry["symbol"], "TEST")
+        self.assertEqual(entry["direction"], "CALL")
+        self.assertEqual(entry["option"]["contract"], "TEST260629C00105000")
+        self.assertEqual(entry["entry_option_price"], 2.1)
+        self.assertFalse(entry["closed"])
+        self.assertEqual(entry["max_gain_pct"], 0.0)
+
+    def test_position_alert_updates_trade_journal_performance(self):
+        item = stock_analyst.sample_trade_alert_item()
+        item.option = stock_analyst.OptionContract(
+            contract_symbol="TEST260629C00105000",
+            side="CALL",
+            strike=105.0,
+            expiration=dt.date(2026, 6, 29),
+            bid=2.56,
+            ask=2.58,
+            last_price=2.57,
+            volume=100,
+            open_interest=500,
+            implied_volatility=0.45,
+        )
+        position_key = "TEST:CALL:TEST260629C00105000"
+        state: dict[str, object] = {
+            "sent": [],
+            "observed": {},
+            "heartbeat_dates": [],
+            "active_positions": {
+                position_key: {
+                    "symbol": "TEST",
+                    "direction": "CALL",
+                    "contract": "TEST260629C00105000",
+                    "entry_option_price": 2.10,
+                    "last_alert_bucket": 0,
+                    "closed": False,
+                }
+            },
+            "trade_journal": [
+                {
+                    "position_key": position_key,
+                    "symbol": "TEST",
+                    "name": "Test Setup",
+                    "opened_date": "2026-06-29",
+                    "entry_option_price": 2.10,
+                    "updates": [],
+                    "max_gain_pct": 0.0,
+                    "max_loss_pct": 0.0,
+                    "closed": False,
+                }
+            ],
+        }
+        saved: dict[str, object] = {}
+
+        with mock.patch("stock_analyst.telegram_configured", return_value=True), \
+            mock.patch("stock_analyst.load_alert_state", side_effect=lambda: dict(state)), \
+            mock.patch("stock_analyst.save_alert_state", side_effect=lambda payload: saved.update(payload)), \
+            mock.patch("stock_analyst.alert_candidates_from_transitions", return_value=[]), \
+            mock.patch("stock_analyst.analyst_stance", return_value="Ready for Entry"), \
+            mock.patch("stock_analyst.entry_status", return_value=("Ready for Entry", "aligned")), \
+            mock.patch("stock_analyst.send_telegram_message", return_value=True):
+            self.assertEqual(stock_analyst.maybe_send_trade_alerts([item], "stock_report.html"), 1)
+
+        entry = saved["trade_journal"][0]
+        self.assertTrue(entry["reached_20_pct"])
+        self.assertGreater(entry["max_gain_pct"], 20)
+        self.assertEqual(len(entry["updates"]), 1)
+        self.assertIn("take profit", entry["updates"][0]["action"])
+
+    def test_atlas_journal_html_renders_daily_success_rates(self):
+        state = {
+            "trade_journal": [
+                {
+                    "position_key": "TEST:CALL:TEST260629C00105000",
+                    "symbol": "TEST",
+                    "name": "Test Setup",
+                    "direction": "CALL",
+                    "opened_at": "2026-06-29T10:00:00-04:00",
+                    "opened_date": "2026-06-29",
+                    "entry_option_price": 2.10,
+                    "max_gain_pct": 22.4,
+                    "max_loss_pct": -4.0,
+                    "last_percent_change": 22.4,
+                    "closed": False,
+                    "option": {"contract": "TEST260629C00105000"},
+                    "trade_brief": {"thesis": "The alert fired after Atlas found an entry-quality setup."},
+                    "updates": [{"action": "recommended action: take profit on part"}],
+                }
+            ]
+        }
+
+        document = stock_analyst.atlas_journal_html(state)
+
+        self.assertIn("Daily Report", document)
+        self.assertIn("2026-06-29", document)
+        self.assertIn("Hit +10%", document)
+        self.assertIn("1/1 (100.0%)", document)
+        self.assertIn("TEST260629C00105000", document)
+
     def test_sample_trade_alerts_send_entry_and_position_update_formats(self):
         sent_messages = []
         with mock.patch("stock_analyst.send_telegram_message", side_effect=lambda message: sent_messages.append(message) or True):
