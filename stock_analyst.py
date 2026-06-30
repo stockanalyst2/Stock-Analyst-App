@@ -10229,10 +10229,22 @@ def pl_calendar_html() -> str:
         </div>
       </div>
       <div class="pl-summary-grid" aria-label="P/L summary">
-        <article><span>Month P/L</span><strong id="plMonthTotal">$0.00</strong></article>
-        <article><span>Win Rate</span><strong id="plWinRate">0%</strong></article>
-        <article><span>Trades</span><strong id="plTradeCount">0</strong></article>
-        <article><span>Avg / Trade</span><strong id="plAverageTrade">$0.00</strong></article>
+        <article class="pl-stat-card pl-stat-green">
+          <div class="pl-stat-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 23 13 15l5 5 9-11"></path><path d="M21 9h6v6"></path></svg></div>
+          <div><span>Month P/L</span><strong id="plMonthTotal">$0.00</strong></div>
+        </article>
+        <article class="pl-stat-card pl-stat-purple">
+          <div class="pl-stat-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="10"></circle><circle cx="16" cy="16" r="4"></circle></svg></div>
+          <div><span>Win Rate</span><strong id="plWinRate">0%</strong></div>
+        </article>
+        <article class="pl-stat-card pl-stat-blue">
+          <div class="pl-stat-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 12h15"></path><path d="m18 7 5 5-5 5"></path><path d="M24 20H9"></path><path d="m14 15-5 5 5 5"></path></svg></div>
+          <div><span>Trades</span><strong id="plTradeCount">0</strong></div>
+        </article>
+        <article class="pl-stat-card pl-stat-gold">
+          <div class="pl-stat-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11"></circle><path d="M16 9v14"></path><path d="M20 12.5c-.9-1.2-2.3-1.8-4-1.8-2 0-3.5 1-3.5 2.6 0 4.2 7 1.8 7 5.8 0 1.6-1.4 2.8-3.7 2.8-1.8 0-3.5-.7-4.5-2"></path></svg></div>
+          <div><span>Avg / Trade</span><strong id="plAverageTrade">$0.00</strong></div>
+        </article>
       </div>
       <div class="pl-calendar-shell">
         <div class="pl-weekdays" aria-hidden="true">
@@ -10242,6 +10254,7 @@ def pl_calendar_html() -> str:
       </div>
       <div class="pl-detail-grid">
         <section class="pl-day-card">
+          <div class="pl-day-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="6" y="8" width="20" height="18" rx="3"></rect><path d="M10 5v6"></path><path d="M22 5v6"></path><path d="M6 14h20"></path><path d="M11 19h3"></path><path d="M18 19h3"></path></svg></div>
           <div class="pl-day-header">
             <div>
               <span>Selected Day</span>
@@ -10271,7 +10284,7 @@ def pl_calendar_html() -> str:
           <label>Strategy <input id="plStrategy" type="text" placeholder="Breakout, reversal, scalp..."></label>
           <label>P/L $ <input id="plPnl" type="number" step="0.01" placeholder="125.00" required></label>
           <label>P/L % <input id="plPnlPct" type="number" step="0.01" placeholder="20"></label>
-          <label>Notes <textarea id="plNotes" rows="3" placeholder="Entry reason, mistake, lesson, screenshot note..."></textarea></label>
+          <label class="pl-notes-field">Notes <textarea id="plNotes" rows="3" placeholder="Entry reason, mistake, lesson, screenshot note..."></textarea></label>
           <div class="pl-form-actions">
             <button type="submit" class="pl-primary">Save Trade</button>
             <button type="button" data-pl-reset>Reset</button>
@@ -10287,40 +10300,55 @@ def pl_calendar_styles() -> str:
     return """
     .pl-calendar-panel {
       display: grid;
-      gap: 16px;
+      gap: 14px;
     }
     .pl-topline {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      margin-top: 2px;
     }
     .pl-topline span, .pl-day-header span {
       display: block;
       color: var(--green);
-      font-size: 12px;
-      font-weight: 780;
-      letter-spacing: .16em;
+      font-size: 13px;
+      font-weight: 820;
+      letter-spacing: .22em;
       text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(33,246,107,.26);
     }
     .pl-topline h2, .pl-day-header h3 {
-      margin: 4px 0 0;
-      font-size: 28px;
+      margin: 6px 0 0;
+      font-size: 38px;
       line-height: 1;
-      letter-spacing: -.05em;
+      letter-spacing: -.06em;
     }
     .pl-actions {
       display: inline-flex;
       gap: 8px;
     }
     .pl-actions button, .pl-form-actions button {
-      min-height: 36px;
+      min-height: 44px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.045);
+      background: rgba(20, 24, 34, .72);
       color: rgba(245,246,250,.84);
-      padding: 0 13px;
+      padding: 0 16px;
       cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 12px 28px rgba(0,0,0,.24);
+    }
+    .pl-actions button:not([data-pl-today]) {
+      width: 44px;
+      padding: 0;
+      color: rgba(245,246,250,.70);
+      font-size: 24px;
+      line-height: 1;
+    }
+    .pl-actions [data-pl-today] {
+      color: var(--green);
+      border-color: rgba(255,255,255,.18);
+      font-weight: 720;
     }
     .pl-summary-grid {
       display: grid;
@@ -10337,48 +10365,98 @@ def pl_calendar_styles() -> str:
     }
     .pl-summary-grid article {
       display: grid;
-      gap: 6px;
-      padding: 14px;
+      grid-template-columns: 56px 1fr;
+      align-items: center;
+      gap: 13px;
+      min-height: 104px;
+      padding: 15px;
+    }
+    .pl-summary-grid article > div:not(.pl-stat-icon) {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
     }
     .pl-summary-grid span {
       color: rgba(236,238,245,.56);
-      font-size: 12px;
+      font-size: 14px;
       letter-spacing: -.02em;
     }
     .pl-summary-grid strong {
-      font-size: 19px;
+      font-size: 24px;
       letter-spacing: -.04em;
     }
+    .pl-stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.04);
+    }
+    .pl-stat-icon svg {
+      width: 31px;
+      height: 31px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .pl-stat-green .pl-stat-icon { color: var(--green); background: rgba(33,246,107,.13); box-shadow: 0 0 34px rgba(33,246,107,.16); }
+    .pl-stat-purple .pl-stat-icon { color: var(--purple); background: rgba(179,76,255,.13); box-shadow: 0 0 34px rgba(179,76,255,.16); }
+    .pl-stat-blue .pl-stat-icon { color: #29c2ff; background: rgba(41,194,255,.12); box-shadow: 0 0 34px rgba(41,194,255,.13); }
+    .pl-stat-gold .pl-stat-icon { color: #ffb133; background: rgba(255,177,51,.13); box-shadow: 0 0 34px rgba(255,177,51,.13); }
+    .pl-stat-purple strong { color: var(--purple); }
+    .pl-stat-blue strong { color: #29c2ff; }
+    .pl-stat-gold strong { color: #ffb133; }
     .pl-positive { color: var(--green) !important; }
     .pl-negative { color: #ff6a6a !important; }
     .pl-calendar-shell {
-      padding: 14px;
+      padding: 16px 12px 18px;
+      border-radius: 19px;
+      overflow: hidden;
+      position: relative;
+    }
+    .pl-calendar-shell::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 78px;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent, rgba(2,3,5,.88));
     }
     .pl-weekdays, .pl-calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 7px;
+      gap: 6px;
     }
     .pl-weekdays {
-      margin-bottom: 7px;
+      margin-bottom: 10px;
       color: rgba(236,238,245,.46);
       font-size: 11px;
+      font-weight: 760;
       text-align: center;
       text-transform: uppercase;
       letter-spacing: .08em;
     }
     .pl-day {
       min-height: 78px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.075);
-      background: rgba(255,255,255,.026);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.082);
+      background: linear-gradient(145deg, rgba(16, 20, 30, .72), rgba(7, 9, 15, .62));
       color: rgba(245,246,250,.78);
-      padding: 9px;
+      padding: 8px;
       text-align: left;
       cursor: pointer;
       display: grid;
       align-content: start;
       gap: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
     }
     .pl-day.is-muted {
       opacity: .34;
@@ -10387,12 +10465,33 @@ def pl_calendar_styles() -> str:
       border-color: rgba(33,246,107,.58);
       box-shadow: 0 0 22px rgba(33,246,107,.16);
     }
+    .pl-day.is-today::after {
+      content: "";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 14px rgba(33,246,107,.7);
+    }
+    .pl-day.has-profit {
+      background: linear-gradient(145deg, rgba(48, 126, 72, .72), rgba(17, 52, 31, .75));
+      border-color: rgba(33,246,107,.28);
+    }
+    .pl-day.has-loss {
+      background: linear-gradient(145deg, rgba(116, 51, 35, .72), rgba(56, 24, 22, .75));
+      border-color: rgba(255,106,82,.24);
+    }
     .pl-day-number {
-      font-size: 12px;
-      color: rgba(245,246,250,.58);
+      font-size: 13px;
+      color: rgba(245,246,250,.64);
+      line-height: 1;
     }
     .pl-day-pnl {
-      font-size: 13px;
+      align-self: end;
+      font-size: 12px;
       font-weight: 760;
       letter-spacing: -.035em;
     }
@@ -10408,12 +10507,42 @@ def pl_calendar_styles() -> str:
     .pl-day-card, .pl-entry-form {
       padding: 18px;
     }
+    .pl-day-card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: center;
+      position: relative;
+    }
+    .pl-day-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: rgba(33,246,107,.12);
+      box-shadow: 0 0 28px rgba(33,246,107,.12);
+    }
+    .pl-day-icon svg {
+      width: 30px;
+      height: 30px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
     .pl-day-header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 4px;
+    }
+    .pl-day-card .pl-day-stats,
+    .pl-day-card .pl-trade-list {
+      grid-column: 2;
     }
     .pl-day-header > strong {
       font-size: 22px;
@@ -10424,7 +10553,7 @@ def pl_calendar_styles() -> str:
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
     .pl-day-stats span {
       display: grid;
@@ -10497,7 +10626,7 @@ def pl_calendar_styles() -> str:
       letter-spacing: .08em;
       text-transform: uppercase;
     }
-    .pl-entry-form label:has(textarea), .pl-form-actions {
+    .pl-entry-form .pl-notes-field, .pl-form-actions {
       grid-column: 1 / -1;
     }
     .pl-entry-form input, .pl-entry-form select, .pl-entry-form textarea {
@@ -10526,18 +10655,41 @@ def pl_calendar_styles() -> str:
       background: rgba(33,246,107,.08);
     }
     @media (max-width: 720px) {
+      body[data-panel="journal"][data-subpanel="pl-calendar"] .market-status-header,
+      body[data-panel="journal"][data-subpanel="pl-calendar"] [data-panel-switcher="journal"] {
+        display: none;
+      }
+      body[data-panel="journal"][data-subpanel="pl-calendar"] .app-shell {
+        padding-top: max(22px, env(safe-area-inset-top));
+      }
+      body[data-panel="journal"][data-subpanel="pl-calendar"] .content {
+        padding-top: 0;
+      }
       .pl-summary-grid { grid-template-columns: repeat(2, 1fr); }
       .pl-detail-grid { grid-template-columns: 1fr; }
-      .pl-day { min-height: 62px; padding: 7px; }
+      .pl-day { min-height: 82px; padding: 8px; }
       .pl-day-pnl { font-size: 11px; }
       .pl-topline { align-items: flex-start; }
-      .pl-actions button { min-height: 32px; padding: 0 10px; }
+      .pl-actions button { min-height: 42px; padding: 0 12px; }
     }
     @media (max-width: 390px) {
-      .pl-summary-grid { grid-template-columns: 1fr; }
+      .pl-calendar-panel { gap: 12px; }
+      .pl-topline h2 { font-size: 34px; }
+      .pl-topline span { font-size: 11px; }
+      .pl-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .pl-summary-grid article { min-height: 94px; grid-template-columns: 48px 1fr; gap: 10px; padding: 12px; }
+      .pl-stat-icon { width: 48px; height: 48px; }
+      .pl-stat-icon svg { width: 27px; height: 27px; }
+      .pl-summary-grid span { font-size: 12px; }
+      .pl-summary-grid strong { font-size: 20px; }
       .pl-entry-form { grid-template-columns: 1fr; }
+      .pl-calendar-shell { padding: 14px 10px 16px; border-radius: 17px; }
       .pl-weekdays, .pl-calendar-grid { gap: 5px; }
-      .pl-day { min-height: 54px; border-radius: 11px; }
+      .pl-day { min-height: 73px; border-radius: 10px; padding: 7px; }
+      .pl-day-number { font-size: 12px; }
+      .pl-day-card { grid-template-columns: 52px 1fr; padding: 16px; }
+      .pl-day-icon { width: 52px; height: 52px; border-radius: 15px; }
+      .pl-day-stats { display: none; }
     }
     """
 
@@ -10631,7 +10783,15 @@ def pl_calendar_script() -> str:
         const daySummary = summarizeTrades(dayTrades);
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = `pl-day ${date.getMonth() === month ? '' : 'is-muted'} ${iso === plState.selectedDate ? 'is-selected' : ''}`;
+        const dayClasses = [
+          'pl-day',
+          date.getMonth() === month ? '' : 'is-muted',
+          iso === plState.selectedDate ? 'is-selected' : '',
+          iso === toISODate(new Date()) ? 'is-today' : '',
+          daySummary.total > 0 ? 'has-profit' : '',
+          daySummary.total < 0 ? 'has-loss' : ''
+        ].filter(Boolean).join(' ');
+        button.className = dayClasses;
         button.dataset.plDate = iso;
         button.innerHTML = `
           <span class="pl-day-number">${date.getDate()}</span>
@@ -11528,11 +11688,13 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }};
 
     function showPanel(name) {{
+      document.body.dataset.panel = name;
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
       if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
       marketInsightCard?.classList.toggle('is-hidden', name !== 'watchlist');
       for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
       const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
+      document.body.dataset.subpanel = activeSubpanelName(name);
       for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher !== activeSwitcher);
       for (const content of subpanelContents) {{
         const shouldShow = Boolean(activeSwitcher) && content.dataset.subpanelContent === activeSubpanelName(name);
@@ -11543,6 +11705,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 
     function showSubpanel(name) {{
       if (!name) return;
+      document.body.dataset.subpanel = name;
       for (const tab of sectionTabs) tab.classList.toggle('is-active', tab.dataset.subpanel === name);
       for (const content of subpanelContents) {{
         const isActive = content.dataset.subpanelContent === name;
@@ -11603,6 +11766,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     {pl_calendar_script()}
     initPLCalendar();
+    showPanel('watchlist');
     refreshStatus();
     refreshMarketStatus();
     setInterval(refreshStatus, 30000);
