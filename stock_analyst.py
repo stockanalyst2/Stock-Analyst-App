@@ -9376,7 +9376,7 @@ def market_status_header_html(snapshot: dict[str, Any]) -> str:
     status = str(snapshot.get("market_status") or "Markets are unavailable")
     state_class = "" if snapshot.get("market_open") else " is-closed"
     return f"""<header class="MarketStatusHeader market-status-header">
-      <h1>Watchlist</h1>
+      <h1 id="pageTitle">Watchlists</h1>
       <button class="ai-powered-pill" type="button" aria-label="AI powered">
         <span aria-hidden="true">✦</span> AI powered
       </button>
@@ -9401,7 +9401,7 @@ def market_insight_card_html(snapshot: dict[str, Any]) -> str:
         <div>
           <span>Market Trend</span>
           <strong id="marketTrendText" class="{html.escape(trend_class)}">{html.escape(trend)}</strong>
-          <small>Strength: <span id="marketStrengthText">{html.escape(strength)}</span></small>
+          <small class="strength-rating">Strength Rating: <span id="marketStrengthText">{html.escape(strength)}</span></small>
         </div>
       </div>
       <div class="market-divider" aria-hidden="true"></div>
@@ -10017,6 +10017,15 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       margin: 3px 0 3px;
       letter-spacing: -.035em;
     }}
+    .market-insight .strength-rating {{
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      white-space: nowrap;
+    }}
+    .market-insight .strength-rating span {{
+      display: inline;
+    }}
     .market-insight .purple-text {{ color: var(--purple); }}
     .market-insight strong.bearish, .market-insight strong.elevated, .market-insight strong.high {{ color: var(--orange); }}
     .market-insight strong.neutral, .market-insight strong.unknown {{ color: rgba(236,238,245,.70); }}
@@ -10365,9 +10374,17 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     const subpanelContents = Array.from(document.querySelectorAll('[data-subpanel-content]'));
     const panelContents = Array.from(document.querySelectorAll('[data-panel-content]'));
     const stockCards = Array.from(document.querySelectorAll('.stock-card'));
+    const pageTitle = document.getElementById('pageTitle');
+    const panelTitles = {{
+      watchlist: 'Watchlists',
+      journal: 'Journal',
+      search: 'Search',
+      profile: 'Profile'
+    }};
 
     function showPanel(name) {{
       for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
+      if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
       for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
       const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
       for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher !== activeSwitcher);
