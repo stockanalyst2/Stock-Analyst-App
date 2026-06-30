@@ -9878,22 +9878,26 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     :root {{
       color-scheme: dark;
       font-family: Inter, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --bg: #020305;
-      --card: rgba(12, 14, 20, .72);
-      --line: rgba(255,255,255,.12);
-      --muted: rgba(235,237,244,.62);
-      --text: #f7f8fb;
+      --serif: "Cormorant Garamond", "Iowan Old Style", "Times New Roman", serif;
+      --bg: #050505;
+      --card: rgba(14, 14, 13, .86);
+      --line: rgba(207, 184, 126, .16);
+      --muted: rgba(222, 218, 205, .58);
+      --text: #eee9dc;
+      --brass: #c8ad6a;
+      --brass-soft: rgba(200, 173, 106, .12);
+      --ash: #8c887e;
       --green: #21f66b;
-      --purple: #b34cff;
+      --purple: #c8ad6a;
       --orange: #ff6a34;
     }}
     * {{ box-sizing: border-box; }}
     html, body {{ margin: 0; min-height: 100%; background: #000; color: var(--text); }}
     body {{
       background:
-        radial-gradient(circle at 78% 8%, rgba(179,76,255,.20), transparent 31%),
-        radial-gradient(circle at 48% -8%, rgba(33,246,107,.18), transparent 30%),
-        linear-gradient(180deg, #030406 0%, #000 100%);
+        radial-gradient(circle at 78% 12%, rgba(200,173,106,.08), transparent 29%),
+        radial-gradient(circle at 24% 4%, rgba(255,255,255,.035), transparent 26%),
+        linear-gradient(180deg, #080808 0%, #030303 100%);
     }}
     body::before {{
       content: "";
@@ -9901,9 +9905,12 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       inset: -22% -35% auto 20%;
       height: 390px;
       pointer-events: none;
-      background: linear-gradient(112deg, transparent 20%, rgba(33,246,107,.28), rgba(60,145,255,.15), rgba(179,76,255,.34), transparent 74%);
-      filter: blur(30px);
-      opacity: .76;
+      background:
+        radial-gradient(ellipse at 50% 18%, rgba(230,223,205,.20), transparent 18%),
+        radial-gradient(ellipse at 48% 42%, rgba(208,198,172,.15), transparent 29%),
+        linear-gradient(140deg, transparent 18%, rgba(200,173,106,.14), transparent 62%);
+      filter: blur(.2px) grayscale(1);
+      opacity: .22;
       transform: rotate(-8deg);
     }}
     a {{ color: inherit; text-decoration: none; }}
@@ -9938,7 +9945,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      color: var(--green);
+      color: var(--brass);
       font-size: 16px;
       margin-bottom: 14px;
     }}
@@ -9947,20 +9954,21 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       height: 10px;
       border-radius: 99px;
       background: var(--green);
-      box-shadow: 0 0 18px rgba(33,246,107,.8);
     }}
-    .dot.closed {{ background: var(--orange); box-shadow: 0 0 18px rgba(255,106,52,.7); }}
+    .dot.closed {{ background: var(--orange); }}
     h1 {{
       margin: 0;
-      font-size: clamp(58px, 15vw, 96px);
-      line-height: .86;
-      letter-spacing: -.075em;
+      font-family: var(--serif);
+      font-size: clamp(44px, 12vw, 76px);
+      line-height: .92;
+      letter-spacing: .12em;
+      font-weight: 500;
     }}
     .company {{
       margin: 12px 0 0;
       color: var(--muted);
       font-size: clamp(20px, 4.8vw, 28px);
-      letter-spacing: -.04em;
+      letter-spacing: .01em;
     }}
     .direction {{
       display: inline-flex;
@@ -9969,13 +9977,12 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       min-width: 88px;
       height: 46px;
       border-radius: 12px;
-      border: 1px solid rgba(33,246,107,.55);
-      color: var(--green);
+      border: 1px solid rgba(200,173,106,.45);
+      color: var(--brass);
       font-size: 18px;
       font-weight: 780;
       letter-spacing: .02em;
-      background: rgba(33,246,107,.08);
-      box-shadow: inset 0 0 16px rgba(33,246,107,.06);
+      background: rgba(200,173,106,.07);
     }}
     .direction.put {{ border-color: rgba(255,106,52,.62); color: var(--orange); background: rgba(255,106,52,.08); }}
     .summary-grid {{
@@ -9992,7 +9999,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 22px 60px rgba(0,0,0,.30);
     }}
     .metric {{
-      border-radius: 18px;
+      border-radius: 6px;
       padding: 16px;
     }}
     .metric span, .detail-card span {{
@@ -10014,7 +10021,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       gap: 14px;
     }}
     .detail-card {{
-      border-radius: 22px;
+      border-radius: 8px;
       padding: 22px;
     }}
     .detail-card p {{
@@ -10032,15 +10039,15 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     .primary-link {{
       min-height: 54px;
       border-radius: 16px;
-      border: 1px solid rgba(33,246,107,.45);
-      color: var(--green);
+      border: 1px solid rgba(200,173,106,.38);
+      color: var(--brass);
       display: grid;
       place-items: center;
       font-size: 13px;
       font-weight: 800;
       letter-spacing: .18em;
       text-transform: uppercase;
-      background: rgba(33,246,107,.06);
+      background: rgba(200,173,106,.06);
     }}
     @media (max-width: 560px) {{
       .detail-shell {{ padding-left: 20px; padding-right: 20px; }}
@@ -10351,12 +10358,11 @@ def pl_calendar_styles() -> str:
     }
     .pl-topline span, .pl-day-header span {
       display: block;
-      color: var(--green);
+      color: var(--brass);
       font-size: 13px;
       font-weight: 820;
       letter-spacing: .22em;
       text-transform: uppercase;
-      text-shadow: 0 0 14px rgba(33,246,107,.26);
     }
     .pl-topline h2, .pl-day-header h3 {
       margin: 6px 0 0;
@@ -10386,7 +10392,7 @@ def pl_calendar_styles() -> str:
       line-height: 1;
     }
     .pl-actions [data-pl-today] {
-      color: var(--green);
+      color: var(--brass);
       border-color: rgba(255,255,255,.18);
       font-weight: 720;
     }
@@ -10397,11 +10403,9 @@ def pl_calendar_styles() -> str:
     }
     .pl-summary-grid article, .pl-calendar-shell, .pl-day-card, .pl-entry-form, .pl-enter-trade-button {
       border: 1px solid var(--line);
-      border-radius: 20px;
-      background: linear-gradient(145deg, rgba(14, 16, 23, .76), rgba(5, 6, 10, .54));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 24px 60px rgba(0,0,0,.24);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(13,13,12,.92), rgba(6,6,6,.90));
+      box-shadow: 0 18px 42px rgba(0,0,0,.24);
     }
     .pl-summary-grid article {
       display: grid;
@@ -10443,13 +10447,13 @@ def pl_calendar_styles() -> str:
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .pl-stat-green .pl-stat-icon { color: var(--green); background: rgba(33,246,107,.13); box-shadow: 0 0 34px rgba(33,246,107,.16); }
-    .pl-stat-purple .pl-stat-icon { color: var(--purple); background: rgba(179,76,255,.13); box-shadow: 0 0 34px rgba(179,76,255,.16); }
-    .pl-stat-blue .pl-stat-icon { color: #29c2ff; background: rgba(41,194,255,.12); box-shadow: 0 0 34px rgba(41,194,255,.13); }
-    .pl-stat-gold .pl-stat-icon { color: #ffb133; background: rgba(255,177,51,.13); box-shadow: 0 0 34px rgba(255,177,51,.13); }
-    .pl-stat-purple strong { color: var(--purple); }
-    .pl-stat-blue strong { color: #29c2ff; }
-    .pl-stat-gold strong { color: #ffb133; }
+    .pl-stat-green .pl-stat-icon { color: var(--brass); background: var(--brass-soft); }
+    .pl-stat-purple .pl-stat-icon { color: var(--brass); background: var(--brass-soft); }
+    .pl-stat-blue .pl-stat-icon { color: var(--ash); background: rgba(255,255,255,.035); }
+    .pl-stat-gold .pl-stat-icon { color: var(--brass); background: var(--brass-soft); }
+    .pl-stat-purple strong { color: var(--brass); }
+    .pl-stat-blue strong { color: var(--text); }
+    .pl-stat-gold strong { color: var(--brass); }
     .pl-positive { color: var(--green) !important; }
     .pl-negative { color: #ff6a6a !important; }
     .pl-calendar-shell {
@@ -10502,8 +10506,7 @@ def pl_calendar_styles() -> str:
       opacity: .34;
     }
     .pl-day.is-selected {
-      border-color: rgba(33,246,107,.58);
-      box-shadow: 0 0 22px rgba(33,246,107,.16);
+      border-color: rgba(200,173,106,.54);
     }
     .pl-day.is-today::after {
       content: "";
@@ -10513,12 +10516,11 @@ def pl_calendar_styles() -> str:
       width: 7px;
       height: 7px;
       border-radius: 999px;
-      background: var(--green);
-      box-shadow: 0 0 14px rgba(33,246,107,.7);
+      background: var(--brass);
     }
     .pl-day.has-profit {
       background: linear-gradient(145deg, rgba(48, 126, 72, .72), rgba(17, 52, 31, .75));
-      border-color: rgba(33,246,107,.28);
+      border-color: rgba(33,246,107,.24);
     }
     .pl-day.has-loss {
       background: linear-gradient(145deg, rgba(116, 51, 35, .72), rgba(56, 24, 22, .75));
@@ -10548,13 +10550,12 @@ def pl_calendar_styles() -> str:
       width: 100%;
       min-height: 58px;
       border-radius: 999px;
-      border-color: rgba(33,246,107,.40);
-      background: linear-gradient(135deg, rgba(33,246,107,.95), rgba(28,220,95,.92));
-      color: #051007;
+      border-color: rgba(200,173,106,.42);
+      background: rgba(200,173,106,.12);
+      color: var(--brass);
       font-weight: 850;
       letter-spacing: -.025em;
       cursor: pointer;
-      box-shadow: 0 18px 46px rgba(33,246,107,.20);
     }
     .pl-day-card, .pl-entry-form {
       padding: 18px;
@@ -10572,9 +10573,8 @@ def pl_calendar_styles() -> str:
       border-radius: 16px;
       display: grid;
       place-items: center;
-      color: var(--green);
-      background: rgba(33,246,107,.12);
-      box-shadow: 0 0 28px rgba(33,246,107,.12);
+      color: var(--brass);
+      background: var(--brass-soft);
     }
     .pl-day-icon svg {
       width: 30px;
@@ -10674,9 +10674,8 @@ def pl_calendar_styles() -> str:
       padding: 22px;
       border-radius: 28px;
       background:
-        radial-gradient(circle at 80% 0%, rgba(179,76,255,.16), transparent 36%),
-        radial-gradient(circle at 10% 10%, rgba(33,246,107,.12), transparent 30%),
-        linear-gradient(145deg, rgba(19, 22, 31, .92), rgba(8, 10, 16, .86));
+        radial-gradient(circle at 84% 0%, rgba(200,173,106,.10), transparent 34%),
+        linear-gradient(145deg, rgba(18, 18, 17, .96), rgba(7, 7, 7, .92));
       transition: max-height .34s ease, opacity .24s ease, transform .28s ease, padding .28s ease, border-color .24s ease;
       overflow: hidden;
     }
@@ -10723,7 +10722,7 @@ def pl_calendar_styles() -> str:
     }
     .pl-entry-topbar .pl-top-save {
       justify-self: end;
-      color: var(--green);
+      color: var(--brass);
       font-weight: 760;
     }
     .pl-entry-date-card {
@@ -10739,9 +10738,8 @@ def pl_calendar_styles() -> str:
       border-radius: 16px;
       display: grid;
       place-items: center;
-      color: var(--green);
-      background: rgba(33,246,107,.13);
-      box-shadow: 0 0 26px rgba(33,246,107,.12);
+      color: var(--brass);
+      background: var(--brass-soft);
     }
     .pl-entry-date-icon svg,
     .pl-row-icon svg {
@@ -10771,9 +10769,9 @@ def pl_calendar_styles() -> str:
       min-height: 42px;
       padding: 0 16px;
       border-radius: 999px;
-      border: 1px solid rgba(33,246,107,.62);
-      background: rgba(33,246,107,.045);
-      color: var(--green);
+      border: 1px solid rgba(200,173,106,.46);
+      background: rgba(200,173,106,.055);
+      color: var(--brass);
       font-size: 14px;
       font-weight: 760;
       cursor: pointer;
@@ -10796,7 +10794,7 @@ def pl_calendar_styles() -> str:
     }
     .pl-entry-summary span:last-child { border-right: 0; }
     .pl-entry-summary strong {
-      color: var(--green);
+      color: var(--brass);
       font-size: 25px;
       letter-spacing: -.055em;
     }
@@ -10829,11 +10827,7 @@ def pl_calendar_styles() -> str:
       place-items: center;
       background: rgba(255,255,255,.045);
     }
-    .pl-icon-green { color: var(--green); background: rgba(33,246,107,.10); }
-    .pl-icon-blue { color: #29c2ff; background: rgba(41,194,255,.10); }
-    .pl-icon-purple { color: var(--purple); background: rgba(179,76,255,.10); }
-    .pl-icon-gold { color: #ffb133; background: rgba(255,177,51,.11); }
-    .pl-icon-teal { color: #2fffd0; background: rgba(47,255,208,.10); }
+    .pl-icon-green, .pl-icon-blue, .pl-icon-purple, .pl-icon-gold, .pl-icon-teal { color: var(--brass); background: var(--brass-soft); }
     .pl-row-copy {
       display: grid;
       gap: 4px;
@@ -10874,10 +10868,10 @@ def pl_calendar_styles() -> str:
       font-weight: 760;
     }
     .pl-form-actions .pl-primary {
-      color: #051007;
-      border-color: rgba(33,246,107,.70);
-      background: linear-gradient(135deg, rgba(39,247,104,.98), rgba(31,226,96,.96));
-      box-shadow: 0 18px 40px rgba(33,246,107,.18);
+      color: #080806;
+      border-color: rgba(200,173,106,.72);
+      background: linear-gradient(135deg, rgba(210,186,123,.96), rgba(168,138,75,.92));
+      box-shadow: 0 18px 40px rgba(0,0,0,.18);
     }
     .pl-private-note {
       margin: 6px 0 0;
@@ -11324,16 +11318,20 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
   <style>
     :root {{
       color-scheme: dark;
-      font-family: Inter, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --bg: #020305;
-      --card: rgba(11, 13, 18, .70);
-      --card-strong: rgba(16, 18, 25, .78);
-      --line: rgba(255, 255, 255, .12);
-      --muted: rgba(230, 233, 241, .66);
-      --text: #f8f8fb;
+      font-family: Inter, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --serif: "Cormorant Garamond", "Iowan Old Style", "Times New Roman", serif;
+      --bg: #050505;
+      --card: rgba(12, 12, 11, .88);
+      --card-strong: rgba(18, 18, 17, .92);
+      --line: rgba(207, 184, 126, .16);
+      --muted: rgba(222, 218, 205, .58);
+      --text: #eee9dc;
+      --brass: #c8ad6a;
+      --brass-soft: rgba(200, 173, 106, .12);
+      --ash: #8c887e;
       --green: #21f66b;
-      --green-soft: rgba(33, 246, 107, .16);
-      --purple: #b34cff;
+      --green-soft: rgba(33, 246, 107, .10);
+      --purple: #c8ad6a;
       --orange: #ff6a34;
     }}
     * {{ box-sizing: border-box; }}
@@ -11343,9 +11341,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       min-height: 100vh;
       height: 100dvh;
       background:
-        radial-gradient(circle at 72% 12%, rgba(144, 64, 255, .18), transparent 30%),
-        radial-gradient(circle at 55% 0%, rgba(15, 245, 119, .15), transparent 25%),
-        linear-gradient(180deg, #040506 0%, #000104 100%);
+        radial-gradient(circle at 82% 8%, rgba(200, 173, 106, .07), transparent 28%),
+        radial-gradient(circle at 42% -4%, rgba(255, 255, 255, .026), transparent 26%),
+        linear-gradient(180deg, #080808 0%, #030303 55%, #050505 100%);
       color: var(--text);
       overflow: hidden;
       overscroll-behavior: none;
@@ -11353,14 +11351,19 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     body::before {{
       content: "";
       position: fixed;
-      inset: -22% -34% auto 22%;
-      height: 380px;
+      inset: 78px -74px auto auto;
+      width: 330px;
+      height: 520px;
       pointer-events: none;
       background:
-        linear-gradient(112deg, transparent 20%, rgba(22, 245, 130, .34), rgba(20, 151, 255, .18), rgba(168, 62, 255, .42), transparent 74%);
-      filter: blur(28px);
-      opacity: .72;
-      transform: rotate(-8deg);
+        radial-gradient(ellipse at 48% 18%, rgba(230,223,205,.23), transparent 18%),
+        radial-gradient(ellipse at 46% 38%, rgba(205,196,170,.16), transparent 26%),
+        radial-gradient(ellipse at 50% 71%, rgba(188,178,150,.10), transparent 36%),
+        linear-gradient(105deg, transparent 0%, rgba(200,173,106,.08) 45%, transparent 78%);
+      clip-path: polygon(42% 0, 64% 6%, 70% 22%, 61% 34%, 76% 48%, 84% 78%, 71% 100%, 29% 100%, 18% 76%, 25% 46%, 38% 35%, 30% 19%);
+      filter: grayscale(1);
+      opacity: .22;
+      transform: rotate(3deg);
     }}
     body::after {{
       content: "";
@@ -11368,11 +11371,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 50% 36%, rgba(255, 255, 255, .035), transparent 1px),
-        linear-gradient(rgba(255, 255, 255, .012) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 5px;
-      opacity: .28;
-      mix-blend-mode: screen;
+        radial-gradient(circle at 50% 26%, transparent, rgba(0,0,0,.36) 62%, rgba(0,0,0,.82)),
+        linear-gradient(rgba(255, 255, 255, .010) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 7px;
+      opacity: .38;
     }}
     a {{ color: inherit; text-decoration: none; }}
     button {{ font: inherit; color: inherit; }}
@@ -11383,7 +11385,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       height: 100dvh;
       max-width: 850px;
       margin: 0 auto;
-      padding: max(34px, env(safe-area-inset-top)) 42px calc(106px + env(safe-area-inset-bottom));
+      padding: max(34px, env(safe-area-inset-top)) 42px calc(92px + env(safe-area-inset-bottom));
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -11396,15 +11398,17 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
       gap: 10px 14px;
-      padding-top: 36px;
-      margin-bottom: 14px;
+      padding-top: 28px;
+      margin-bottom: 18px;
     }}
     .market-status-header h1 {{
       margin: 0 0 8px;
-      font-size: clamp(36px, 7vw, 52px);
-      line-height: .95;
-      letter-spacing: -.055em;
-      font-weight: 740;
+      font-family: var(--serif);
+      font-size: clamp(30px, 6vw, 44px);
+      line-height: 1;
+      letter-spacing: .18em;
+      font-weight: 500;
+      text-transform: uppercase;
     }}
     .ai-subhead, .market-open {{
       display: flex;
@@ -11412,45 +11416,44 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       gap: 8px;
       margin: 0 0 8px;
       color: var(--muted);
-      font-size: clamp(15px, 3vw, 19px);
+      font-size: clamp(12px, 2.4vw, 15px);
       line-height: 1.15;
-      letter-spacing: -.035em;
-      font-weight: 520;
+      letter-spacing: .08em;
+      font-weight: 500;
+      text-transform: uppercase;
     }}
     .ai-subhead, .market-open {{ grid-column: 1 / -1; }}
-    .ai-subhead span {{ color: var(--purple); text-shadow: 0 0 18px rgba(179, 76, 255, .9); }}
+    .ai-subhead span {{ color: var(--brass); }}
     .market-open {{ color: var(--green); }}
     .market-open #marketOpenDot {{
       width: 11px;
       height: 11px;
       border-radius: 999px;
       background: var(--green);
-      box-shadow: 0 0 24px rgba(33, 246, 107, .72);
     }}
     .market-open.is-closed {{ color: var(--orange); }}
     .market-open.is-closed #marketOpenDot {{
       background: var(--orange);
-      box-shadow: 0 0 24px rgba(255, 106, 52, .55);
     }}
     .ai-powered-pill {{
       margin-top: 8px;
       min-height: 38px;
       padding: 0 14px;
       border-radius: 11px;
-      border: 1px solid rgba(196, 77, 255, .64);
-      background: rgba(35, 15, 48, .28);
-      color: #d68cff;
+      border: 1px solid rgba(200, 173, 106, .34);
+      background: rgba(14, 14, 13, .60);
+      color: var(--brass);
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
-      letter-spacing: -.02em;
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
       white-space: nowrap;
-      box-shadow: inset 0 0 22px rgba(179, 76, 255, .08), 0 0 26px rgba(179, 76, 255, .18);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }}
-    .ai-powered-pill span {{ text-shadow: 0 0 16px rgba(179, 76, 255, .9); }}
+    .ai-powered-pill span {{ color: var(--brass); }}
     .market-insight-card {{
       display: grid;
       grid-template-columns: 1fr 1px 1fr;
@@ -11458,11 +11461,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       min-height: 92px;
       padding: 15px 18px;
       border: 1px solid var(--line);
-      border-radius: 19px;
-      background: linear-gradient(145deg, rgba(17, 20, 28, .72), rgba(5, 6, 10, .46));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 22px 70px rgba(0,0,0,.42);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
+      border-radius: 6px;
+      background: linear-gradient(145deg, rgba(18,18,17,.90), rgba(7,7,7,.82));
+      box-shadow: 0 18px 44px rgba(0,0,0,.32);
       margin-bottom: 16px;
     }}
     .market-insight {{
@@ -11479,11 +11480,11 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       border-radius: 999px;
       display: grid;
       place-items: center;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(200,173,106,.16);
+      background: rgba(200,173,106,.045);
     }}
-    .trend-icon {{ color: var(--green); background: rgba(33,246,107,.12); box-shadow: 0 0 34px rgba(33,246,107,.14); }}
-    .volatility-icon {{ color: var(--purple); background: rgba(179,76,255,.12); box-shadow: 0 0 34px rgba(179,76,255,.14); }}
+    .trend-icon {{ color: var(--brass); }}
+    .volatility-icon {{ color: var(--brass); }}
     .insight-icon svg {{ width: 27px; height: 27px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }}
     .volatility-icon svg {{ fill: currentColor; stroke: none; }}
     .market-insight span, .market-insight small {{
@@ -11494,7 +11495,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     .market-insight strong {{
       display: block;
-      color: var(--green);
+      color: var(--brass);
       font-size: 20px;
       line-height: 1.15;
       margin: 3px 0 3px;
@@ -11509,7 +11510,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .market-insight .strength-rating span {{
       display: inline;
     }}
-    .market-insight .purple-text {{ color: var(--purple); }}
+    .market-insight .purple-text {{ color: var(--brass); }}
     .market-insight strong.bearish, .market-insight strong.elevated, .market-insight strong.high {{ color: var(--orange); }}
     .market-insight strong.neutral, .market-insight strong.unknown {{ color: rgba(236,238,245,.70); }}
     .section-switcher {{
@@ -11526,17 +11527,18 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .section-tab {{
       border: 0;
       background: transparent;
-      color: rgba(236, 238, 245, .56);
+      color: rgba(222, 218, 205, .50);
       min-height: 70px;
       padding: 0 0 21px;
-      font-size: 25px;
-      font-weight: 710;
-      letter-spacing: -.035em;
+      font-size: 14px;
+      font-weight: 680;
+      letter-spacing: .12em;
+      text-transform: uppercase;
       text-align: center;
       cursor: pointer;
     }}
     .section-tab.is-active {{
-      color: #fff;
+      color: var(--brass);
       position: relative;
     }}
     .section-tab.is-active::after {{
@@ -11546,30 +11548,27 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       right: 22%;
       bottom: -1px;
       height: 2px;
-      background: linear-gradient(90deg, transparent, var(--green), transparent);
-      box-shadow: 0 0 18px rgba(33,246,107,.9);
+      background: linear-gradient(90deg, transparent, var(--brass), transparent);
     }}
     .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
     .stock-list {{ display: grid; gap: 16px; }}
     .stock-card {{
       border: 1px solid var(--line);
-      border-radius: 18px;
-      background: linear-gradient(145deg, rgba(14, 16, 23, .78), rgba(5, 6, 10, .56));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 24px 60px rgba(0,0,0,.30);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(13, 13, 12, .92), rgba(6, 6, 6, .90));
+      box-shadow: 0 18px 42px rgba(0,0,0,.26);
       overflow: hidden;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
       transition: transform .24s ease, border-color .24s ease, background .24s ease;
     }}
     .stock-card:active {{ transform: scale(.992); }}
     .stock-card-main {{
       width: 100%;
-      min-height: 148px;
+      min-height: 132px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 116px;
       gap: 28px;
       align-items: center;
-      padding: 20px 26px;
+      padding: 18px 24px;
       border: 0;
       background: transparent;
       text-align: left;
@@ -11578,30 +11577,31 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .stock-copy {{ min-width: 0; }}
     .stock-copy h2 {{
       margin: 0 0 4px;
-      font-size: 31px;
+      font-size: 28px;
       line-height: 1;
-      letter-spacing: -.045em;
-      font-weight: 760;
+      letter-spacing: .01em;
+      font-weight: 620;
     }}
     .stock-copy p {{
       margin: 0 0 10px;
       color: var(--muted);
-      font-size: 21px;
+      font-size: 15px;
       line-height: 1.2;
-      letter-spacing: -.035em;
+      letter-spacing: .01em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }}
     .sector-badge {{
       display: table;
-      color: #d46cff;
-      border: 1px solid rgba(179, 76, 255, .18);
-      background: rgba(179, 76, 255, .08);
-      border-radius: 8px;
+      color: var(--brass);
+      border: 1px solid rgba(200, 173, 106, .20);
+      background: rgba(200, 173, 106, .055);
+      border-radius: 4px;
       padding: 2px 9px 4px;
-      font-size: 18px;
-      letter-spacing: -.035em;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
       margin-bottom: 13px;
     }}
     .atlas-status {{
@@ -11609,19 +11609,20 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       align-items: center;
       gap: 8px;
       white-space: nowrap;
-      color: rgba(244, 245, 250, .82);
-      background: rgba(255,255,255,.045);
-      border: 1px solid rgba(255,255,255,.055);
-      border-radius: 10px;
+      color: rgba(222,218,205,.72);
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(200,173,106,.12);
+      border-radius: 4px;
       padding: 7px 13px;
-      font-size: 18px;
-      letter-spacing: -.035em;
+      font-size: 11px;
+      letter-spacing: .11em;
+      text-transform: uppercase;
     }}
-    .atlas-status span {{ color: var(--green); filter: drop-shadow(0 0 8px rgba(33,246,107,.65)); }}
-    .atlas-status strong {{ color: var(--green); font-weight: 600; }}
-    .atlas-status.entry-candidate span, .atlas-status.entry-candidate strong {{ color: #facc15; filter: drop-shadow(0 0 8px rgba(250,204,21,.55)); }}
+    .atlas-status span {{ color: var(--brass); }}
+    .atlas-status strong {{ color: var(--brass); font-weight: 650; }}
+    .atlas-status.entry-candidate span, .atlas-status.entry-candidate strong {{ color: #d6bd7a; }}
     .atlas-status.pass span, .atlas-status.pass strong,
-    .atlas-status.no-trade span, .atlas-status.no-trade strong {{ color: var(--orange); filter: drop-shadow(0 0 8px rgba(255,106,52,.55)); }}
+    .atlas-status.no-trade span, .atlas-status.no-trade strong {{ color: var(--ash); }}
     .stock-actions {{
       align-self: stretch;
       display: grid;
@@ -11634,19 +11635,20 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       place-items: center;
       min-width: 84px;
       min-height: 45px;
-      border-radius: 9px;
-      font-size: 22px;
+      border-radius: 4px;
+      font-size: 13px;
       font-weight: 680;
-      letter-spacing: -.035em;
+      letter-spacing: .12em;
+      text-transform: uppercase;
       border: 1px solid;
     }}
-    .recommendation.call {{ color: var(--green); border-color: rgba(33,246,107,.50); background: rgba(33,246,107,.06); }}
-    .recommendation.put {{ color: #ff793d; border-color: rgba(255,106,52,.62); background: rgba(255,106,52,.07); }}
+    .recommendation.call {{ color: var(--brass); border-color: rgba(200,173,106,.42); background: rgba(200,173,106,.055); }}
+    .recommendation.put {{ color: var(--brass); border-color: rgba(200,173,106,.42); background: rgba(200,173,106,.055); }}
     .chevron {{
       width: 18px;
       height: 18px;
-      border-right: 3px solid rgba(255,255,255,.67);
-      border-bottom: 3px solid rgba(255,255,255,.67);
+      border-right: 2px solid rgba(222,218,205,.68);
+      border-bottom: 2px solid rgba(222,218,205,.68);
       transform: rotate(45deg);
       transition: transform .28s ease;
       margin-right: 3px;
@@ -11665,7 +11667,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .stock-card-detail > div {{
       min-height: 0;
       overflow: hidden;
-      border-top: 1px solid rgba(255,255,255,.09);
+      border-top: 1px solid rgba(200,173,106,.13);
       padding: 0 26px 24px;
     }}
     .stock-card-detail strong {{
@@ -11673,12 +11675,13 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       margin: 20px 0 9px;
       font-size: 13px;
       letter-spacing: .18em;
+      color: var(--brass);
       text-transform: uppercase;
     }}
     .stock-card-detail p {{
       margin: 0;
-      color: rgba(236, 238, 245, .76);
-      font-size: 17px;
+      color: rgba(222, 218, 205, .76);
+      font-size: 15px;
       line-height: 1.5;
       letter-spacing: -.025em;
     }}
@@ -11689,10 +11692,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       min-height: 42px;
       margin-top: 18px;
       padding: 0 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(33,246,107,.42);
-      color: var(--green);
-      background: rgba(33,246,107,.06);
+      border-radius: 4px;
+      border: 1px solid rgba(200,173,106,.36);
+      color: var(--brass);
+      background: rgba(200,173,106,.055);
       font-size: 13px;
       font-weight: 720;
       letter-spacing: .12em;
@@ -11716,11 +11719,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     .journal-empty, .journal-day {{
       border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(145deg, rgba(14, 16, 23, .76), rgba(5, 6, 10, .54));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 24px 60px rgba(0,0,0,.28);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(13,13,12,.92), rgba(6,6,6,.90));
+      box-shadow: 0 18px 42px rgba(0,0,0,.24);
     }}
     .journal-empty {{
       padding: 26px;
@@ -11750,7 +11751,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     .journal-day header span {{
       display: block;
-      color: var(--green);
+      color: var(--brass);
       font-size: 12px;
       font-weight: 740;
       letter-spacing: .16em;
@@ -11814,7 +11815,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       letter-spacing: -.04em;
     }}
     .journal-trade h3 span {{
-      color: var(--green);
+      color: var(--brass);
       font-size: 12px;
       letter-spacing: .12em;
       vertical-align: middle;
@@ -11831,8 +11832,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       align-self: flex-start;
       padding: 5px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(33,246,107,.32);
-      color: var(--green);
+      border: 1px solid rgba(200,173,106,.30);
+      color: var(--brass);
       font-style: normal;
       font-size: 12px;
       letter-spacing: .08em;
@@ -11860,45 +11861,45 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       font-size: 12px !important;
     }}
     .journal-tp {{
-      color: rgba(33,246,107,.78) !important;
+      color: rgba(200,173,106,.78) !important;
       margin-top: 8px !important;
     }}
     .bottom-nav {{
       position: fixed;
       left: 50%;
-      bottom: max(14px, env(safe-area-inset-bottom));
+      bottom: max(0px, env(safe-area-inset-bottom));
       transform: translateX(-50%);
-      width: min(220px, calc(100vw - 24px));
+      width: min(850px, 100vw);
       display: grid;
       grid-template-columns: 1fr;
       align-items: center;
       z-index: 5;
-      padding: 11px 14px 10px;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 30px;
-      background: rgba(8, 10, 15, .72);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      box-shadow: 0 -10px 48px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+      padding: 7px 14px calc(7px + env(safe-area-inset-bottom));
+      border: 0;
+      border-top: 1px solid rgba(200,173,106,.13);
+      border-radius: 0;
+      background: rgba(4, 4, 4, .94);
+      box-shadow: 0 -18px 40px rgba(0,0,0,.45);
     }}
     .nav-item {{
-      min-height: 62px;
+      min-height: 48px;
       border: 0;
       background: transparent;
-      color: rgba(235, 236, 242, .66);
+      color: rgba(222, 218, 205, .58);
       display: grid;
       place-items: center;
       align-content: center;
       gap: 5px;
-      font-size: 13px;
+      font-size: 10px;
       font-weight: 520;
-      letter-spacing: -.025em;
+      letter-spacing: .12em;
+      text-transform: uppercase;
       cursor: pointer;
     }}
-    .nav-item.is-active {{ color: var(--green); }}
+    .nav-item.is-active {{ color: var(--brass); }}
     .nav-icon {{
-      width: 29px;
-      height: 29px;
+      width: 22px;
+      height: 22px;
       display: block;
       fill: none;
       stroke: currentColor;
