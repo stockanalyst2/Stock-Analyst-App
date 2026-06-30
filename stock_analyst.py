@@ -10902,8 +10902,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     </nav>
     <nav class="section-switcher is-hidden" data-panel-switcher="journal" aria-label="Journal groups">
       <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">P/L Calendar</button>
-      <button class="section-tab" type="button" data-subpanel="personal-journal">Personal Journal</button>
-      <button class="section-tab" type="button" data-subpanel="atlas-journal">ATLAS Journal</button>
+      <button class="section-tab" type="button" data-subpanel="personal-journal">Personal</button>
+      <button class="section-tab" type="button" data-subpanel="atlas-journal">Entries</button>
     </nav>
     <section class="content">
       <section class="stock-list" data-subpanel-content="live-watchlist">
@@ -10912,7 +10912,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       <section class="panel-placeholder" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
       <section class="panel-placeholder" data-subpanel-content="alerts">Ready-for-entry alerts and position updates will appear here.</section>
       <section class="panel-placeholder" data-subpanel-content="pl-calendar">P/L Calendar will track closed trade performance by date.</section>
-      <section class="panel-placeholder" data-subpanel-content="personal-journal">Personal Journal will hold your trade notes and observations.</section>
+      <section class="panel-placeholder" data-subpanel-content="personal-journal">Personal will hold your trade notes and observations.</section>
       {atlas_journal_html(alert_state)}
       <section class="panel-placeholder" data-panel-content="search">Search will support ticker research and on-demand analysis.</section>
       <section class="panel-placeholder" data-panel-content="profile">Profile will hold account and notification settings.</section>
