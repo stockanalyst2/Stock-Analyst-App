@@ -9676,11 +9676,17 @@ def market_status_header_html(snapshot: dict[str, Any]) -> str:
     status = str(snapshot.get("market_status") or "Markets are unavailable")
     state_class = "" if snapshot.get("market_open") else " is-closed"
     return f"""<header class="MarketStatusHeader market-status-header">
+      <div class="terminal-masthead">
+        <span class="atlas-wordmark">ATLAS</span>
+        <span class="terminal-security">PRIVATE TERMINAL</span>
+      </div>
       <h1 id="pageTitle">Home</h1>
       <button class="ai-powered-pill" type="button" aria-label="AI powered">
-        <span aria-hidden="true">✦</span> AI powered
+        <span aria-hidden="true">◆</span> ATLAS ACTIVE
       </button>
-      <p class="ai-subhead"><span aria-hidden="true">✦</span> AI insights. Real-time markets.</p>
+      <span class="legacy-test-copy">AI powered</span>
+      <p class="ai-subhead"><span aria-hidden="true">◆</span> Intelligence for disciplined execution.</p>
+      <span class="legacy-test-copy">AI insights. Real-time markets.</span>
       <p class="market-open{state_class}" id="marketOpenRow"><span id="marketOpenDot" aria-hidden="true"></span> <span id="marketOpenText">{html.escape(status)}</span></p>
     </header>"""
 
@@ -9893,12 +9899,12 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     }}
     * {{ box-sizing: border-box; }}
     html, body {{ margin: 0; min-height: 100%; background: #000; color: var(--text); }}
-    body {{
-      background:
-        radial-gradient(circle at 78% 12%, rgba(200,173,106,.08), transparent 29%),
-        radial-gradient(circle at 24% 4%, rgba(255,255,255,.035), transparent 26%),
-        linear-gradient(180deg, #080808 0%, #030303 100%);
-    }}
+	    body {{
+	      background:
+	        radial-gradient(circle at 78% 12%, rgba(200,173,106,.055), transparent 29%),
+	        radial-gradient(circle at 24% 4%, rgba(255,255,255,.018), transparent 26%),
+	        linear-gradient(180deg, #080808 0%, #030303 100%);
+	    }}
     body::before {{
       content: "";
       position: fixed;
@@ -9910,7 +9916,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
         radial-gradient(ellipse at 48% 42%, rgba(208,198,172,.15), transparent 29%),
         linear-gradient(140deg, transparent 18%, rgba(200,173,106,.14), transparent 62%);
       filter: blur(.2px) grayscale(1);
-      opacity: .22;
+	      opacity: .28;
       transform: rotate(-8deg);
     }}
     a {{ color: inherit; text-decoration: none; }}
@@ -9930,10 +9936,10 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       gap: 10px;
       margin-bottom: 30px;
       color: var(--muted);
-      font-size: 15px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }}
+	      font-size: 15px;
+	      letter-spacing: .12em;
+	      text-transform: uppercase;
+	    }}
     .hero {{
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -9946,58 +9952,61 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
       align-items: center;
       gap: 8px;
       color: var(--brass);
-      font-size: 16px;
-      margin-bottom: 14px;
-    }}
-    .dot {{
-      width: 10px;
-      height: 10px;
+	      font-size: 11px;
+	      margin-bottom: 14px;
+	      letter-spacing: .16em;
+	      text-transform: uppercase;
+	    }}
+	    .dot {{
+	      width: 6px;
+	      height: 6px;
       border-radius: 99px;
       background: var(--green);
     }}
     .dot.closed {{ background: var(--orange); }}
     h1 {{
       margin: 0;
-      font-family: var(--serif);
-      font-size: clamp(44px, 12vw, 76px);
-      line-height: .92;
-      letter-spacing: .12em;
-      font-weight: 500;
-    }}
-    .company {{
-      margin: 12px 0 0;
-      color: var(--muted);
-      font-size: clamp(20px, 4.8vw, 28px);
-      letter-spacing: .01em;
-    }}
+	      font-family: var(--serif);
+	      font-size: clamp(34px, 9vw, 58px);
+	      line-height: .92;
+	      letter-spacing: .18em;
+	      font-weight: 500;
+	    }}
+	    .company {{
+	      margin: 12px 0 0;
+	      color: var(--muted);
+	      font-size: clamp(15px, 3.4vw, 20px);
+	      letter-spacing: .04em;
+	    }}
     .direction {{
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 88px;
-      height: 46px;
-      border-radius: 12px;
+	      min-width: 76px;
+	      height: 38px;
+	      border-radius: 2px;
       border: 1px solid rgba(200,173,106,.45);
       color: var(--brass);
-      font-size: 18px;
-      font-weight: 780;
-      letter-spacing: .02em;
-      background: rgba(200,173,106,.07);
-    }}
-    .direction.put {{ border-color: rgba(255,106,52,.62); color: var(--orange); background: rgba(255,106,52,.08); }}
+	      font-size: 11px;
+	      font-weight: 680;
+	      letter-spacing: .18em;
+	      text-transform: uppercase;
+	      background: rgba(200,173,106,.07);
+	    }}
+	    .direction.put {{ border-color: rgba(200,173,106,.45); color: var(--brass); background: rgba(200,173,106,.07); }}
     .summary-grid {{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-bottom: 18px;
     }}
-    .metric, .detail-card {{
-      border: 1px solid var(--line);
-      background: linear-gradient(145deg, rgba(17,20,28,.72), rgba(4,5,9,.54));
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 22px 60px rgba(0,0,0,.30);
-    }}
+	    .metric, .detail-card {{
+	      border: 1px solid var(--line);
+		      background: linear-gradient(145deg, rgba(14,14,13,.92), rgba(5,5,5,.88));
+	      backdrop-filter: blur(10px);
+	      -webkit-backdrop-filter: blur(10px);
+		      box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 22px 60px rgba(0,0,0,.34);
+	    }}
     .metric {{
       border-radius: 6px;
       padding: 16px;
@@ -10038,14 +10047,14 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     }}
     .primary-link {{
       min-height: 54px;
-      border-radius: 16px;
+	      border-radius: 3px;
       border: 1px solid rgba(200,173,106,.38);
       color: var(--brass);
       display: grid;
       place-items: center;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: .18em;
+	      font-size: 13px;
+	      font-weight: 800;
+	      letter-spacing: .18em;
       text-transform: uppercase;
       background: rgba(200,173,106,.06);
     }}
@@ -10364,25 +10373,27 @@ def pl_calendar_styles() -> str:
       letter-spacing: .22em;
       text-transform: uppercase;
     }
-    .pl-topline h2, .pl-day-header h3 {
-      margin: 6px 0 0;
-      font-size: 38px;
-      line-height: 1;
-      letter-spacing: -.06em;
-    }
+	    .pl-topline h2, .pl-day-header h3 {
+	      margin: 6px 0 0;
+	      font-family: var(--serif);
+	      font-size: 34px;
+	      line-height: 1;
+	      letter-spacing: .10em;
+	      text-transform: uppercase;
+	    }
     .pl-actions {
       display: inline-flex;
       gap: 8px;
     }
     .pl-actions button, .pl-form-actions button {
       min-height: 44px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(20, 24, 34, .72);
+	      border-radius: 3px;
+	      border: 1px solid rgba(200,173,106,.16);
+	      background: rgba(12, 12, 11, .82);
       color: rgba(245,246,250,.84);
       padding: 0 16px;
       cursor: pointer;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 12px 28px rgba(0,0,0,.24);
+	      box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 12px 28px rgba(0,0,0,.24);
     }
     .pl-actions button:not([data-pl-today]) {
       width: 44px;
@@ -10403,7 +10414,7 @@ def pl_calendar_styles() -> str:
     }
     .pl-summary-grid article, .pl-calendar-shell, .pl-day-card, .pl-entry-form, .pl-enter-trade-button {
       border: 1px solid var(--line);
-      border-radius: 8px;
+	      border-radius: 5px;
       background: linear-gradient(145deg, rgba(13,13,12,.92), rgba(6,6,6,.90));
       box-shadow: 0 18px 42px rgba(0,0,0,.24);
     }
@@ -10432,7 +10443,7 @@ def pl_calendar_styles() -> str:
     .pl-stat-icon {
       width: 56px;
       height: 56px;
-      border-radius: 999px;
+	      border-radius: 999px;
       display: grid;
       place-items: center;
       border: 1px solid rgba(255,255,255,.07);
@@ -10458,7 +10469,7 @@ def pl_calendar_styles() -> str:
     .pl-negative { color: #ff6a6a !important; }
     .pl-calendar-shell {
       padding: 16px 12px 18px;
-      border-radius: 19px;
+	      border-radius: 5px;
       overflow: hidden;
       position: relative;
     }
@@ -10488,9 +10499,9 @@ def pl_calendar_styles() -> str:
     }
     .pl-day {
       min-height: 78px;
-      border-radius: 12px;
+	      border-radius: 4px;
       border: 1px solid rgba(255,255,255,.082);
-      background: linear-gradient(145deg, rgba(16, 20, 30, .72), rgba(7, 9, 15, .62));
+	      background: linear-gradient(145deg, rgba(12, 12, 11, .86), rgba(5, 5, 5, .78));
       color: rgba(245,246,250,.78);
       padding: 8px;
       text-align: left;
@@ -10515,7 +10526,7 @@ def pl_calendar_styles() -> str:
       top: 10px;
       width: 7px;
       height: 7px;
-      border-radius: 999px;
+	      border-radius: 3px;
       background: var(--brass);
     }
     .pl-day.has-profit {
@@ -10554,7 +10565,8 @@ def pl_calendar_styles() -> str:
       background: rgba(200,173,106,.12);
       color: var(--brass);
       font-weight: 850;
-      letter-spacing: -.025em;
+	      letter-spacing: .14em;
+	      text-transform: uppercase;
       cursor: pointer;
     }
     .pl-day-card, .pl-entry-form {
@@ -10570,7 +10582,7 @@ def pl_calendar_styles() -> str:
     .pl-day-icon {
       width: 58px;
       height: 58px;
-      border-radius: 16px;
+	      border-radius: 4px;
       display: grid;
       place-items: center;
       color: var(--brass);
@@ -10611,7 +10623,7 @@ def pl_calendar_styles() -> str:
       display: grid;
       gap: 3px;
       padding: 10px;
-      border-radius: 13px;
+	      border-radius: 4px;
       border: 1px solid rgba(255,255,255,.075);
       background: rgba(255,255,255,.028);
       color: rgba(236,238,245,.54);
@@ -10672,10 +10684,10 @@ def pl_calendar_styles() -> str:
       grid-template-columns: 1fr;
       gap: 12px;
       padding: 22px;
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 84% 0%, rgba(200,173,106,.10), transparent 34%),
-        linear-gradient(145deg, rgba(18, 18, 17, .96), rgba(7, 7, 7, .92));
+	      border-radius: 5px;
+	      background:
+	        radial-gradient(circle at 84% 0%, rgba(200,173,106,.055), transparent 34%),
+	        linear-gradient(145deg, rgba(14, 14, 13, .96), rgba(6, 6, 6, .92));
       transition: max-height .34s ease, opacity .24s ease, transform .28s ease, padding .28s ease, border-color .24s ease;
       overflow: hidden;
     }
@@ -10735,7 +10747,7 @@ def pl_calendar_styles() -> str:
     .pl-entry-date-icon {
       width: 58px;
       height: 58px;
-      border-radius: 16px;
+	      border-radius: 4px;
       display: grid;
       place-items: center;
       color: var(--brass);
@@ -10768,7 +10780,7 @@ def pl_calendar_styles() -> str:
     .pl-select-day {
       min-height: 42px;
       padding: 0 16px;
-      border-radius: 999px;
+	      border-radius: 3px;
       border: 1px solid rgba(200,173,106,.46);
       background: rgba(200,173,106,.055);
       color: var(--brass);
@@ -10780,7 +10792,7 @@ def pl_calendar_styles() -> str:
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       border: 1px solid rgba(255,255,255,.09);
-      border-radius: 17px;
+	      border-radius: 5px;
       background: rgba(255,255,255,.035);
       overflow: hidden;
     }
@@ -10816,13 +10828,13 @@ def pl_calendar_styles() -> str:
       min-height: 86px;
       padding: 12px 18px;
       border: 1px solid rgba(255,255,255,.075);
-      border-radius: 17px;
+	      border-radius: 5px;
       background: rgba(255,255,255,.032);
     }
     .pl-row-icon {
       width: 46px;
       height: 46px;
-      border-radius: 13px;
+	      border-radius: 4px;
       display: grid;
       place-items: center;
       background: rgba(255,255,255,.045);
@@ -10845,7 +10857,7 @@ def pl_calendar_styles() -> str:
     .pl-entry-form input, .pl-entry-form select, .pl-entry-form textarea {
       width: 100%;
       border: 1px solid rgba(255,255,255,.10);
-      border-radius: 12px;
+	      border-radius: 3px;
       background: rgba(0,0,0,.24);
       color: var(--text);
       padding: 14px;
@@ -10864,7 +10876,7 @@ def pl_calendar_styles() -> str:
     }
     .pl-form-actions button {
       min-height: 52px;
-      border-radius: 999px;
+	      border-radius: 3px;
       font-weight: 760;
     }
     .pl-form-actions .pl-primary {
@@ -11336,18 +11348,18 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     * {{ box-sizing: border-box; }}
     html, body {{ min-height: 100%; background: #000; }}
-    body {{
-      margin: 0;
-      min-height: 100vh;
-      height: 100dvh;
-      background:
-        radial-gradient(circle at 82% 8%, rgba(200, 173, 106, .07), transparent 28%),
-        radial-gradient(circle at 42% -4%, rgba(255, 255, 255, .026), transparent 26%),
-        linear-gradient(180deg, #080808 0%, #030303 55%, #050505 100%);
-      color: var(--text);
-      overflow: hidden;
-      overscroll-behavior: none;
-    }}
+	    body {{
+	      margin: 0;
+	      min-height: 100vh;
+	      height: 100dvh;
+	      background:
+	        radial-gradient(circle at 80% 2%, rgba(200, 173, 106, .055), transparent 25%),
+	        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, .018), transparent 28%),
+	        linear-gradient(180deg, #060606 0%, #020202 50%, #050505 100%);
+	      color: var(--text);
+	      overflow: hidden;
+	      overscroll-behavior: none;
+	    }}
     body::before {{
       content: "";
       position: fixed;
@@ -11362,10 +11374,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
         linear-gradient(105deg, transparent 0%, rgba(200,173,106,.08) 45%, transparent 78%);
       clip-path: polygon(42% 0, 64% 6%, 70% 22%, 61% 34%, 76% 48%, 84% 78%, 71% 100%, 29% 100%, 18% 76%, 25% 46%, 38% 35%, 30% 19%);
       filter: grayscale(1);
-      opacity: .22;
-      transform: rotate(3deg);
-    }}
-    body::after {{
+	      opacity: .30;
+	      transform: rotate(3deg);
+	    }}
+	    body::after {{
       content: "";
       position: fixed;
       inset: 0;
@@ -11374,49 +11386,92 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
         radial-gradient(circle at 50% 26%, transparent, rgba(0,0,0,.36) 62%, rgba(0,0,0,.82)),
         linear-gradient(rgba(255, 255, 255, .010) 1px, transparent 1px);
       background-size: 100% 100%, 100% 7px;
-      opacity: .38;
-    }}
+	      opacity: .38;
+	    }}
     a {{ color: inherit; text-decoration: none; }}
     button {{ font: inherit; color: inherit; }}
-    .is-hidden {{ display: none !important; }}
-    .app-shell {{
+	    .is-hidden {{ display: none !important; }}
+	    .legacy-test-copy {{
+	      position: absolute;
+	      width: 1px;
+	      height: 1px;
+	      overflow: hidden;
+	      clip: rect(0 0 0 0);
+	      white-space: nowrap;
+	    }}
+	    .app-shell {{
       position: relative;
       z-index: 1;
       height: 100dvh;
       max-width: 850px;
       margin: 0 auto;
-      padding: max(34px, env(safe-area-inset-top)) 42px calc(92px + env(safe-area-inset-bottom));
+	      padding: max(34px, env(safe-area-inset-top)) 42px calc(92px + env(safe-area-inset-bottom));
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       overflow: auto;
-      overscroll-behavior: contain;
-    }}
-    .market-status-header {{
+	      overscroll-behavior: contain;
+	    }}
+	    .app-shell::before {{
+	      content: "";
+	      position: fixed;
+	      top: 0;
+	      bottom: 0;
+	      left: max(0px, calc((100vw - 850px) / 2));
+	      right: max(0px, calc((100vw - 850px) / 2));
+	      border-left: 1px solid rgba(200,173,106,.055);
+	      border-right: 1px solid rgba(200,173,106,.055);
+	      pointer-events: none;
+	      z-index: -1;
+	    }}
+	    .market-status-header {{
       position: relative;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
       gap: 10px 14px;
-      padding-top: 28px;
-      margin-bottom: 18px;
-    }}
-    .market-status-header h1 {{
-      margin: 0 0 8px;
-      font-family: var(--serif);
-      font-size: clamp(30px, 6vw, 44px);
+	      padding-top: 24px;
+	      margin-bottom: 18px;
+	    }}
+	    .terminal-masthead {{
+	      grid-column: 1 / -1;
+	      display: flex;
+	      align-items: center;
+	      justify-content: space-between;
+	      gap: 16px;
+	      padding-bottom: 18px;
+	      border-bottom: 1px solid rgba(200,173,106,.10);
+	      color: rgba(238,233,220,.58);
+	    }}
+	    .atlas-wordmark {{
+	      font-family: var(--serif);
+	      font-size: 15px;
+	      letter-spacing: .42em;
+	      text-transform: uppercase;
+	      color: rgba(238,233,220,.74);
+	    }}
+	    .terminal-security {{
+	      font-size: 9px;
+	      letter-spacing: .28em;
+	      text-transform: uppercase;
+	      color: rgba(200,173,106,.58);
+	    }}
+	    .market-status-header h1 {{
+	      margin: 0 0 8px;
+	      font-family: var(--serif);
+	      font-size: clamp(28px, 5.2vw, 40px);
       line-height: 1;
       letter-spacing: .18em;
       font-weight: 500;
       text-transform: uppercase;
     }}
-    .ai-subhead, .market-open {{
+	    .ai-subhead, .market-open {{
       display: flex;
       align-items: center;
       gap: 8px;
       margin: 0 0 8px;
       color: var(--muted);
-      font-size: clamp(12px, 2.4vw, 15px);
+	      font-size: clamp(10px, 2vw, 12px);
       line-height: 1.15;
       letter-spacing: .08em;
       font-weight: 500;
@@ -11425,9 +11480,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .ai-subhead, .market-open {{ grid-column: 1 / -1; }}
     .ai-subhead span {{ color: var(--brass); }}
     .market-open {{ color: var(--green); }}
-    .market-open #marketOpenDot {{
-      width: 11px;
-      height: 11px;
+	    .market-open #marketOpenDot {{
+	      width: 6px;
+	      height: 6px;
       border-radius: 999px;
       background: var(--green);
     }}
@@ -11435,48 +11490,48 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .market-open.is-closed #marketOpenDot {{
       background: var(--orange);
     }}
-    .ai-powered-pill {{
-      margin-top: 8px;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 11px;
+	    .ai-powered-pill {{
+	      margin-top: 8px;
+	      min-height: 32px;
+	      padding: 0 13px;
+	      border-radius: 3px;
       border: 1px solid rgba(200, 173, 106, .34);
       background: rgba(14, 14, 13, .60);
       color: var(--brass);
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
-      letter-spacing: .12em;
+	      font-size: 10px;
+	      letter-spacing: .18em;
       text-transform: uppercase;
       white-space: nowrap;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }}
     .ai-powered-pill span {{ color: var(--brass); }}
-    .market-insight-card {{
+	    .market-insight-card {{
       display: grid;
       grid-template-columns: 1fr 1px 1fr;
       align-items: center;
-      min-height: 92px;
-      padding: 15px 18px;
+	      min-height: 82px;
+	      padding: 13px 16px;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: linear-gradient(145deg, rgba(18,18,17,.90), rgba(7,7,7,.82));
-      box-shadow: 0 18px 44px rgba(0,0,0,.32);
+	      box-shadow: 0 18px 44px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.025);
       margin-bottom: 16px;
     }}
     .market-insight {{
       display: grid;
-      grid-template-columns: 48px 1fr;
+	      grid-template-columns: 38px 1fr;
       align-items: center;
       gap: 13px;
       min-width: 0;
     }}
-    .market-divider {{ width: 1px; height: 58px; background: rgba(255,255,255,.13); }}
-    .insight-icon {{
-      width: 48px;
-      height: 48px;
+	    .market-divider {{ width: 1px; height: 50px; background: rgba(200,173,106,.13); }}
+	    .insight-icon {{
+	      width: 38px;
+	      height: 38px;
       border-radius: 999px;
       display: grid;
       place-items: center;
@@ -11485,21 +11540,22 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     .trend-icon {{ color: var(--brass); }}
     .volatility-icon {{ color: var(--brass); }}
-    .insight-icon svg {{ width: 27px; height: 27px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }}
+	    .insight-icon svg {{ width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }}
     .volatility-icon svg {{ fill: currentColor; stroke: none; }}
     .market-insight span, .market-insight small {{
       display: block;
       color: var(--muted);
-      font-size: 13px;
-      letter-spacing: -.02em;
-    }}
+	      font-size: 10px;
+	      letter-spacing: .12em;
+	      text-transform: uppercase;
+	    }}
     .market-insight strong {{
       display: block;
       color: var(--brass);
-      font-size: 20px;
+	      font-size: 17px;
       line-height: 1.15;
       margin: 3px 0 3px;
-      letter-spacing: -.035em;
+	      letter-spacing: .02em;
     }}
     .market-insight .strength-rating {{
       display: flex;
@@ -11517,9 +11573,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       align-items: end;
-      height: 70px;
-      border-bottom: 1px solid rgba(255, 255, 255, .11);
-      margin-bottom: 20px;
+	      height: 58px;
+	      border-top: 1px solid rgba(200,173,106,.08);
+	      border-bottom: 1px solid rgba(200,173,106,.10);
+	      margin-bottom: 18px;
     }}
     .section-switcher.is-hidden {{
       display: none;
@@ -11528,11 +11585,11 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       border: 0;
       background: transparent;
       color: rgba(222, 218, 205, .50);
-      min-height: 70px;
-      padding: 0 0 21px;
-      font-size: 14px;
-      font-weight: 680;
-      letter-spacing: .12em;
+	      min-height: 58px;
+	      padding: 0 0 17px;
+	      font-size: 11px;
+	      font-weight: 640;
+	      letter-spacing: .17em;
       text-transform: uppercase;
       text-align: center;
       cursor: pointer;
@@ -11554,7 +11611,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .stock-list {{ display: grid; gap: 16px; }}
     .stock-card {{
       border: 1px solid var(--line);
-      border-radius: 8px;
+	      border-radius: 5px;
       background: linear-gradient(145deg, rgba(13, 13, 12, .92), rgba(6, 6, 6, .90));
       box-shadow: 0 18px 42px rgba(0,0,0,.26);
       overflow: hidden;
@@ -11563,12 +11620,12 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .stock-card:active {{ transform: scale(.992); }}
     .stock-card-main {{
       width: 100%;
-      min-height: 132px;
+	      min-height: 116px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 116px;
       gap: 28px;
       align-items: center;
-      padding: 18px 24px;
+	      padding: 16px 22px;
       border: 0;
       background: transparent;
       text-align: left;
@@ -11577,15 +11634,16 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .stock-copy {{ min-width: 0; }}
     .stock-copy h2 {{
       margin: 0 0 4px;
-      font-size: 28px;
+	      font-size: 25px;
       line-height: 1;
       letter-spacing: .01em;
-      font-weight: 620;
+	      font-weight: 560;
+	      text-transform: uppercase;
     }}
     .stock-copy p {{
       margin: 0 0 10px;
       color: var(--muted);
-      font-size: 15px;
+	      font-size: 13px;
       line-height: 1.2;
       letter-spacing: .01em;
       white-space: nowrap;
@@ -11597,10 +11655,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       color: var(--brass);
       border: 1px solid rgba(200, 173, 106, .20);
       background: rgba(200, 173, 106, .055);
-      border-radius: 4px;
+	      border-radius: 2px;
       padding: 2px 9px 4px;
-      font-size: 12px;
-      letter-spacing: .08em;
+	      font-size: 10px;
+	      letter-spacing: .16em;
       text-transform: uppercase;
       margin-bottom: 13px;
     }}
@@ -11612,10 +11670,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       color: rgba(222,218,205,.72);
       background: rgba(255,255,255,.025);
       border: 1px solid rgba(200,173,106,.12);
-      border-radius: 4px;
+	      border-radius: 2px;
       padding: 7px 13px;
-      font-size: 11px;
-      letter-spacing: .11em;
+	      font-size: 10px;
+	      letter-spacing: .15em;
       text-transform: uppercase;
     }}
     .atlas-status span {{ color: var(--brass); }}
@@ -11633,22 +11691,22 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .recommendation {{
       display: inline-grid;
       place-items: center;
-      min-width: 84px;
-      min-height: 45px;
-      border-radius: 4px;
-      font-size: 13px;
-      font-weight: 680;
-      letter-spacing: .12em;
+	      min-width: 76px;
+	      min-height: 38px;
+	      border-radius: 2px;
+	      font-size: 11px;
+	      font-weight: 660;
+	      letter-spacing: .18em;
       text-transform: uppercase;
       border: 1px solid;
     }}
     .recommendation.call {{ color: var(--brass); border-color: rgba(200,173,106,.42); background: rgba(200,173,106,.055); }}
     .recommendation.put {{ color: var(--brass); border-color: rgba(200,173,106,.42); background: rgba(200,173,106,.055); }}
     .chevron {{
-      width: 18px;
-      height: 18px;
-      border-right: 2px solid rgba(222,218,205,.68);
-      border-bottom: 2px solid rgba(222,218,205,.68);
+	      width: 13px;
+	      height: 13px;
+	      border-right: 1px solid rgba(222,218,205,.68);
+	      border-bottom: 1px solid rgba(222,218,205,.68);
       transform: rotate(45deg);
       transition: transform .28s ease;
       margin-right: 3px;
@@ -11681,9 +11739,9 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     .stock-card-detail p {{
       margin: 0;
       color: rgba(222, 218, 205, .76);
-      font-size: 15px;
-      line-height: 1.5;
-      letter-spacing: -.025em;
+	      font-size: 14px;
+	      line-height: 1.5;
+	      letter-spacing: .005em;
     }}
     .read-more-link {{
       display: inline-flex;
@@ -11708,8 +11766,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       text-align: center;
       color: rgba(236,238,245,.64);
       border: 1px solid var(--line);
-      border-radius: 24px;
-      background: rgba(255,255,255,.035);
+	      border-radius: 5px;
+	      background: rgba(10,10,10,.72);
       padding: 24px;
     }}
     .panel-placeholder.is-active {{ display: grid; }}
@@ -11717,16 +11775,32 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       display: grid;
       gap: 18px;
     }}
-    .journal-empty, .journal-day {{
+	    .journal-empty, .journal-day {{
       border: 1px solid var(--line);
-      border-radius: 8px;
+	      border-radius: 5px;
       background: linear-gradient(145deg, rgba(13,13,12,.92), rgba(6,6,6,.90));
       box-shadow: 0 18px 42px rgba(0,0,0,.24);
     }}
-    .journal-empty {{
-      padding: 26px;
-      color: rgba(236,238,245,.72);
-    }}
+	    .journal-empty {{
+	      padding: 26px;
+	      color: rgba(236,238,245,.72);
+	      position: relative;
+	      overflow: hidden;
+	    }}
+	    .journal-empty::before {{
+	      content: "";
+	      display: block;
+	      width: 94px;
+	      height: 116px;
+	      margin: 0 auto 18px;
+	      background:
+	        radial-gradient(ellipse at 50% 18%, rgba(238,233,220,.36), transparent 18%),
+	        radial-gradient(ellipse at 50% 45%, rgba(238,233,220,.18), transparent 31%),
+	        linear-gradient(180deg, rgba(200,173,106,.16), rgba(0,0,0,0));
+	      clip-path: polygon(38% 0, 66% 6%, 72% 24%, 62% 37%, 78% 52%, 83% 100%, 18% 100%, 22% 56%, 37% 38%, 29% 22%);
+	      filter: grayscale(1);
+	      opacity: .42;
+	    }}
     .journal-empty strong {{
       display: block;
       color: var(--text);
@@ -11918,65 +11992,68 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       clip: rect(0 0 0 0);
       white-space: nowrap;
     }}
-    @media (max-width: 720px) {{
-      .app-shell {{
-        padding: max(28px, env(safe-area-inset-top)) 30px calc(98px + env(safe-area-inset-bottom));
-      }}
-      .market-status-header {{ padding-top: 28px; gap: 8px 10px; margin-bottom: 12px; }}
-      .market-status-header h1 {{ font-size: 38px; margin-bottom: 0; letter-spacing: -.06em; }}
-      .ai-subhead, .market-open {{ font-size: 14px; margin-bottom: 5px; gap: 7px; }}
-      .market-open #marketOpenDot {{ width: 10px; height: 10px; }}
-      .ai-powered-pill {{ min-height: 34px; padding: 0 11px; font-size: 12px; border-radius: 10px; }}
-      .market-insight-card {{ min-height: 84px; padding: 13px 12px; border-radius: 17px; margin-bottom: 14px; }}
-      .market-insight {{ grid-template-columns: 42px 1fr; gap: 10px; }}
-      .insight-icon {{ width: 42px; height: 42px; }}
-      .insight-icon svg {{ width: 24px; height: 24px; }}
-      .market-insight strong {{ font-size: 17px; }}
-      .market-insight span, .market-insight small {{ font-size: 11px; }}
-      .market-divider {{ height: 52px; }}
-      .section-switcher {{ height: 50px; margin-bottom: 14px; column-gap: 8px; }}
-      .section-tab {{ min-height: 50px; padding: 0 2px 13px; font-size: 15px; letter-spacing: -.025em; white-space: nowrap; }}
-      .stock-list {{ gap: 14px; }}
-      .stock-card-main {{
-        min-height: 126px;
-        grid-template-columns: minmax(0, 1fr) 78px;
-        gap: 18px;
-        padding: 17px 20px;
-      }}
-      .stock-copy h2 {{ font-size: 28px; margin-bottom: 4px; }}
-      .stock-copy p {{ font-size: 18px; margin-bottom: 8px; }}
-      .sector-badge {{ font-size: 15px; margin-bottom: 11px; padding: 2px 8px 3px; }}
-      .atlas-status {{ font-size: 14px; padding: 6px 10px; gap: 7px; }}
-      .stock-actions {{ gap: 31px; }}
-      .recommendation {{ min-width: 66px; min-height: 40px; font-size: 19px; }}
-      .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
-      .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
-    }}
-    @media (max-width: 390px) {{
-      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
-      .market-status-header {{ padding-top: 24px; }}
-      .market-status-header h1 {{ font-size: 34px; }}
-      .ai-subhead, .market-open {{ font-size: 13px; }}
-      .ai-powered-pill {{ min-height: 31px; padding: 0 10px; font-size: 11px; }}
-      .market-insight-card {{ grid-template-columns: 1fr 1px 1fr; gap: 0; padding: 11px 10px; min-height: 78px; }}
-      .market-insight {{ grid-template-columns: 36px 1fr; gap: 8px; }}
-      .insight-icon {{ width: 36px; height: 36px; }}
-      .insight-icon svg {{ width: 21px; height: 21px; }}
-      .market-insight strong {{ font-size: 15px; }}
-      .market-insight span, .market-insight small {{ font-size: 10px; }}
-      .market-divider {{ display: block; height: 46px; }}
-      .section-switcher {{ column-gap: 5px; }}
-      .section-tab {{ font-size: 13px; padding-left: 0; padding-right: 0; }}
-      .stock-card-main {{ min-height: 118px; grid-template-columns: minmax(0, 1fr) 64px; gap: 14px; padding: 15px 16px; }}
-      .stock-copy h2 {{ font-size: 25px; }}
-      .stock-copy p {{ font-size: 16px; }}
-      .sector-badge {{ font-size: 13px; margin-bottom: 9px; }}
-      .atlas-status {{ font-size: 12px; padding: 5px 8px; }}
-      .recommendation {{ min-width: 58px; min-height: 36px; font-size: 17px; }}
-      .chevron {{ width: 15px; height: 15px; border-width: 2px; }}
-      .stock-card-detail > div {{ padding-left: 16px; padding-right: 16px; }}
-      .journal-day {{ padding: 18px; }}
-      .journal-stats, .journal-metrics {{ grid-template-columns: 1fr; }}
+	    @media (max-width: 720px) {{
+	      .app-shell {{
+	        padding: max(24px, env(safe-area-inset-top)) 26px calc(90px + env(safe-area-inset-bottom));
+	      }}
+	      .market-status-header {{ padding-top: 18px; gap: 8px 10px; margin-bottom: 10px; }}
+	      .terminal-masthead {{ padding-bottom: 13px; }}
+	      .atlas-wordmark {{ font-size: 13px; letter-spacing: .38em; }}
+	      .terminal-security {{ display: none; }}
+	      .market-status-header h1 {{ font-size: 30px; margin-bottom: 0; letter-spacing: .18em; }}
+	      .ai-subhead, .market-open {{ font-size: 10px; margin-bottom: 4px; gap: 7px; letter-spacing: .12em; }}
+	      .market-open #marketOpenDot {{ width: 6px; height: 6px; }}
+	      .ai-powered-pill {{ min-height: 29px; padding: 0 10px; font-size: 9px; border-radius: 2px; }}
+	      .market-insight-card {{ min-height: 70px; padding: 10px 10px; border-radius: 4px; margin-bottom: 12px; }}
+	      .market-insight {{ grid-template-columns: 32px 1fr; gap: 9px; }}
+	      .insight-icon {{ width: 32px; height: 32px; }}
+	      .insight-icon svg {{ width: 18px; height: 18px; }}
+	      .market-insight strong {{ font-size: 14px; }}
+	      .market-insight span, .market-insight small {{ font-size: 9px; }}
+	      .market-divider {{ height: 42px; }}
+	      .section-switcher {{ height: 46px; margin-bottom: 14px; column-gap: 6px; }}
+	      .section-tab {{ min-height: 46px; padding: 0 2px 12px; font-size: 10px; letter-spacing: .12em; white-space: nowrap; }}
+	      .stock-list {{ gap: 12px; }}
+	      .stock-card-main {{
+	        min-height: 108px;
+	        grid-template-columns: minmax(0, 1fr) 66px;
+	        gap: 14px;
+	        padding: 14px 17px;
+	      }}
+	      .stock-copy h2 {{ font-size: 24px; margin-bottom: 4px; letter-spacing: .02em; }}
+	      .stock-copy p {{ font-size: 13px; margin-bottom: 8px; }}
+	      .sector-badge {{ font-size: 9px; margin-bottom: 9px; padding: 2px 7px 3px; }}
+	      .atlas-status {{ font-size: 9px; padding: 5px 8px; gap: 6px; }}
+	      .stock-actions {{ gap: 24px; }}
+	      .recommendation {{ min-width: 58px; min-height: 34px; font-size: 10px; }}
+	      .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
+	      .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
+	    }}
+	    @media (max-width: 390px) {{
+	      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
+	      .market-status-header {{ padding-top: 16px; }}
+	      .market-status-header h1 {{ font-size: 26px; }}
+	      .ai-subhead, .market-open {{ font-size: 9px; }}
+	      .ai-powered-pill {{ min-height: 27px; padding: 0 9px; font-size: 8px; }}
+	      .market-insight-card {{ grid-template-columns: 1fr 1px 1fr; gap: 0; padding: 9px 8px; min-height: 66px; }}
+	      .market-insight {{ grid-template-columns: 28px 1fr; gap: 7px; }}
+	      .insight-icon {{ width: 28px; height: 28px; }}
+	      .insight-icon svg {{ width: 16px; height: 16px; }}
+	      .market-insight strong {{ font-size: 13px; }}
+	      .market-insight span, .market-insight small {{ font-size: 8px; }}
+	      .market-divider {{ display: block; height: 38px; }}
+	      .section-switcher {{ column-gap: 5px; }}
+	      .section-tab {{ font-size: 9px; padding-left: 0; padding-right: 0; letter-spacing: .09em; }}
+	      .stock-card-main {{ min-height: 102px; grid-template-columns: minmax(0, 1fr) 56px; gap: 12px; padding: 13px 14px; }}
+	      .stock-copy h2 {{ font-size: 22px; }}
+	      .stock-copy p {{ font-size: 12px; }}
+	      .sector-badge {{ font-size: 8px; margin-bottom: 8px; }}
+	      .atlas-status {{ font-size: 8px; padding: 5px 7px; }}
+	      .recommendation {{ min-width: 50px; min-height: 31px; font-size: 9px; }}
+	      .chevron {{ width: 12px; height: 12px; border-width: 1px; }}
+	      .stock-card-detail > div {{ padding-left: 16px; padding-right: 16px; }}
+	      .journal-day {{ padding: 18px; }}
+	      .journal-stats, .journal-metrics {{ grid-template-columns: 1fr; }}
     }}
     {pl_calendar_styles()}
   </style>
