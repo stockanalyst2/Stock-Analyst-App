@@ -10300,7 +10300,7 @@ def pl_calendar_styles() -> str:
     return """
     .pl-calendar-panel {
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
     .pl-topline {
       display: flex;
@@ -10655,41 +10655,58 @@ def pl_calendar_styles() -> str:
       background: rgba(33,246,107,.08);
     }
     @media (max-width: 720px) {
-      body[data-panel="journal"][data-subpanel="pl-calendar"] .market-status-header,
-      body[data-panel="journal"][data-subpanel="pl-calendar"] [data-panel-switcher="journal"] {
-        display: none;
-      }
-      body[data-panel="journal"][data-subpanel="pl-calendar"] .app-shell {
-        padding-top: max(22px, env(safe-area-inset-top));
-      }
-      body[data-panel="journal"][data-subpanel="pl-calendar"] .content {
-        padding-top: 0;
-      }
+      .pl-calendar-panel { gap: 10px; }
+      .pl-topline { align-items: center; gap: 10px; }
+      .pl-topline h2 { font-size: 30px; margin-top: 4px; }
+      .pl-topline span { font-size: 10px; letter-spacing: .18em; }
+      .pl-actions { gap: 6px; }
+      .pl-actions button { min-height: 36px; padding: 0 12px; font-size: 13px; }
+      .pl-actions button:not([data-pl-today]) { width: 36px; font-size: 20px; }
       .pl-summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .pl-summary-grid article {
+        min-height: 78px;
+        grid-template-columns: 42px 1fr;
+        gap: 10px;
+        padding: 11px;
+        border-radius: 16px;
+      }
+      .pl-stat-icon { width: 42px; height: 42px; }
+      .pl-stat-icon svg { width: 23px; height: 23px; }
+      .pl-summary-grid span { font-size: 11px; }
+      .pl-summary-grid strong { font-size: 18px; }
       .pl-detail-grid { grid-template-columns: 1fr; }
-      .pl-day { min-height: 82px; padding: 8px; }
+      .pl-calendar-shell { padding: 12px 10px 14px; border-radius: 16px; }
+      .pl-weekdays, .pl-calendar-grid { gap: 5px; }
+      .pl-weekdays { font-size: 10px; margin-bottom: 8px; }
+      .pl-day { min-height: 58px; padding: 7px; border-radius: 10px; gap: 5px; }
+      .pl-day-number { font-size: 11px; }
       .pl-day-pnl { font-size: 11px; }
-      .pl-topline { align-items: flex-start; }
-      .pl-actions button { min-height: 42px; padding: 0 12px; }
+      .pl-day-count { display: none; }
+      .pl-day-card { grid-template-columns: 48px 1fr; padding: 14px; border-radius: 16px; }
+      .pl-day-icon { width: 48px; height: 48px; border-radius: 14px; }
+      .pl-day-icon svg { width: 25px; height: 25px; }
+      .pl-day-header h3 { font-size: 26px; margin-top: 3px; }
+      .pl-day-header > strong { font-size: 18px; }
+      .pl-day-stats { display: none; }
     }
     @media (max-width: 390px) {
-      .pl-calendar-panel { gap: 12px; }
-      .pl-topline h2 { font-size: 34px; }
-      .pl-topline span { font-size: 11px; }
+      .pl-calendar-panel { gap: 9px; }
+      .pl-topline h2 { font-size: 28px; }
+      .pl-topline span { font-size: 9px; }
       .pl-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-      .pl-summary-grid article { min-height: 94px; grid-template-columns: 48px 1fr; gap: 10px; padding: 12px; }
-      .pl-stat-icon { width: 48px; height: 48px; }
-      .pl-stat-icon svg { width: 27px; height: 27px; }
-      .pl-summary-grid span { font-size: 12px; }
-      .pl-summary-grid strong { font-size: 20px; }
+      .pl-summary-grid article { min-height: 72px; grid-template-columns: 38px 1fr; gap: 9px; padding: 10px; }
+      .pl-stat-icon { width: 38px; height: 38px; }
+      .pl-stat-icon svg { width: 21px; height: 21px; }
+      .pl-summary-grid span { font-size: 10px; }
+      .pl-summary-grid strong { font-size: 16px; }
       .pl-entry-form { grid-template-columns: 1fr; }
-      .pl-calendar-shell { padding: 14px 10px 16px; border-radius: 17px; }
+      .pl-calendar-shell { padding: 11px 9px 13px; border-radius: 15px; }
       .pl-weekdays, .pl-calendar-grid { gap: 5px; }
-      .pl-day { min-height: 73px; border-radius: 10px; padding: 7px; }
-      .pl-day-number { font-size: 12px; }
-      .pl-day-card { grid-template-columns: 52px 1fr; padding: 16px; }
-      .pl-day-icon { width: 52px; height: 52px; border-radius: 15px; }
-      .pl-day-stats { display: none; }
+      .pl-day { min-height: 52px; border-radius: 9px; padding: 6px; }
+      .pl-day-number { font-size: 10px; }
+      .pl-day-card { grid-template-columns: 44px 1fr; padding: 13px; }
+      .pl-day-icon { width: 44px; height: 44px; border-radius: 13px; }
+      .pl-day-header h3 { font-size: 22px; }
     }
     """
 
@@ -11614,6 +11631,12 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .recommendation {{ min-width: 66px; min-height: 40px; font-size: 19px; }}
       .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
       .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
+      body[data-panel="journal"] .market-status-header {{
+        display: grid !important;
+      }}
+      body[data-panel="journal"] [data-panel-switcher="journal"] {{
+        display: grid !important;
+      }}
     }}
     @media (max-width: 390px) {{
       .app-shell {{ padding-left: 20px; padding-right: 20px; }}
