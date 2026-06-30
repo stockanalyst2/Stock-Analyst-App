@@ -10269,27 +10269,79 @@ def pl_calendar_html() -> str:
           </div>
           <div id="plTradeList" class="pl-trade-list"></div>
         </section>
-        <form class="pl-entry-form" id="plEntryForm">
+        <button type="button" class="pl-enter-trade-button" data-pl-open-entry>Enter Trade</button>
+        <form class="pl-entry-form is-collapsed" id="plEntryForm">
+          <div class="pl-entry-grabber" aria-hidden="true"></div>
+          <div class="pl-entry-topbar">
+            <button type="button" data-pl-close-entry>Cancel</button>
+            <strong>Add Entry</strong>
+            <button type="submit" class="pl-top-save">Save</button>
+          </div>
+          <div class="pl-entry-date-card">
+            <div class="pl-entry-date-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="6" y="8" width="20" height="18" rx="3"></rect><path d="M10 5v6"></path><path d="M22 5v6"></path><path d="M6 14h20"></path><path d="M11 19h3"></path><path d="M18 19h3"></path></svg></div>
+            <div>
+              <span>Date</span>
+              <h3 id="plEntryDateLabel">Today</h3>
+            </div>
+            <button type="button" class="pl-select-day" data-pl-pick-date>Select Day</button>
+          </div>
+          <div class="pl-entry-summary">
+            <span>P/L $ <strong id="plEntrySelectedTotal">$0.00</strong></span>
+            <span>Win Rate <strong id="plEntrySelectedWinRate">0.0%</strong></span>
+            <span>Trades <strong id="plEntrySelectedTrades">0</strong></span>
+          </div>
           <input type="hidden" id="plTradeId">
-          <label>Date <input id="plTradeDate" type="date" required></label>
-          <label>Ticker <input id="plTicker" type="text" inputmode="latin" autocomplete="off" placeholder="NVDA" required></label>
-          <label>Direction
+          <input id="plTradeDate" class="pl-hidden-date" type="date" required>
+          <label class="pl-entry-row pl-money-row">
+            <span class="pl-row-icon pl-icon-green" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11"></circle><path d="M16 9v14"></path><path d="M20 12.5c-.9-1.2-2.3-1.8-4-1.8-2 0-3.5 1-3.5 2.6 0 4.2 7 1.8 7 5.8 0 1.6-1.4 2.8-3.7 2.8-1.8 0-3.5-.7-4.5-2"></path></svg></span>
+            <span class="pl-row-copy"><strong>P/L $</strong><small>Profit or loss in dollars</small></span>
+            <input id="plPnl" type="number" step="0.01" placeholder="0.00" required>
+          </label>
+          <label class="pl-entry-row">
+            <span class="pl-row-icon pl-icon-blue" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 12h15"></path><path d="m18 7 5 5-5 5"></path><path d="M24 20H9"></path><path d="m14 15-5 5 5 5"></path></svg></span>
+            <span class="pl-row-copy"><strong>Call or Put</strong><small>Select option type</small></span>
             <select id="plDirection">
+              <option value="">Select</option>
               <option>CALL</option>
               <option>PUT</option>
               <option>SHARES</option>
               <option>OTHER</option>
             </select>
           </label>
-          <label>Strategy <input id="plStrategy" type="text" placeholder="Breakout, reversal, scalp..."></label>
-          <label>P/L $ <input id="plPnl" type="number" step="0.01" placeholder="125.00" required></label>
-          <label>P/L % <input id="plPnlPct" type="number" step="0.01" placeholder="20"></label>
-          <label class="pl-notes-field">Notes <textarea id="plNotes" rows="3" placeholder="Entry reason, mistake, lesson, screenshot note..."></textarea></label>
+          <label class="pl-entry-row">
+            <span class="pl-row-icon pl-icon-purple" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M10 11h12v5a6 6 0 0 1-12 0z"></path><path d="M8 11H5v3a4 4 0 0 0 4 4"></path><path d="M24 11h3v3a4 4 0 0 1-4 4"></path><path d="M16 22v4"></path><path d="M11 27h10"></path></svg></span>
+            <span class="pl-row-copy"><strong>Win or Loss</strong><small>Select result</small></span>
+            <select id="plResult">
+              <option value="">Select</option>
+              <option value="WIN">Win</option>
+              <option value="LOSS">Loss</option>
+            </select>
+          </label>
+          <label class="pl-entry-row">
+            <span class="pl-row-icon pl-icon-gold" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M9 8v16"></path><path d="M23 8v16"></path><path d="M5 12h22"></path><path d="M5 20h22"></path></svg></span>
+            <span class="pl-row-copy"><strong>Ticker</strong><small>e.g. NVDA, AAPL</small></span>
+            <input id="plTicker" type="text" inputmode="latin" autocomplete="off" placeholder="Optional">
+          </label>
+          <label class="pl-entry-row pl-notes-field">
+            <span class="pl-row-icon pl-icon-teal" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M9 8h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-7l-5 4v-4H9a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3z"></path></svg></span>
+            <span class="pl-row-copy"><strong>Notes</strong><small>Add notes about your trade</small></span>
+            <textarea id="plNotes" rows="2" placeholder="Optional"></textarea>
+          </label>
+          <label class="pl-entry-row pl-extra-field">
+            <span class="pl-row-copy"><strong>Strategy</strong><small>Optional setup label</small></span>
+            <input id="plStrategy" type="text" placeholder="Optional">
+          </label>
+          <label class="pl-entry-row pl-extra-field">
+            <span class="pl-row-copy"><strong>P/L %</strong><small>Optional percent return</small></span>
+            <input id="plPnlPct" type="number" step="0.01" placeholder="Optional">
+          </label>
           <div class="pl-form-actions">
-            <button type="submit" class="pl-primary">Save Trade</button>
-            <button type="button" data-pl-reset>Reset</button>
-            <button type="button" data-pl-export>Export CSV</button>
+            <button type="submit" class="pl-primary">Save Entry</button>
+            <button type="button" data-pl-save-add>Save & Add Another</button>
           </div>
+          <button type="button" class="pl-utility-hidden" data-pl-reset>Reset</button>
+          <button type="button" class="pl-utility-hidden" data-pl-export>Export CSV</button>
+          <p class="pl-private-note">All entries are private and only visible to you.</p>
         </form>
       </div>
     </section>
@@ -10355,7 +10407,7 @@ def pl_calendar_styles() -> str:
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
     }
-    .pl-summary-grid article, .pl-calendar-shell, .pl-day-card, .pl-entry-form {
+    .pl-summary-grid article, .pl-calendar-shell, .pl-day-card, .pl-entry-form, .pl-enter-trade-button {
       border: 1px solid var(--line);
       border-radius: 20px;
       background: linear-gradient(145deg, rgba(14, 16, 23, .76), rgba(5, 6, 10, .54));
@@ -10504,6 +10556,18 @@ def pl_calendar_styles() -> str:
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
+    .pl-enter-trade-button {
+      width: 100%;
+      min-height: 58px;
+      border-radius: 999px;
+      border-color: rgba(33,246,107,.40);
+      background: linear-gradient(135deg, rgba(33,246,107,.95), rgba(28,220,95,.92));
+      color: #051007;
+      font-weight: 850;
+      letter-spacing: -.025em;
+      cursor: pointer;
+      box-shadow: 0 18px 46px rgba(33,246,107,.20);
+    }
     .pl-day-card, .pl-entry-form {
       padding: 18px;
     }
@@ -10614,28 +10678,195 @@ def pl_calendar_styles() -> str:
       cursor: pointer;
     }
     .pl-entry-form {
+      position: relative;
+      grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: 12px;
+      padding: 22px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(179,76,255,.16), transparent 36%),
+        radial-gradient(circle at 10% 10%, rgba(33,246,107,.12), transparent 30%),
+        linear-gradient(145deg, rgba(19, 22, 31, .92), rgba(8, 10, 16, .86));
+      transition: max-height .34s ease, opacity .24s ease, transform .28s ease, padding .28s ease, border-color .24s ease;
+      overflow: hidden;
     }
-    .pl-entry-form label {
+    .pl-entry-form.is-collapsed {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(10px);
+      padding-top: 0;
+      padding-bottom: 0;
+      border-color: transparent;
+      pointer-events: none;
+    }
+    .pl-entry-form:not(.is-collapsed) {
+      max-height: 1120px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .pl-entry-grabber {
+      width: 48px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(236,238,245,.42);
+      justify-self: center;
+      margin: -2px 0 4px;
+    }
+    .pl-entry-topbar {
       display: grid;
-      gap: 6px;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      min-height: 38px;
+    }
+    .pl-entry-topbar strong {
+      font-size: 18px;
+      letter-spacing: -.04em;
+    }
+    .pl-entry-topbar button {
+      border: 0;
+      background: transparent;
+      color: rgba(236,238,245,.72);
+      padding: 0;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .pl-entry-topbar .pl-top-save {
+      justify-self: end;
+      color: var(--green);
+      font-weight: 760;
+    }
+    .pl-entry-date-card {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 0 12px;
+    }
+    .pl-entry-date-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: rgba(33,246,107,.13);
+      box-shadow: 0 0 26px rgba(33,246,107,.12);
+    }
+    .pl-entry-date-icon svg,
+    .pl-row-icon svg {
+      width: 29px;
+      height: 29px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .pl-entry-date-card span {
+      display: block;
       color: rgba(236,238,245,.58);
-      font-size: 11px;
+      font-size: 12px;
+      font-weight: 720;
       letter-spacing: .08em;
       text-transform: uppercase;
     }
-    .pl-entry-form .pl-notes-field, .pl-form-actions {
-      grid-column: 1 / -1;
+    .pl-entry-date-card h3 {
+      margin: 4px 0 0;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -.06em;
+    }
+    .pl-select-day {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(33,246,107,.62);
+      background: rgba(33,246,107,.045);
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 760;
+      cursor: pointer;
+    }
+    .pl-entry-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 17px;
+      background: rgba(255,255,255,.035);
+      overflow: hidden;
+    }
+    .pl-entry-summary span {
+      display: grid;
+      gap: 5px;
+      padding: 18px 16px;
+      color: rgba(236,238,245,.56);
+      font-size: 14px;
+      border-right: 1px solid rgba(255,255,255,.07);
+    }
+    .pl-entry-summary span:last-child { border-right: 0; }
+    .pl-entry-summary strong {
+      color: var(--green);
+      font-size: 25px;
+      letter-spacing: -.055em;
+    }
+    .pl-hidden-date {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      left: -9999px;
+    }
+    .pl-entry-form label {
+      color: inherit;
+    }
+    .pl-entry-row {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) minmax(145px, .75fr);
+      align-items: center;
+      gap: 13px;
+      min-height: 86px;
+      padding: 12px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      border-radius: 17px;
+      background: rgba(255,255,255,.032);
+    }
+    .pl-row-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.045);
+    }
+    .pl-icon-green { color: var(--green); background: rgba(33,246,107,.10); }
+    .pl-icon-blue { color: #29c2ff; background: rgba(41,194,255,.10); }
+    .pl-icon-purple { color: var(--purple); background: rgba(179,76,255,.10); }
+    .pl-icon-gold { color: #ffb133; background: rgba(255,177,51,.11); }
+    .pl-icon-teal { color: #2fffd0; background: rgba(47,255,208,.10); }
+    .pl-row-copy {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+    .pl-row-copy strong {
+      font-size: 16px;
+      letter-spacing: -.03em;
+    }
+    .pl-row-copy small {
+      color: rgba(236,238,245,.52);
+      font-size: 13px;
+      line-height: 1.2;
     }
     .pl-entry-form input, .pl-entry-form select, .pl-entry-form textarea {
       width: 100%;
       border: 1px solid rgba(255,255,255,.10);
-      border-radius: 13px;
+      border-radius: 12px;
       background: rgba(0,0,0,.24);
       color: var(--text);
-      padding: 12px;
+      padding: 14px;
       outline: none;
       font: inherit;
       text-transform: none;
@@ -10645,14 +10876,34 @@ def pl_calendar_styles() -> str:
       resize: vertical;
     }
     .pl-form-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .pl-form-actions button {
+      min-height: 52px;
+      border-radius: 999px;
+      font-weight: 760;
     }
     .pl-form-actions .pl-primary {
-      color: var(--green);
-      border-color: rgba(33,246,107,.38);
-      background: rgba(33,246,107,.08);
+      color: #051007;
+      border-color: rgba(33,246,107,.70);
+      background: linear-gradient(135deg, rgba(39,247,104,.98), rgba(31,226,96,.96));
+      box-shadow: 0 18px 40px rgba(33,246,107,.18);
+    }
+    .pl-private-note {
+      margin: 6px 0 0;
+      color: rgba(236,238,245,.42);
+      text-align: center;
+      font-size: 12px;
+    }
+    .pl-utility-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
     }
     @media (max-width: 720px) {
       .pl-calendar-panel { gap: 10px; }
@@ -10688,6 +10939,23 @@ def pl_calendar_styles() -> str:
       .pl-day-header h3 { font-size: 26px; margin-top: 3px; }
       .pl-day-header > strong { font-size: 18px; }
       .pl-day-stats { display: none; }
+      .pl-detail-grid { gap: 12px; }
+      .pl-enter-trade-button { min-height: 52px; }
+      .pl-entry-form { padding: 18px 16px; border-radius: 24px; }
+      .pl-entry-date-card { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 11px; }
+      .pl-entry-date-icon { width: 48px; height: 48px; border-radius: 14px; }
+      .pl-entry-date-icon svg { width: 25px; height: 25px; }
+      .pl-entry-date-card h3 { font-size: 24px; }
+      .pl-select-day { min-height: 36px; padding: 0 12px; font-size: 12px; }
+      .pl-entry-summary span { padding: 13px 12px; font-size: 12px; }
+      .pl-entry-summary strong { font-size: 20px; }
+      .pl-entry-row { grid-template-columns: 40px minmax(0, 1fr) minmax(120px, .8fr); min-height: 76px; gap: 10px; padding: 10px 13px; }
+      .pl-row-icon { width: 40px; height: 40px; border-radius: 12px; }
+      .pl-row-icon svg { width: 23px; height: 23px; }
+      .pl-row-copy strong { font-size: 14px; }
+      .pl-row-copy small { font-size: 12px; }
+      .pl-entry-form input, .pl-entry-form select, .pl-entry-form textarea { padding: 12px; font-size: 14px; }
+      .pl-extra-field { display: none; }
     }
     @media (max-width: 390px) {
       .pl-calendar-panel { gap: 9px; }
@@ -10840,12 +11108,19 @@ def pl_calendar_script() -> str:
       const selected = new Date(`${plState.selectedDate}T00:00:00`);
       const label = document.getElementById('plSelectedDateLabel');
       if (label) label.textContent = selected.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      const entryLabel = document.getElementById('plEntryDateLabel');
+      if (entryLabel) entryLabel.textContent = selected.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
       const trades = tradesForDate(plState.selectedDate);
       const summary = summarizeTrades(trades);
       setTextWithClass('plSelectedDayTotal', money(summary.total), summary.total);
+      setTextWithClass('plEntrySelectedTotal', money(summary.total), summary.total);
       document.getElementById('plSelectedTradeCount').textContent = String(summary.count);
       document.getElementById('plSelectedWins').textContent = String(summary.wins);
       document.getElementById('plSelectedLosses').textContent = String(summary.losses);
+      const entryWinRate = document.getElementById('plEntrySelectedWinRate');
+      if (entryWinRate) entryWinRate.textContent = `${summary.winRate.toFixed(1)}%`;
+      const entryTrades = document.getElementById('plEntrySelectedTrades');
+      if (entryTrades) entryTrades.textContent = String(summary.count);
       const dateInput = document.getElementById('plTradeDate');
       if (dateInput && !dateInput.value) dateInput.value = plState.selectedDate;
 
@@ -10885,7 +11160,8 @@ def pl_calendar_script() -> str:
       document.getElementById('plTradeId').value = '';
       document.getElementById('plTradeDate').value = date;
       document.getElementById('plTicker').value = '';
-      document.getElementById('plDirection').value = 'CALL';
+      document.getElementById('plDirection').value = '';
+      document.getElementById('plResult').value = '';
       document.getElementById('plStrategy').value = '';
       document.getElementById('plPnl').value = '';
       document.getElementById('plPnlPct').value = '';
@@ -10899,12 +11175,14 @@ def pl_calendar_script() -> str:
       document.getElementById('plTradeDate').value = trade.date;
       document.getElementById('plTicker').value = trade.symbol;
       document.getElementById('plDirection').value = trade.direction || 'CALL';
+      document.getElementById('plResult').value = Number(trade.pnl || 0) < 0 ? 'LOSS' : Number(trade.pnl || 0) > 0 ? 'WIN' : '';
       document.getElementById('plStrategy').value = trade.strategy || '';
       document.getElementById('plPnl').value = trade.pnl;
       document.getElementById('plPnlPct').value = trade.pnlPct || '';
       document.getElementById('plNotes').value = trade.notes || '';
       plState.selectedDate = trade.date;
       renderPLCalendar();
+      openPLEntryForm();
     }
 
     function deletePLTrade(id) {
@@ -10934,6 +11212,31 @@ def pl_calendar_script() -> str:
     function initPLCalendar() {
       const form = document.getElementById('plEntryForm');
       if (!form) return;
+      let keepEntryOpen = false;
+      const dateInput = document.getElementById('plTradeDate');
+      const openButton = document.querySelector('[data-pl-open-entry]');
+      const closeButton = document.querySelector('[data-pl-close-entry]');
+      const pickDateButton = document.querySelector('[data-pl-pick-date]');
+      openButton?.addEventListener('click', openPLEntryForm);
+      closeButton?.addEventListener('click', () => {
+        closePLEntryForm();
+        resetPLForm();
+      });
+      pickDateButton?.addEventListener('click', () => {
+        if (dateInput?.showPicker) {
+          dateInput.showPicker();
+        } else if (dateInput) {
+          dateInput.focus();
+          dateInput.click();
+        }
+      });
+      dateInput?.addEventListener('change', () => {
+        if (!dateInput.value) return;
+        plState.selectedDate = dateInput.value;
+        const parsed = new Date(`${dateInput.value}T00:00:00`);
+        plState.visibleMonth = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+        renderPLCalendar();
+      });
       document.querySelector('[data-pl-prev]')?.addEventListener('click', () => {
         plState.visibleMonth = new Date(plState.visibleMonth.getFullYear(), plState.visibleMonth.getMonth() - 1, 1);
         renderPLCalendar();
@@ -10951,16 +11254,28 @@ def pl_calendar_script() -> str:
       });
       document.querySelector('[data-pl-reset]')?.addEventListener('click', () => resetPLForm());
       document.querySelector('[data-pl-export]')?.addEventListener('click', exportPLCsv);
+      document.querySelector('[data-pl-save-add]')?.addEventListener('click', () => {
+        keepEntryOpen = true;
+        if (form.requestSubmit) {
+          form.requestSubmit();
+        } else {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+      });
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         const id = document.getElementById('plTradeId').value || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        let pnlValue = Number(document.getElementById('plPnl').value || 0);
+        const result = document.getElementById('plResult').value;
+        if (result === 'LOSS' && pnlValue > 0) pnlValue *= -1;
+        if (result === 'WIN' && pnlValue < 0) pnlValue = Math.abs(pnlValue);
         const trade = {
           id,
           date: document.getElementById('plTradeDate').value || plState.selectedDate,
-          symbol: document.getElementById('plTicker').value.trim().toUpperCase(),
-          direction: document.getElementById('plDirection').value,
+          symbol: document.getElementById('plTicker').value.trim().toUpperCase() || 'TRADE',
+          direction: document.getElementById('plDirection').value || 'OTHER',
           strategy: document.getElementById('plStrategy').value.trim(),
-          pnl: Number(document.getElementById('plPnl').value || 0),
+          pnl: pnlValue,
           pnlPct: document.getElementById('plPnlPct').value,
           notes: document.getElementById('plNotes').value.trim(),
           updatedAt: new Date().toISOString()
@@ -10974,9 +11289,25 @@ def pl_calendar_script() -> str:
         savePLTrades();
         renderPLCalendar();
         resetPLForm(trade.date);
+        if (keepEntryOpen) {
+          keepEntryOpen = false;
+          openPLEntryForm();
+        } else {
+          closePLEntryForm();
+        }
       });
       resetPLForm();
       renderPLCalendar();
+    }
+
+    function openPLEntryForm() {
+      document.getElementById('plEntryForm')?.classList.remove('is-collapsed');
+      document.querySelector('[data-pl-open-entry]')?.classList.add('is-hidden');
+    }
+
+    function closePLEntryForm() {
+      document.getElementById('plEntryForm')?.classList.add('is-collapsed');
+      document.querySelector('[data-pl-open-entry]')?.classList.remove('is-hidden');
     }
     """
 
