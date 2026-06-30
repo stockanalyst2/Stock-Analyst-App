@@ -10214,6 +10214,596 @@ def atlas_journal_html(state: dict[str, Any] | None = None) -> str:
     """
 
 
+def pl_calendar_html() -> str:
+    return """
+    <section class="pl-calendar-panel is-hidden" data-subpanel-content="pl-calendar">
+      <div class="pl-topline">
+        <div>
+          <span>Personal P/L Calendar</span>
+          <h2 id="plMonthTitle">Month</h2>
+        </div>
+        <div class="pl-actions">
+          <button type="button" data-pl-prev aria-label="Previous month">‹</button>
+          <button type="button" data-pl-today>Today</button>
+          <button type="button" data-pl-next aria-label="Next month">›</button>
+        </div>
+      </div>
+      <div class="pl-summary-grid" aria-label="P/L summary">
+        <article><span>Month P/L</span><strong id="plMonthTotal">$0.00</strong></article>
+        <article><span>Win Rate</span><strong id="plWinRate">0%</strong></article>
+        <article><span>Trades</span><strong id="plTradeCount">0</strong></article>
+        <article><span>Avg / Trade</span><strong id="plAverageTrade">$0.00</strong></article>
+      </div>
+      <div class="pl-calendar-shell">
+        <div class="pl-weekdays" aria-hidden="true">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="pl-calendar-grid" id="plCalendarGrid" aria-label="Monthly trading calendar"></div>
+      </div>
+      <div class="pl-detail-grid">
+        <section class="pl-day-card">
+          <div class="pl-day-header">
+            <div>
+              <span>Selected Day</span>
+              <h3 id="plSelectedDateLabel">Today</h3>
+            </div>
+            <strong id="plSelectedDayTotal">$0.00</strong>
+          </div>
+          <div class="pl-day-stats">
+            <span>Trades <strong id="plSelectedTradeCount">0</strong></span>
+            <span>Wins <strong id="plSelectedWins">0</strong></span>
+            <span>Losses <strong id="plSelectedLosses">0</strong></span>
+          </div>
+          <div id="plTradeList" class="pl-trade-list"></div>
+        </section>
+        <form class="pl-entry-form" id="plEntryForm">
+          <input type="hidden" id="plTradeId">
+          <label>Date <input id="plTradeDate" type="date" required></label>
+          <label>Ticker <input id="plTicker" type="text" inputmode="latin" autocomplete="off" placeholder="NVDA" required></label>
+          <label>Direction
+            <select id="plDirection">
+              <option>CALL</option>
+              <option>PUT</option>
+              <option>SHARES</option>
+              <option>OTHER</option>
+            </select>
+          </label>
+          <label>Strategy <input id="plStrategy" type="text" placeholder="Breakout, reversal, scalp..."></label>
+          <label>P/L $ <input id="plPnl" type="number" step="0.01" placeholder="125.00" required></label>
+          <label>P/L % <input id="plPnlPct" type="number" step="0.01" placeholder="20"></label>
+          <label>Notes <textarea id="plNotes" rows="3" placeholder="Entry reason, mistake, lesson, screenshot note..."></textarea></label>
+          <div class="pl-form-actions">
+            <button type="submit" class="pl-primary">Save Trade</button>
+            <button type="button" data-pl-reset>Reset</button>
+            <button type="button" data-pl-export>Export CSV</button>
+          </div>
+        </form>
+      </div>
+    </section>
+    """
+
+
+def pl_calendar_styles() -> str:
+    return """
+    .pl-calendar-panel {
+      display: grid;
+      gap: 16px;
+    }
+    .pl-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .pl-topline span, .pl-day-header span {
+      display: block;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 780;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .pl-topline h2, .pl-day-header h3 {
+      margin: 4px 0 0;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .pl-actions {
+      display: inline-flex;
+      gap: 8px;
+    }
+    .pl-actions button, .pl-form-actions button {
+      min-height: 36px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.045);
+      color: rgba(245,246,250,.84);
+      padding: 0 13px;
+      cursor: pointer;
+    }
+    .pl-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .pl-summary-grid article, .pl-calendar-shell, .pl-day-card, .pl-entry-form {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(14, 16, 23, .76), rgba(5, 6, 10, .54));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 24px 60px rgba(0,0,0,.24);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .pl-summary-grid article {
+      display: grid;
+      gap: 6px;
+      padding: 14px;
+    }
+    .pl-summary-grid span {
+      color: rgba(236,238,245,.56);
+      font-size: 12px;
+      letter-spacing: -.02em;
+    }
+    .pl-summary-grid strong {
+      font-size: 19px;
+      letter-spacing: -.04em;
+    }
+    .pl-positive { color: var(--green) !important; }
+    .pl-negative { color: #ff6a6a !important; }
+    .pl-calendar-shell {
+      padding: 14px;
+    }
+    .pl-weekdays, .pl-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .pl-weekdays {
+      margin-bottom: 7px;
+      color: rgba(236,238,245,.46);
+      font-size: 11px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .pl-day {
+      min-height: 78px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(255,255,255,.026);
+      color: rgba(245,246,250,.78);
+      padding: 9px;
+      text-align: left;
+      cursor: pointer;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+    .pl-day.is-muted {
+      opacity: .34;
+    }
+    .pl-day.is-selected {
+      border-color: rgba(33,246,107,.58);
+      box-shadow: 0 0 22px rgba(33,246,107,.16);
+    }
+    .pl-day-number {
+      font-size: 12px;
+      color: rgba(245,246,250,.58);
+    }
+    .pl-day-pnl {
+      font-size: 13px;
+      font-weight: 760;
+      letter-spacing: -.035em;
+    }
+    .pl-day-count {
+      font-size: 10px;
+      color: rgba(236,238,245,.42);
+    }
+    .pl-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .pl-day-card, .pl-entry-form {
+      padding: 18px;
+    }
+    .pl-day-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .pl-day-header > strong {
+      font-size: 22px;
+      letter-spacing: -.04em;
+      white-space: nowrap;
+    }
+    .pl-day-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .pl-day-stats span {
+      display: grid;
+      gap: 3px;
+      padding: 10px;
+      border-radius: 13px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(255,255,255,.028);
+      color: rgba(236,238,245,.54);
+      font-size: 11px;
+    }
+    .pl-day-stats strong {
+      color: var(--text);
+      font-size: 15px;
+    }
+    .pl-trade-list {
+      display: grid;
+      gap: 10px;
+    }
+    .pl-empty {
+      margin: 0;
+      color: rgba(236,238,245,.56);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .pl-trade-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(0,0,0,.20);
+    }
+    .pl-trade-row h4 {
+      margin: 0 0 4px;
+      font-size: 17px;
+      letter-spacing: -.04em;
+    }
+    .pl-trade-row p {
+      margin: 0;
+      color: rgba(236,238,245,.58);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .pl-trade-controls {
+      display: inline-flex;
+      gap: 6px;
+      align-self: start;
+    }
+    .pl-trade-controls button {
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      color: rgba(245,246,250,.74);
+      min-height: 28px;
+      padding: 0 9px;
+      cursor: pointer;
+    }
+    .pl-entry-form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .pl-entry-form label {
+      display: grid;
+      gap: 6px;
+      color: rgba(236,238,245,.58);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .pl-entry-form label:has(textarea), .pl-form-actions {
+      grid-column: 1 / -1;
+    }
+    .pl-entry-form input, .pl-entry-form select, .pl-entry-form textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 13px;
+      background: rgba(0,0,0,.24);
+      color: var(--text);
+      padding: 12px;
+      outline: none;
+      font: inherit;
+      text-transform: none;
+      letter-spacing: -.025em;
+    }
+    .pl-entry-form textarea {
+      resize: vertical;
+    }
+    .pl-form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+    .pl-form-actions .pl-primary {
+      color: var(--green);
+      border-color: rgba(33,246,107,.38);
+      background: rgba(33,246,107,.08);
+    }
+    @media (max-width: 720px) {
+      .pl-summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .pl-detail-grid { grid-template-columns: 1fr; }
+      .pl-day { min-height: 62px; padding: 7px; }
+      .pl-day-pnl { font-size: 11px; }
+      .pl-topline { align-items: flex-start; }
+      .pl-actions button { min-height: 32px; padding: 0 10px; }
+    }
+    @media (max-width: 390px) {
+      .pl-summary-grid { grid-template-columns: 1fr; }
+      .pl-entry-form { grid-template-columns: 1fr; }
+      .pl-weekdays, .pl-calendar-grid { gap: 5px; }
+      .pl-day { min-height: 54px; border-radius: 11px; }
+    }
+    """
+
+
+def pl_calendar_script() -> str:
+    return r"""
+    const plStorageKey = 'atlas.personalPLCalendar.v1';
+    const plState = {
+      visibleMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      selectedDate: toISODate(new Date()),
+      trades: loadPLTrades()
+    };
+
+    function toISODate(date) {
+      const offset = date.getTimezoneOffset();
+      const local = new Date(date.getTime() - offset * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function loadPLTrades() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(plStorageKey) || '[]');
+        return Array.isArray(parsed) ? parsed.filter((item) => item && item.date && item.symbol) : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function savePLTrades() {
+      localStorage.setItem(plStorageKey, JSON.stringify(plState.trades));
+    }
+
+    function money(value) {
+      const number = Number(value || 0);
+      const sign = number < 0 ? '-' : '';
+      return `${sign}$${Math.abs(number).toFixed(2)}`;
+    }
+
+    function pnlClass(value) {
+      const number = Number(value || 0);
+      return number > 0 ? 'pl-positive' : number < 0 ? 'pl-negative' : '';
+    }
+
+    function tradesForDate(date) {
+      return plState.trades.filter((trade) => trade.date === date);
+    }
+
+    function tradesForVisibleMonth() {
+      const year = plState.visibleMonth.getFullYear();
+      const month = plState.visibleMonth.getMonth();
+      return plState.trades.filter((trade) => {
+        const parsed = new Date(`${trade.date}T00:00:00`);
+        return parsed.getFullYear() === year && parsed.getMonth() === month;
+      });
+    }
+
+    function summarizeTrades(trades) {
+      const total = trades.reduce((sum, trade) => sum + Number(trade.pnl || 0), 0);
+      const wins = trades.filter((trade) => Number(trade.pnl || 0) > 0).length;
+      const losses = trades.filter((trade) => Number(trade.pnl || 0) < 0).length;
+      const winRate = trades.length ? (wins / trades.length) * 100 : 0;
+      const average = trades.length ? total / trades.length : 0;
+      const best = trades.reduce((max, trade) => Math.max(max, Number(trade.pnl || 0)), 0);
+      const worst = trades.reduce((min, trade) => Math.min(min, Number(trade.pnl || 0)), 0);
+      return { total, wins, losses, winRate, average, best, worst, count: trades.length };
+    }
+
+    function renderPLCalendar() {
+      const grid = document.getElementById('plCalendarGrid');
+      if (!grid) return;
+      const monthTitle = document.getElementById('plMonthTitle');
+      const monthTrades = tradesForVisibleMonth();
+      const summary = summarizeTrades(monthTrades);
+      const year = plState.visibleMonth.getFullYear();
+      const month = plState.visibleMonth.getMonth();
+      const first = new Date(year, month, 1);
+      const start = new Date(year, month, 1 - first.getDay());
+
+      if (monthTitle) monthTitle.textContent = plState.visibleMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      setTextWithClass('plMonthTotal', money(summary.total), summary.total);
+      document.getElementById('plWinRate').textContent = `${summary.winRate.toFixed(1)}%`;
+      document.getElementById('plTradeCount').textContent = String(summary.count);
+      setTextWithClass('plAverageTrade', money(summary.average), summary.average);
+
+      grid.innerHTML = '';
+      for (let index = 0; index < 42; index += 1) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        const iso = toISODate(date);
+        const dayTrades = tradesForDate(iso);
+        const daySummary = summarizeTrades(dayTrades);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `pl-day ${date.getMonth() === month ? '' : 'is-muted'} ${iso === plState.selectedDate ? 'is-selected' : ''}`;
+        button.dataset.plDate = iso;
+        button.innerHTML = `
+          <span class="pl-day-number">${date.getDate()}</span>
+          <span class="pl-day-pnl ${pnlClass(daySummary.total)}">${dayTrades.length ? money(daySummary.total) : ''}</span>
+          <span class="pl-day-count">${dayTrades.length ? `${dayTrades.length} trade${dayTrades.length === 1 ? '' : 's'}` : ''}</span>
+        `;
+        button.addEventListener('click', () => {
+          plState.selectedDate = iso;
+          if (date.getMonth() !== plState.visibleMonth.getMonth()) {
+            plState.visibleMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+          }
+          renderPLCalendar();
+          renderPLSelectedDay();
+        });
+        grid.appendChild(button);
+      }
+      renderPLSelectedDay();
+    }
+
+    function setTextWithClass(id, text, value) {
+      const node = document.getElementById(id);
+      if (!node) return;
+      node.textContent = text;
+      node.classList.toggle('pl-positive', Number(value || 0) > 0);
+      node.classList.toggle('pl-negative', Number(value || 0) < 0);
+    }
+
+    function renderPLSelectedDay() {
+      const selected = new Date(`${plState.selectedDate}T00:00:00`);
+      const label = document.getElementById('plSelectedDateLabel');
+      if (label) label.textContent = selected.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      const trades = tradesForDate(plState.selectedDate);
+      const summary = summarizeTrades(trades);
+      setTextWithClass('plSelectedDayTotal', money(summary.total), summary.total);
+      document.getElementById('plSelectedTradeCount').textContent = String(summary.count);
+      document.getElementById('plSelectedWins').textContent = String(summary.wins);
+      document.getElementById('plSelectedLosses').textContent = String(summary.losses);
+      const dateInput = document.getElementById('plTradeDate');
+      if (dateInput && !dateInput.value) dateInput.value = plState.selectedDate;
+
+      const list = document.getElementById('plTradeList');
+      if (!list) return;
+      if (!trades.length) {
+        list.innerHTML = '<p class="pl-empty">No personal trades logged for this day yet.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      for (const trade of trades) {
+        const row = document.createElement('article');
+        row.className = 'pl-trade-row';
+        const pct = trade.pnlPct === '' || trade.pnlPct === undefined ? '' : ` · ${Number(trade.pnlPct).toFixed(2)}%`;
+        row.innerHTML = `
+          <div>
+            <h4>${escapeHTML(trade.symbol)} <span class="${pnlClass(trade.pnl)}">${money(trade.pnl)}</span></h4>
+            <p>${escapeHTML(trade.direction || '')}${trade.strategy ? ` · ${escapeHTML(trade.strategy)}` : ''}${pct}</p>
+            ${trade.notes ? `<p>${escapeHTML(trade.notes)}</p>` : ''}
+          </div>
+          <div class="pl-trade-controls">
+            <button type="button" data-pl-edit="${trade.id}">Edit</button>
+            <button type="button" data-pl-delete="${trade.id}">Delete</button>
+          </div>
+        `;
+        list.appendChild(row);
+      }
+      list.querySelectorAll('[data-pl-edit]').forEach((button) => button.addEventListener('click', () => editPLTrade(button.dataset.plEdit)));
+      list.querySelectorAll('[data-pl-delete]').forEach((button) => button.addEventListener('click', () => deletePLTrade(button.dataset.plDelete)));
+    }
+
+    function escapeHTML(value) {
+      return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function resetPLForm(date = plState.selectedDate) {
+      document.getElementById('plTradeId').value = '';
+      document.getElementById('plTradeDate').value = date;
+      document.getElementById('plTicker').value = '';
+      document.getElementById('plDirection').value = 'CALL';
+      document.getElementById('plStrategy').value = '';
+      document.getElementById('plPnl').value = '';
+      document.getElementById('plPnlPct').value = '';
+      document.getElementById('plNotes').value = '';
+    }
+
+    function editPLTrade(id) {
+      const trade = plState.trades.find((item) => item.id === id);
+      if (!trade) return;
+      document.getElementById('plTradeId').value = trade.id;
+      document.getElementById('plTradeDate').value = trade.date;
+      document.getElementById('plTicker').value = trade.symbol;
+      document.getElementById('plDirection').value = trade.direction || 'CALL';
+      document.getElementById('plStrategy').value = trade.strategy || '';
+      document.getElementById('plPnl').value = trade.pnl;
+      document.getElementById('plPnlPct').value = trade.pnlPct || '';
+      document.getElementById('plNotes').value = trade.notes || '';
+      plState.selectedDate = trade.date;
+      renderPLCalendar();
+    }
+
+    function deletePLTrade(id) {
+      plState.trades = plState.trades.filter((trade) => trade.id !== id);
+      savePLTrades();
+      renderPLCalendar();
+      resetPLForm();
+    }
+
+    function exportPLCsv() {
+      const rows = [['date', 'symbol', 'direction', 'strategy', 'pnl', 'pnl_percent', 'notes']];
+      for (const trade of [...plState.trades].sort((a, b) => a.date.localeCompare(b.date))) {
+        rows.push([trade.date, trade.symbol, trade.direction || '', trade.strategy || '', trade.pnl || 0, trade.pnlPct || '', trade.notes || '']);
+      }
+      const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `atlas-pl-calendar-${toISODate(new Date())}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function initPLCalendar() {
+      const form = document.getElementById('plEntryForm');
+      if (!form) return;
+      document.querySelector('[data-pl-prev]')?.addEventListener('click', () => {
+        plState.visibleMonth = new Date(plState.visibleMonth.getFullYear(), plState.visibleMonth.getMonth() - 1, 1);
+        renderPLCalendar();
+      });
+      document.querySelector('[data-pl-next]')?.addEventListener('click', () => {
+        plState.visibleMonth = new Date(plState.visibleMonth.getFullYear(), plState.visibleMonth.getMonth() + 1, 1);
+        renderPLCalendar();
+      });
+      document.querySelector('[data-pl-today]')?.addEventListener('click', () => {
+        const today = new Date();
+        plState.visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        plState.selectedDate = toISODate(today);
+        renderPLCalendar();
+        resetPLForm(plState.selectedDate);
+      });
+      document.querySelector('[data-pl-reset]')?.addEventListener('click', () => resetPLForm());
+      document.querySelector('[data-pl-export]')?.addEventListener('click', exportPLCsv);
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const id = document.getElementById('plTradeId').value || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const trade = {
+          id,
+          date: document.getElementById('plTradeDate').value || plState.selectedDate,
+          symbol: document.getElementById('plTicker').value.trim().toUpperCase(),
+          direction: document.getElementById('plDirection').value,
+          strategy: document.getElementById('plStrategy').value.trim(),
+          pnl: Number(document.getElementById('plPnl').value || 0),
+          pnlPct: document.getElementById('plPnlPct').value,
+          notes: document.getElementById('plNotes').value.trim(),
+          updatedAt: new Date().toISOString()
+        };
+        if (!trade.symbol) return;
+        plState.trades = plState.trades.filter((item) => item.id !== id);
+        plState.trades.push(trade);
+        plState.selectedDate = trade.date;
+        plState.visibleMonth = new Date(`${trade.date}T00:00:00`);
+        plState.visibleMonth = new Date(plState.visibleMonth.getFullYear(), plState.visibleMonth.getMonth(), 1);
+        savePLTrades();
+        renderPLCalendar();
+        resetPLForm(trade.date);
+      });
+      resetPLForm();
+      renderPLCalendar();
+    }
+    """
+
+
 def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: dict[str, Any] | None = None) -> str:
     market_snapshot = market_snapshot or dashboard_market_snapshot()
     alert_state = load_alert_state()
@@ -10889,6 +11479,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       .journal-day {{ padding: 18px; }}
       .journal-stats, .journal-metrics {{ grid-template-columns: 1fr; }}
     }}
+    {pl_calendar_styles()}
   </style>
 </head>
 <body>
@@ -10911,7 +11502,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       </section>
       <section class="panel-placeholder" data-subpanel-content="custom-watchlist">Custom Watchlist is ready for saved tickers.</section>
       <section class="panel-placeholder" data-subpanel-content="alerts">Ready-for-entry alerts and position updates will appear here.</section>
-      <section class="panel-placeholder" data-subpanel-content="pl-calendar">P/L Calendar will track closed trade performance by date.</section>
+      {pl_calendar_html()}
       <section class="panel-placeholder" data-subpanel-content="personal-journal">Personal will hold your trade notes and observations.</section>
       {atlas_journal_html(alert_state)}
       <section class="panel-placeholder" data-panel-content="search">Search will support ticker research and on-demand analysis.</section>
@@ -11010,6 +11601,8 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     for (const card of stockCards) {{
       card.querySelector('.stock-card-main')?.addEventListener('click', () => card.classList.toggle('is-collapsed'));
     }}
+    {pl_calendar_script()}
+    initPLCalendar();
     refreshStatus();
     refreshMarketStatus();
     setInterval(refreshStatus, 30000);
