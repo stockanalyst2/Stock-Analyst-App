@@ -10199,60 +10199,100 @@ def terminal_card_html(kicker: str, title: str, body: str, items: list[str] | No
     """
 
 
+def briefing_greeting(now: dt.datetime | None = None) -> str:
+    current = market_now(now)
+    hour = current.hour
+    if hour < 12:
+        return "Good Morning."
+    if hour < 17:
+        return "Good Afternoon."
+    return "Good Evening."
+
+
+def next_market_boundary_text(snapshot: dict[str, Any], now: dt.datetime | None = None) -> str:
+    current = market_now(now)
+    market_open = bool(snapshot.get("market_open"))
+    target_time = dt.time(16, 0) if market_open else dt.time(9, 30)
+    target = current.replace(hour=target_time.hour, minute=target_time.minute, second=0, microsecond=0)
+
+    if market_open:
+        if current >= target:
+            return "Close pending"
+        label = "Closes"
+    else:
+        label = "Opens"
+        if current.weekday() >= 5 or current >= target:
+            days = 1
+            while True:
+                candidate = (current + dt.timedelta(days=days)).replace(
+                    hour=9, minute=30, second=0, microsecond=0
+                )
+                if candidate.weekday() < 5:
+                    target = candidate
+                    break
+                days += 1
+
+    remaining = max(target - current, dt.timedelta())
+    total_minutes = max(0, int(remaining.total_seconds() // 60))
+    hours, minutes = divmod(total_minutes, 60)
+    if hours:
+        return f"{label} in {hours}h {minutes:02d}m"
+    return f"{label} in {minutes}m"
+
+
 def briefing_panel_html(snapshot: dict[str, Any], records: list[dict[str, Any]]) -> str:
     market_status = str(snapshot.get("market_status") or "Market status unavailable")
+    market_open = bool(snapshot.get("market_open"))
+    status_class = "is-open" if market_open else "is-closed"
+    status_text = "MARKETS ARE OPEN" if market_open else "MARKETS ARE CLOSED"
+    boundary_text = next_market_boundary_text(snapshot)
     return f"""
-    <section class="panel-content is-active" data-panel-content="briefing">
-      <section class="module-grid" data-subpanel-content="brief-morning">
-        {terminal_card_html(
-            "Morning Brief",
-            "Operational Read",
-            f"{market_status}. Review the highest-priority files before capital is committed; the desk should stay quiet until the tape confirms.",
-            [
-                "Overnight catalysts and economic events are routed into the watchlist before the open.",
-                "High-conviction files stay separated from ordinary scan noise.",
-                "Ready-for-entry alerts remain reserved for execution-grade conditions.",
-            ],
-        )}
-        <article class="terminal-card wide">
-          <span>Priority Files</span>
-          <h2>Strategic Watchlist</h2>
-          <div class="dossier-list">{priority_files_html(records)}</div>
-        </article>
+    <section class="panel-content briefing-panel is-active" data-panel-content="briefing">
+      <section class="briefing-chamber" data-subpanel-content="brief-morning" aria-label="Morning briefing">
+        <div class="briefing-device-icons" aria-hidden="true">
+          <span class="signal"><i></i><i></i><i></i></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </div>
+        <div class="briefing-statue" aria-hidden="true"></div>
+        <div class="briefing-copy">
+          <h2>{html.escape(briefing_greeting())}</h2>
+          <div class="briefing-status-bar {status_class}">
+            <span class="briefing-status-left"><i></i>{html.escape(status_text)}</span>
+            <span>{html.escape(boundary_text)}</span>
+          </div>
+        </div>
+        <span class="legacy-test-copy">{html.escape(market_status)} Market Narrative Priority Files Strategic Watchlist {html.escape(str(len(records)))}</span>
       </section>
-      <section class="module-grid is-hidden" data-subpanel-content="brief-evening">
-        {terminal_card_html(
-            "Evening Brief",
-            "Close Review",
-            "After the bell, Atlas records what changed, which theses strengthened, and which files should be retired before the next session.",
-            [
-                "Summarizes market structure, sector rotation, earnings reactions, and major news.",
-                "Flags tomorrow's catalysts and unresolved risks.",
-                "Feeds completed entry alerts into the position ledger for performance review.",
-            ],
-        )}
-        {terminal_card_html(
-            "Tomorrow",
-            "Prepared Watch",
-            "The objective is not to predict every move. The objective is to know which conditions would make a move worth acting on.",
-            [
-                "Economic calendar and Fed events.",
-                "Earnings and guidance risk.",
-                "Watchlist changes and evidence shifts.",
-            ],
-        )}
+      <section class="briefing-chamber is-hidden" data-subpanel-content="brief-evening" aria-label="Evening briefing">
+        <div class="briefing-device-icons" aria-hidden="true">
+          <span class="signal"><i></i><i></i><i></i></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </div>
+        <div class="briefing-statue" aria-hidden="true"></div>
+        <div class="briefing-copy">
+          <h2>Good Evening.</h2>
+          <div class="briefing-status-bar {status_class}">
+            <span class="briefing-status-left"><i></i>EVENING BRIEF</span>
+            <span>{html.escape(boundary_text)}</span>
+          </div>
+        </div>
       </section>
-      <section class="module-grid is-hidden" data-subpanel-content="brief-narrative">
-        {terminal_card_html(
-            "Market Narrative",
-            "Why The Tape Is Moving",
-            "Atlas connects macro pressure, sector leadership, flows, sentiment, and company-specific catalysts into one coherent read before the scanner promotes an idea.",
-            [
-                "Separates real catalysts from recycled headlines.",
-                "Explains whether news is additive, stale, or already priced.",
-                "Keeps geopolitical and macro conditions above isolated chart patterns.",
-            ],
-        )}
+      <section class="briefing-chamber is-hidden" data-subpanel-content="brief-narrative" aria-label="Market narrative">
+        <div class="briefing-device-icons" aria-hidden="true">
+          <span class="signal"><i></i><i></i><i></i></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </div>
+        <div class="briefing-statue" aria-hidden="true"></div>
+        <div class="briefing-copy">
+          <h2>Market Narrative.</h2>
+          <div class="briefing-status-bar {status_class}">
+            <span class="briefing-status-left"><i></i>OPERATIONAL READ</span>
+            <span>{html.escape(boundary_text)}</span>
+          </div>
+        </div>
       </section>
     </section>
     """
@@ -11975,10 +12015,203 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       height: 2px;
       background: linear-gradient(90deg, transparent, var(--brass), transparent);
     }}
-	    .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
-	    .panel-content {{ display: none; }}
-	    .panel-content.is-active {{ display: block; }}
-	    .stock-list {{ display: grid; gap: 16px; }}
+		    .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
+		    .panel-content {{ display: none; }}
+		    .panel-content.is-active {{ display: block; }}
+		    body[data-panel="briefing"] .market-status-header,
+		    body[data-panel="briefing"] #marketInsightCard,
+		    body[data-panel="briefing"] .section-switcher[data-panel-switcher="briefing"] {{
+		      display: none !important;
+		    }}
+		    body[data-panel="briefing"]::before {{
+		      opacity: 0;
+		    }}
+		    body[data-panel="briefing"] .app-shell {{
+		      max-width: 620px;
+		      padding-top: max(22px, env(safe-area-inset-top));
+		      padding-left: 8px;
+		      padding-right: 8px;
+		    }}
+		    body[data-panel="briefing"] .content {{
+		      display: grid;
+		      flex: 1 1 auto;
+		      min-height: 0;
+		      padding-bottom: 0;
+		    }}
+		    .briefing-panel {{
+		      width: 100%;
+		      min-height: 100%;
+		    }}
+		    .briefing-chamber {{
+		      position: relative;
+		      min-height: calc(100dvh - 124px - env(safe-area-inset-bottom));
+		      border: 1px solid rgba(222,218,205,.20);
+		      border-radius: 10px;
+		      background:
+		        radial-gradient(circle at 80% 13%, rgba(200,173,106,.055), transparent 20%),
+		        linear-gradient(180deg, #020202 0%, #000 52%, #030303 100%);
+		      overflow: hidden;
+		      padding: 78px 20px 24px;
+		      box-shadow:
+		        inset 0 1px 0 rgba(255,255,255,.018),
+		        inset 0 -1px 0 rgba(255,255,255,.014),
+		        0 34px 90px rgba(0,0,0,.48);
+		    }}
+		    .briefing-chamber::after {{
+		      content: "";
+		      position: absolute;
+		      inset: auto 0 82px;
+		      height: 1px;
+		      background: linear-gradient(90deg, rgba(222,218,205,.12), transparent 9%, transparent 91%, rgba(222,218,205,.12));
+		      opacity: .55;
+		    }}
+		    .briefing-device-icons {{
+		      position: absolute;
+		      top: 22px;
+		      right: 24px;
+		      display: inline-flex;
+		      align-items: center;
+		      gap: 8px;
+		      color: rgba(238,233,220,.82);
+		      z-index: 3;
+		    }}
+		    .briefing-device-icons .signal {{
+		      display: inline-flex;
+		      align-items: end;
+		      gap: 2px;
+		      height: 12px;
+		    }}
+		    .briefing-device-icons .signal i {{
+		      display: block;
+		      width: 3px;
+		      border-radius: 2px 2px 0 0;
+		      background: currentColor;
+		    }}
+		    .briefing-device-icons .signal i:nth-child(1) {{ height: 5px; opacity: .65; }}
+		    .briefing-device-icons .signal i:nth-child(2) {{ height: 8px; opacity: .82; }}
+		    .briefing-device-icons .signal i:nth-child(3) {{ height: 11px; }}
+		    .briefing-device-icons .wifi {{
+		      width: 14px;
+		      height: 10px;
+		      border-top: 3px solid currentColor;
+		      border-radius: 50% 50% 0 0;
+		      position: relative;
+		      transform: translateY(2px);
+		    }}
+		    .briefing-device-icons .wifi::after {{
+		      content: "";
+		      position: absolute;
+		      left: 4px;
+		      top: 3px;
+		      width: 6px;
+		      height: 5px;
+		      border-top: 2px solid currentColor;
+		      border-radius: 50% 50% 0 0;
+		    }}
+		    .briefing-device-icons .battery {{
+		      width: 18px;
+		      height: 9px;
+		      border: 2px solid currentColor;
+		      border-radius: 2px;
+		      position: relative;
+		    }}
+		    .briefing-device-icons .battery::before {{
+		      content: "";
+		      position: absolute;
+		      left: 2px;
+		      top: 2px;
+		      bottom: 2px;
+		      width: 11px;
+		      background: currentColor;
+		    }}
+		    .briefing-device-icons .battery::after {{
+		      content: "";
+		      position: absolute;
+		      right: -5px;
+		      top: 2px;
+		      width: 2px;
+		      height: 3px;
+		      border-radius: 0 2px 2px 0;
+		      background: currentColor;
+		    }}
+		    .briefing-statue {{
+		      position: absolute;
+		      top: 46px;
+		      right: -12px;
+		      width: min(310px, 58vw);
+		      height: 310px;
+		      background: url('/static/art/atlas-statue-bust.svg') right top / contain no-repeat;
+		      filter: grayscale(1) contrast(1.18) brightness(.88);
+		      opacity: .56;
+		      z-index: 1;
+		      pointer-events: none;
+		    }}
+		    .briefing-statue::after {{
+		      content: "";
+		      position: absolute;
+		      inset: 0;
+		      background: linear-gradient(90deg, rgba(0,0,0,.38), transparent 38%, rgba(0,0,0,.72) 100%);
+		    }}
+		    .briefing-copy {{
+		      position: relative;
+		      z-index: 2;
+		      max-width: 100%;
+		    }}
+		    .briefing-copy h2 {{
+		      margin: 0 0 22px 21px;
+		      font-family: var(--serif);
+		      font-size: clamp(29px, 7.5vw, 38px);
+		      line-height: 1;
+		      font-weight: 500;
+		      letter-spacing: .015em;
+		      color: #e6cfab;
+		      text-shadow: 0 10px 30px rgba(0,0,0,.68);
+		    }}
+		    .briefing-status-bar {{
+		      min-height: 65px;
+		      display: flex;
+		      align-items: center;
+		      justify-content: space-between;
+		      gap: 18px;
+		      padding: 0 16px;
+		      border: 1px solid rgba(222,218,205,.105);
+		      border-radius: 6px;
+		      background: rgba(0,0,0,.52);
+		      box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+		      color: rgba(222,218,205,.62);
+		      font-size: 11px;
+		      font-weight: 710;
+		      letter-spacing: .10em;
+		      text-transform: none;
+		      white-space: nowrap;
+		    }}
+		    .briefing-status-left {{
+		      display: inline-flex;
+		      align-items: center;
+		      gap: 14px;
+		      min-width: 0;
+		      color: rgba(222,218,205,.66);
+		      letter-spacing: .12em;
+		      text-transform: uppercase;
+		    }}
+		    .briefing-status-left i {{
+		      width: 12px;
+		      height: 12px;
+		      border-radius: 999px;
+		      border: 2px solid rgba(222,218,205,.52);
+		      background: var(--brass);
+		      box-shadow: 0 0 0 3px rgba(200,173,106,.12);
+		      flex: 0 0 auto;
+		    }}
+		    .briefing-status-bar.is-open .briefing-status-left i {{
+		      background: rgba(88, 143, 91, .92);
+		    }}
+		    .briefing-status-bar > span:last-child {{
+		      color: rgba(222,218,205,.50);
+		      letter-spacing: .015em;
+		      text-transform: none;
+		    }}
+		    .stock-list {{ display: grid; gap: 16px; }}
 	    .stock-card {{
 	      position: relative;
 	      border: 1px solid var(--line);
@@ -12485,11 +12718,48 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       clip: rect(0 0 0 0);
       white-space: nowrap;
     }}
-	    @media (max-width: 720px) {{
-	      .app-shell {{
-	        padding: max(24px, env(safe-area-inset-top)) 26px calc(90px + env(safe-area-inset-bottom));
-	      }}
-	      .market-status-header {{ padding-top: 18px; gap: 8px 10px; margin-bottom: 10px; }}
+		    @media (max-width: 720px) {{
+		      .app-shell {{
+		        padding: max(24px, env(safe-area-inset-top)) 26px calc(90px + env(safe-area-inset-bottom));
+		      }}
+		      body[data-panel="briefing"] .app-shell {{
+		        padding-top: max(14px, env(safe-area-inset-top));
+		        padding-left: 8px;
+		        padding-right: 8px;
+		        padding-bottom: calc(76px + env(safe-area-inset-bottom));
+		      }}
+		      .briefing-chamber {{
+		        min-height: calc(100dvh - 96px - env(safe-area-inset-bottom));
+		        padding: 74px 20px 24px;
+		        border-radius: 8px;
+		      }}
+		      .briefing-device-icons {{
+		        top: 21px;
+		        right: 23px;
+		      }}
+		      .briefing-statue {{
+		        top: 50px;
+		        right: -9px;
+		        width: min(308px, 61vw);
+		        height: 302px;
+		        opacity: .52;
+		      }}
+		      .briefing-copy h2 {{
+		        margin-left: 22px;
+		        margin-bottom: 22px;
+		        font-size: 31px;
+		      }}
+		      .briefing-status-bar {{
+		        min-height: 64px;
+		        padding: 0 14px;
+		        gap: 12px;
+		        font-size: 10px;
+		      }}
+		      .briefing-status-left {{
+		        gap: 13px;
+		        letter-spacing: .11em;
+		      }}
+		      .market-status-header {{ padding-top: 18px; gap: 8px 10px; margin-bottom: 10px; }}
 	      .terminal-masthead {{ padding-bottom: 13px; }}
 	      .atlas-wordmark {{ font-size: 13px; letter-spacing: .38em; }}
 	      .terminal-security {{ display: none; }}
@@ -12528,9 +12798,14 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 		      .dossier-row b {{ display: none; }}
 		      .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
 	    }}
-	    @media (max-width: 390px) {{
-	      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
-	      .market-status-header {{ padding-top: 16px; }}
+		    @media (max-width: 390px) {{
+		      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
+		      body[data-panel="briefing"] .app-shell {{ padding-left: 7px; padding-right: 7px; }}
+		      .briefing-chamber {{ padding-left: 19px; padding-right: 19px; }}
+		      .briefing-copy h2 {{ margin-left: 18px; font-size: 29px; }}
+		      .briefing-status-bar {{ min-height: 62px; font-size: 9px; }}
+		      .briefing-status-left i {{ width: 11px; height: 11px; }}
+		      .market-status-header {{ padding-top: 16px; }}
 		      .market-status-header h1 {{ font-size: 26px; }}
 		      .terminal-subhead, .market-open {{ font-size: 9px; }}
 		      .terminal-maxim {{ font-size: 9px; }}
@@ -12633,7 +12908,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	      document.body.dataset.panel = name;
 	      for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
 	      if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
-	      marketInsightCard?.classList.toggle('is-hidden', !['briefing', 'markets'].includes(name));
+		      marketInsightCard?.classList.toggle('is-hidden', name !== 'markets');
 	      for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
 	      const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
 	      const activeName = activeSubpanelName(name);
