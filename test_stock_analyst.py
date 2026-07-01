@@ -419,7 +419,7 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn('class="MarketInsightCard market-insight-card"', document)
         self.assertIn('class="StockWatchlistCard stock-card is-collapsed"', document)
         self.assertIn('class="BottomNav bottom-nav"', document)
-        self.assertIn('<h1 id="pageTitle">Home</h1>', document)
+        self.assertIn('<h1 id="pageTitle">Briefing</h1>', document)
         self.assertIn("Market intelligence for disciplined execution.", document)
         self.assertIn("Markets are open", document)
         self.assertIn("CONFIDENTIAL", document)
@@ -438,9 +438,15 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("VIX 15.6", document)
         self.assertIn("/api/market-status", document)
         self.assertIn("refreshMarketStatus", document)
-        self.assertIn(">Watchlist</button>", document)
-        self.assertIn(">Capital</button>", document)
+        self.assertIn(">Morning</button>", document)
+        self.assertIn(">Narrative</button>", document)
+        self.assertIn(">Overview</button>", document)
+        self.assertIn(">Scanner</button>", document)
+        self.assertIn(">Decision</button>", document)
         self.assertIn(">Positions</button>", document)
+        self.assertIn("Market Narrative", document)
+        self.assertIn("Opportunity Scanner", document)
+        self.assertIn("Decision Engine", document)
         self.assertIn("ABNB", document)
         self.assertIn("Airbnb, Inc.", document)
         self.assertIn("Travel", document)
@@ -496,9 +502,10 @@ class StockAnalystTests(unittest.TestCase):
         self.assertIn("NVDA is on the list because Atlas found a confirmed entry-quality setup.", document)
         self.assertNotIn("ABNB", document)
         self.assertNotIn("Rating <strong>Hold</strong>", document)
-        self.assertIn(">Home</span>", document)
-        self.assertNotIn(">Watchlist</span>", document)
-        self.assertNotIn(">Journal</span>", document)
+        self.assertIn(">Briefing</span>", document)
+        self.assertIn(">Watchlist</span>", document)
+        self.assertIn("Strategic Watchlist", document)
+        self.assertIn(">Journal</span>", document)
         self.assertNotIn(">Search</span>", document)
         self.assertNotIn(">Profile</span>", document)
         self.assertNotIn(">Options</button>", document)
@@ -520,8 +527,11 @@ class StockAnalystTests(unittest.TestCase):
         self.assertNotIn('data-panel-content="search"', document)
         self.assertNotIn('data-panel-content="profile"', document)
         self.assertIn("showSubpanel", document)
-        self.assertIn('aria-label="Home"', document)
-        self.assertNotIn('aria-label="Journal"', document)
+        self.assertIn('aria-label="Briefing"', document)
+        self.assertIn('aria-label="Markets"', document)
+        self.assertIn('aria-label="Research"', document)
+        self.assertIn('aria-label="Planner"', document)
+        self.assertIn('aria-label="Journal"', document)
         self.assertNotIn('aria-label="Search"', document)
         self.assertNotIn('aria-label="Profile"', document)
         self.assertIn('"SF Pro Display"', document)
@@ -2208,6 +2218,30 @@ class StockAnalystTests(unittest.TestCase):
 
         self.assertEqual(sent_messages, ["Atlas online - market scan active"])
         self.assertEqual(state["heartbeat_dates"], ["2026-06-24"])
+
+    def test_dashboard_includes_private_terminal_asset_layer(self):
+        document = stock_analyst.report_dashboard_html(
+            {
+                "market_status": "Markets are closed",
+                "market_open": False,
+                "trend": "Neutral",
+                "strength": "Mixed",
+                "volatility": "Moderate",
+                "vix": 17.6,
+            },
+            {"items": []},
+        )
+
+        expected_assets = [
+            "/static/art/atlas-statue-bust.svg",
+            "/static/art/atlas-vault-arch.svg",
+            "/static/art/atlas-map-lines.svg",
+            "/static/icons/atlas-home.svg",
+            "/static/icons/atlas-dossier.svg",
+        ]
+        for asset in expected_assets:
+            self.assertIn(asset, document)
+            self.assertTrue((stock_analyst.Path(__file__).resolve().parent / asset.lstrip("/")).exists())
 
 
 if __name__ == "__main__":

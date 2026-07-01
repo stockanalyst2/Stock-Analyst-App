@@ -9677,10 +9677,10 @@ def market_status_header_html(snapshot: dict[str, Any]) -> str:
     state_class = "" if snapshot.get("market_open") else " is-closed"
     return f"""<header class="MarketStatusHeader market-status-header">
       <div class="terminal-masthead">
-        <span class="atlas-wordmark">ATLAS</span>
+        <span class="atlas-lockup"><img class="atlas-sigil" src="/static/icons/atlas-dossier.svg" alt="" aria-hidden="true"><span class="atlas-wordmark">ATLAS</span></span>
         <span class="terminal-security">PRIVATE INVESTMENT OFFICE</span>
       </div>
-      <h1 id="pageTitle">Home</h1>
+	      <h1 id="pageTitle">Briefing</h1>
       <button class="classification-pill" type="button" aria-label="Confidential terminal">
         <span aria-hidden="true">◆</span> CONFIDENTIAL
       </button>
@@ -9900,6 +9900,7 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     html, body {{ margin: 0; min-height: 100%; background: #000; color: var(--text); }}
 	    body {{
 	      background:
+	        url('/static/art/atlas-map-lines.svg') center 12% / min(760px, 132vw) no-repeat,
 	        radial-gradient(circle at 78% 12%, rgba(200,173,106,.055), transparent 29%),
 	        radial-gradient(circle at 24% 4%, rgba(255,255,255,.018), transparent 26%),
 	        linear-gradient(180deg, #080808 0%, #030303 100%);
@@ -9907,28 +9908,39 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
     body::before {{
       content: "";
       position: fixed;
-      inset: -22% -35% auto 20%;
-      height: 390px;
+      inset: 34px max(-130px, calc((100vw - 850px) / 2 - 104px)) auto auto;
+      width: min(390px, 74vw);
+      height: 590px;
       pointer-events: none;
-      background:
-        radial-gradient(ellipse at 50% 18%, rgba(230,223,205,.20), transparent 18%),
-        radial-gradient(ellipse at 48% 42%, rgba(208,198,172,.15), transparent 29%),
-        linear-gradient(140deg, transparent 18%, rgba(200,173,106,.14), transparent 62%);
-      filter: blur(.2px) grayscale(1);
-	      opacity: .28;
-      transform: rotate(-8deg);
-    }}
+      background: url('/static/art/atlas-statue-bust.svg') right top / contain no-repeat;
+      filter: grayscale(1) contrast(1.08);
+	      opacity: .24;
+      transform: rotate(-2deg);
+	    }}
     a {{ color: inherit; text-decoration: none; }}
-    .detail-shell {{
-      position: relative;
-      z-index: 1;
-      width: min(850px, 100%);
+	    .detail-shell {{
+	      position: relative;
+	      z-index: 1;
+	      width: min(850px, 100%);
       max-width: 850px;
       min-height: 100dvh;
       margin: 0 auto;
-      padding: max(34px, env(safe-area-inset-top)) 26px calc(34px + env(safe-area-inset-bottom));
-      overflow: auto;
-    }}
+	      padding: max(34px, env(safe-area-inset-top)) 26px calc(34px + env(safe-area-inset-bottom));
+	      overflow: auto;
+	    }}
+	    .detail-shell::after {{
+	      content: "";
+	      position: fixed;
+	      left: max(0px, calc((100vw - 850px) / 2));
+	      right: max(0px, calc((100vw - 850px) / 2));
+	      bottom: 0;
+	      height: 280px;
+	      pointer-events: none;
+	      background: url('/static/art/atlas-vault-arch.svg') center bottom / min(920px, 120vw) auto no-repeat;
+	      opacity: .16;
+	      filter: grayscale(1);
+	      z-index: -1;
+	    }}
     .back-link {{
       display: inline-flex;
       align-items: center;
@@ -10096,9 +10108,29 @@ def app_detail_html(symbol: str, market_snapshot: dict[str, Any] | None = None, 
 
 def bottom_nav_html() -> str:
     return """<nav class="BottomNav bottom-nav" aria-label="ATLAS navigation">
-      <button class="nav-item is-active" type="button" data-panel="home" aria-label="Home">
-        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15.5 16 6l11 9.5"></path><path d="M8 14.5V27h6v-7h4v7h6V14.5"></path></svg>
-        <span>Home</span>
+      <button class="nav-item is-active" type="button" data-panel="briefing" aria-label="Briefing">
+        <img class="nav-icon nav-icon-img" src="/static/icons/atlas-home.svg" alt="" aria-hidden="true">
+        <span>Briefing</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="markets" aria-label="Markets">
+        <img class="nav-icon nav-icon-img" src="/static/icons/atlas-dossier.svg" alt="" aria-hidden="true">
+        <span>Markets</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="research" aria-label="Research">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="8"></circle><path d="m20 20 6 6"></path></svg>
+        <span>Research</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="watchlist" aria-label="Watchlist">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 9h16"></path><path d="M8 16h16"></path><path d="M8 23h16"></path><path d="M4 9h.01"></path><path d="M4 16h.01"></path><path d="M4 23h.01"></path></svg>
+        <span>Watchlist</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="planner" aria-label="Planner">
+        <svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 6h13l3 3v17H8z"></path><path d="M20 6v5h5"></path><path d="M12 16h10"></path><path d="M12 21h7"></path></svg>
+        <span>Planner</span>
+      </button>
+      <button class="nav-item" type="button" data-panel="journal" aria-label="Journal">
+        <img class="nav-icon nav-icon-img journal-icon" src="/static/icons/atlas-ledger.svg" alt="" aria-hidden="true">
+        <span>Journal</span>
       </button>
     </nav>"""
 
@@ -10119,6 +10151,302 @@ def dashboard_card_records(state: dict[str, Any] | None = None) -> list[dict[str
         }
         for symbol, profile in fallback_app_profiles().items()
     ]
+
+
+def record_brief(record: dict[str, Any]) -> tuple[str, str, str, str]:
+    symbol = str(record.get("symbol") or "").upper()
+    name = str(record.get("name") or symbol)
+    stance = str(record.get("status") or record.get("stance") or "Live Watchlist")
+    direction = str(record.get("recommendation") or "Call").title()
+    return symbol, name, stance, direction
+
+
+def priority_files_html(records: list[dict[str, Any]], limit: int = 4) -> str:
+    rows: list[str] = []
+    for record in records[:limit]:
+        symbol, name, stance, direction = record_brief(record)
+        rows.append(
+            f"""
+            <article class="dossier-row">
+              <div>
+                <strong>{html.escape(symbol)}</strong>
+                <span>{html.escape(name)}</span>
+              </div>
+              <em>{html.escape(stance)}</em>
+              <b>{html.escape(direction)}</b>
+            </article>
+            """
+        )
+    return "\n".join(rows) or """
+      <article class="dossier-row">
+        <div><strong>Quiet Tape</strong><span>No files currently meet desk standards.</span></div>
+        <em>Standby</em><b>None</b>
+      </article>
+    """
+
+
+def terminal_card_html(kicker: str, title: str, body: str, items: list[str] | None = None) -> str:
+    item_html = ""
+    if items:
+        item_html = "<ul>" + "".join(f"<li>{html.escape(item)}</li>" for item in items) + "</ul>"
+    return f"""
+    <article class="terminal-card">
+      <span>{html.escape(kicker)}</span>
+      <h2>{html.escape(title)}</h2>
+      <p>{html.escape(body)}</p>
+      {item_html}
+    </article>
+    """
+
+
+def briefing_panel_html(snapshot: dict[str, Any], records: list[dict[str, Any]]) -> str:
+    market_status = str(snapshot.get("market_status") or "Market status unavailable")
+    return f"""
+    <section class="panel-content is-active" data-panel-content="briefing">
+      <section class="module-grid" data-subpanel-content="brief-morning">
+        {terminal_card_html(
+            "Morning Brief",
+            "Operational Read",
+            f"{market_status}. Review the highest-priority files before capital is committed; the desk should stay quiet until the tape confirms.",
+            [
+                "Overnight catalysts and economic events are routed into the watchlist before the open.",
+                "High-conviction files stay separated from ordinary scan noise.",
+                "Ready-for-entry alerts remain reserved for execution-grade conditions.",
+            ],
+        )}
+        <article class="terminal-card wide">
+          <span>Priority Files</span>
+          <h2>Strategic Watchlist</h2>
+          <div class="dossier-list">{priority_files_html(records)}</div>
+        </article>
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="brief-evening">
+        {terminal_card_html(
+            "Evening Brief",
+            "Close Review",
+            "After the bell, Atlas records what changed, which theses strengthened, and which files should be retired before the next session.",
+            [
+                "Summarizes market structure, sector rotation, earnings reactions, and major news.",
+                "Flags tomorrow's catalysts and unresolved risks.",
+                "Feeds completed entry alerts into the position ledger for performance review.",
+            ],
+        )}
+        {terminal_card_html(
+            "Tomorrow",
+            "Prepared Watch",
+            "The objective is not to predict every move. The objective is to know which conditions would make a move worth acting on.",
+            [
+                "Economic calendar and Fed events.",
+                "Earnings and guidance risk.",
+                "Watchlist changes and evidence shifts.",
+            ],
+        )}
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="brief-narrative">
+        {terminal_card_html(
+            "Market Narrative",
+            "Why The Tape Is Moving",
+            "Atlas connects macro pressure, sector leadership, flows, sentiment, and company-specific catalysts into one coherent read before the scanner promotes an idea.",
+            [
+                "Separates real catalysts from recycled headlines.",
+                "Explains whether news is additive, stale, or already priced.",
+                "Keeps geopolitical and macro conditions above isolated chart patterns.",
+            ],
+        )}
+      </section>
+    </section>
+    """
+
+
+def markets_panel_html(snapshot: dict[str, Any]) -> str:
+    vix = snapshot.get("vix")
+    vix_text = f"{float(vix):.1f}" if isinstance(vix, (int, float)) else "Unavailable"
+    return f"""
+    <section class="panel-content" data-panel-content="markets">
+      <section class="module-grid is-hidden" data-subpanel-content="markets-overview">
+        {terminal_card_html(
+            "Market Intelligence",
+            "Live Market Tape",
+            "The market desk centralizes prices, volume, sector rotation, yields, commodities, FX, and the economic calendar before ideas are promoted.",
+            [
+                f"Current VIX: {vix_text}",
+                f"Structure: {snapshot.get('trend') or 'Neutral'}",
+                f"Risk temperature: {snapshot.get('volatility') or 'Unknown'}",
+            ],
+        )}
+        {terminal_card_html(
+            "Macro Board",
+            "Rates, Commodities, FX",
+            "Treasury yields, dollar strength, oil, gold, and major macro events are treated as first-class evidence, not afterthoughts.",
+        )}
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="markets-flows">
+        {terminal_card_html(
+            "Flow Desk",
+            "Options, Dark Pool, Order Flow",
+            "Dedicated flow sources are kept separate from OHLCV candles. Atlas will not infer sweeps, dark pool prints, or dealer positioning from chart data alone.",
+            [
+                "Options flow and unusual activity require a provider feed.",
+                "Dark pool activity requires a dedicated prints source.",
+                "Dealer positioning is only displayed when GEX/DEX data is available.",
+            ],
+        )}
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="markets-events">
+        {terminal_card_html(
+            "Events",
+            "Calendars And Filings",
+            "Earnings, Fed events, SEC filings, insider transactions, congressional trades, and institutional ownership changes are routed into the evidence layer.",
+            [
+                "Highlight material changes only.",
+                "Escalate earnings risk before selecting contracts.",
+                "Treat insider and institutional activity as context, not automatic entries.",
+            ],
+        )}
+      </section>
+    </section>
+    """
+
+
+def research_panel_html() -> str:
+    return """
+    <section class="panel-content" data-panel-content="research">
+      <section class="module-grid is-hidden" data-subpanel-content="research-desk">
+        """ + terminal_card_html(
+            "Research Desk",
+            "Institutional Inquiry",
+            "Ask about a company, price move, filing, earnings report, sector, or macro event. Atlas should answer like a desk analyst: concise, sourced, and material.",
+            [
+                "Compare stocks and identify the cleaner risk/reward.",
+                "Explain price moves without leaning on generic headlines.",
+                "Summarize filings, earnings, guidance, margins, and risk changes.",
+            ],
+        ) + """
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="research-compare">
+        """ + terminal_card_html(
+            "Comparison",
+            "Relative Quality",
+            "The comparison desk is designed to decide which ticker deserves attention when several names share the same catalyst, sector, or chart structure.",
+            [
+                "Business quality and valuation sensitivity.",
+                "Sector-relative strength or weakness.",
+                "Catalyst freshness and historical analogs.",
+            ],
+        ) + """
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="research-filings">
+        """ + terminal_card_html(
+            "Primary Documents",
+            "Filings And Earnings",
+            "Atlas should prioritize 10-Qs, 10-Ks, 8-Ks, transcripts, and guidance changes over low-quality commentary when the thesis depends on fundamentals.",
+            [
+                "Highlight material changes only.",
+                "Separate management narrative from measurable performance.",
+                "Call out risks that would change the trade plan.",
+            ],
+        ) + """
+      </section>
+    </section>
+    """
+
+
+def watchlist_panel_html(stock_cards: str, records: list[dict[str, Any]]) -> str:
+    return f"""
+    <section class="panel-content" data-panel-content="watchlist">
+      <section class="stock-list is-hidden" data-subpanel-content="watchlist-live">
+        {stock_cards}
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="watchlist-scanner">
+        {terminal_card_html(
+            "Opportunity Scanner",
+            "Current Scan Mandate",
+            "Atlas continuously looks for breakouts, reversals, momentum, relative strength, earnings reactions, insider activity, options flow, and short squeeze pressure. The scanner ranks ideas by conviction and suppresses weak files.",
+        )}
+        <article class="terminal-card wide">
+          <span>Scan Output</span>
+          <h2>Ranked Files</h2>
+          <div class="dossier-list">{priority_files_html(records, 8)}</div>
+        </article>
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="watchlist-conviction">
+        {terminal_card_html(
+            "Conviction Tracker",
+            "Weighted Evidence",
+            "Opportunities are tracked across fundamentals, technicals, options, macro, sentiment, insider activity, and analyst revisions. The score is evidence-oriented; it is not a promise.",
+            [
+                "Positive evidence must outweigh negative evidence.",
+                "Missing data reduces conviction instead of being guessed.",
+                "A thesis can strengthen, weaken, or expire without an entry.",
+            ],
+        )}
+      </section>
+    </section>
+    """
+
+
+def planner_panel_html(records: list[dict[str, Any]]) -> str:
+    return f"""
+    <section class="panel-content" data-panel-content="planner">
+      <section class="module-grid is-hidden" data-subpanel-content="planner-decision">
+        {terminal_card_html(
+            "Decision Engine",
+            "Trade Evaluation",
+            "Atlas evaluates bull case, bear case, key risks, catalysts, historical analogs, and probabilistic outcomes before a trade earns desk attention.",
+            [
+                "Evidence Score: Positive / Negative, supported by listed evidence.",
+                "No single confidence number replaces judgment.",
+                "Every file needs confirmation and invalidation conditions.",
+            ],
+        )}
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="planner-plan">
+        {terminal_card_html(
+            "Trade Planning",
+            "Execution Blueprint",
+            "A complete trade plan contains entry, invalidation, stop area, profit targets, risk/reward, position sizing, catalyst map, and historical behavior of similar setups.",
+        )}
+        <article class="terminal-card wide">
+          <span>Desk Queue</span>
+          <h2>Files Available For Planning</h2>
+          <div class="dossier-list">{priority_files_html(records, 6)}</div>
+        </article>
+      </section>
+      <section class="module-grid is-hidden" data-subpanel-content="planner-memory">
+        {terminal_card_html(
+            "Decision Memory",
+            "Thesis Ledger",
+            "Every investment thesis should be stored, then updated when evidence strengthens or weakens. The goal is to prevent stale ideas from pretending they are still current.",
+            [
+                "Track why the file was opened.",
+                "Record what would prove it wrong.",
+                "Notify only when the evidence materially changes.",
+            ],
+        )}
+      </section>
+    </section>
+    """
+
+
+def journal_panel_html(alert_state: dict[str, Any]) -> str:
+    return f"""
+    <section class="panel-content" data-panel-content="journal">
+      {pl_calendar_html()}
+      {atlas_journal_html(alert_state)}
+      <section class="module-grid is-hidden" data-subpanel-content="journal-notes">
+        {terminal_card_html(
+            "Personal Notes",
+            "Operator Journal",
+            "This section is reserved for discretionary notes, emotional mistakes, rule breaks, and process observations that do not belong in automated Atlas trade logs.",
+            [
+                "Patience is a position.",
+                "Capital first.",
+                "The market owes nothing.",
+            ],
+        )}
+      </section>
+    </section>
+    """
 
 
 def pct_text(value: Any) -> str:
@@ -10353,10 +10681,22 @@ def pl_calendar_html() -> str:
 
 def pl_calendar_styles() -> str:
     return """
-    .pl-calendar-panel {
-      display: grid;
-      gap: 12px;
-    }
+	    .pl-calendar-panel {
+	      display: grid;
+	      gap: 12px;
+	      position: relative;
+	    }
+	    .pl-calendar-panel::before {
+	      content: "";
+	      position: absolute;
+	      inset: 26px -18px auto auto;
+	      width: 280px;
+	      height: 280px;
+	      background: url('/static/art/atlas-map-lines.svg') center / contain no-repeat;
+	      opacity: .16;
+	      pointer-events: none;
+	      z-index: -1;
+	    }
     .pl-topline {
       display: flex;
       align-items: center;
@@ -11308,6 +11648,7 @@ def pl_calendar_script() -> str:
 def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: dict[str, Any] | None = None) -> str:
     market_snapshot = market_snapshot or dashboard_market_snapshot()
     alert_state = load_alert_state()
+    records = dashboard_card_records(state)
     stock_cards = "\n".join(
         stock_watchlist_card_html(
             str(record.get("symbol") or ""),
@@ -11317,7 +11658,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
             str(record.get("recommendation") or "Call"),
             str(record.get("why") or ""),
         )
-        for record in dashboard_card_records(state)
+        for record in records
     )
     return f"""<!doctype html>
 <html lang="en">
@@ -11350,11 +11691,12 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	    body {{
 	      margin: 0;
 	      min-height: 100vh;
-	      height: 100dvh;
-	      background:
-	        radial-gradient(circle at 80% 2%, rgba(200, 173, 106, .055), transparent 25%),
-	        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, .018), transparent 28%),
-	        linear-gradient(180deg, #060606 0%, #020202 50%, #050505 100%);
+		      height: 100dvh;
+		      background:
+		        url('/static/art/atlas-map-lines.svg') center 18% / min(860px, 138vw) no-repeat,
+		        radial-gradient(circle at 80% 2%, rgba(200, 173, 106, .055), transparent 25%),
+		        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, .018), transparent 28%),
+		        linear-gradient(180deg, #060606 0%, #020202 50%, #050505 100%);
 	      color: var(--text);
 	      overflow: hidden;
 	      overscroll-behavior: none;
@@ -11362,17 +11704,12 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     body::before {{
       content: "";
       position: fixed;
-      inset: 78px -74px auto auto;
-      width: 330px;
-      height: 520px;
+      inset: 46px max(-118px, calc((100vw - 850px) / 2 - 88px)) auto auto;
+      width: min(390px, 72vw);
+      height: 610px;
       pointer-events: none;
-      background:
-        radial-gradient(ellipse at 48% 18%, rgba(230,223,205,.23), transparent 18%),
-        radial-gradient(ellipse at 46% 38%, rgba(205,196,170,.16), transparent 26%),
-        radial-gradient(ellipse at 50% 71%, rgba(188,178,150,.10), transparent 36%),
-        linear-gradient(105deg, transparent 0%, rgba(200,173,106,.08) 45%, transparent 78%);
-      clip-path: polygon(42% 0, 64% 6%, 70% 22%, 61% 34%, 76% 48%, 84% 78%, 71% 100%, 29% 100%, 18% 76%, 25% 46%, 38% 35%, 30% 19%);
-      filter: grayscale(1);
+      background: url('/static/art/atlas-statue-bust.svg') right top / contain no-repeat;
+      filter: grayscale(1) contrast(1.08);
 	      opacity: .30;
 	      transform: rotate(3deg);
 	    }}
@@ -11423,29 +11760,53 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	      pointer-events: none;
 	      z-index: -1;
 	    }}
-	    .market-status-header {{
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: start;
-      gap: 10px 14px;
-	      padding-top: 24px;
-	      margin-bottom: 18px;
-	    }}
-	    .terminal-masthead {{
-	      grid-column: 1 / -1;
-	      display: flex;
-	      align-items: center;
-	      justify-content: space-between;
+		    .market-status-header {{
+	      position: relative;
+	      display: grid;
+	      grid-template-columns: minmax(0, 1fr) auto;
+	      align-items: start;
+	      gap: 10px 14px;
+		      padding-top: 24px;
+		      margin-bottom: 18px;
+		    }}
+		    .market-status-header::after {{
+		      content: "";
+		      position: absolute;
+		      inset: -12px -26px auto auto;
+		      width: min(420px, 64vw);
+		      height: 205px;
+		      pointer-events: none;
+		      background: url('/static/art/atlas-vault-arch.svg') right top / contain no-repeat;
+		      opacity: .22;
+		      filter: grayscale(1);
+		      z-index: -1;
+		    }}
+		    .terminal-masthead {{
+		      grid-column: 1 / -1;
+		      display: flex;
+		      align-items: center;
+		      justify-content: space-between;
 	      gap: 16px;
 	      padding-bottom: 18px;
-	      border-bottom: 1px solid rgba(200,173,106,.10);
-	      color: rgba(238,233,220,.58);
-	    }}
-	    .atlas-wordmark {{
-	      font-family: var(--serif);
-	      font-size: 15px;
-	      letter-spacing: .42em;
+		      border-bottom: 1px solid rgba(200,173,106,.10);
+		      color: rgba(238,233,220,.58);
+		    }}
+		    .atlas-lockup {{
+		      display: inline-flex;
+		      align-items: center;
+		      gap: 10px;
+		      min-width: 0;
+		    }}
+		    .atlas-sigil {{
+		      width: 18px;
+		      height: 18px;
+		      object-fit: contain;
+		      opacity: .68;
+		    }}
+		    .atlas-wordmark {{
+		      font-family: var(--serif);
+		      font-size: 15px;
+		      letter-spacing: .42em;
 	      text-transform: uppercase;
 	      color: rgba(238,233,220,.74);
 	    }}
@@ -11614,8 +11975,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       height: 2px;
       background: linear-gradient(90deg, transparent, var(--brass), transparent);
     }}
-    .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
-    .stock-list {{ display: grid; gap: 16px; }}
+	    .content {{ flex: 1 0 auto; padding-bottom: 24px; }}
+	    .panel-content {{ display: none; }}
+	    .panel-content.is-active {{ display: block; }}
+	    .stock-list {{ display: grid; gap: 16px; }}
 	    .stock-card {{
 	      position: relative;
 	      border: 1px solid var(--line);
@@ -11761,7 +12124,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	      line-height: 1.5;
 	      letter-spacing: .005em;
     }}
-    .read-more-link {{
+	    .read-more-link {{
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -11775,9 +12138,121 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       font-size: 13px;
       font-weight: 720;
       letter-spacing: .12em;
-      text-transform: uppercase;
-    }}
-    .panel-placeholder {{
+	      text-transform: uppercase;
+	    }}
+	    .module-grid {{
+	      display: grid;
+	      grid-template-columns: repeat(2, minmax(0, 1fr));
+	      gap: 14px;
+	    }}
+	    .terminal-card {{
+	      position: relative;
+	      min-height: 178px;
+	      padding: 22px;
+	      border: 1px solid var(--line);
+	      border-radius: 5px;
+	      background:
+	        linear-gradient(145deg, rgba(15,15,14,.92), rgba(6,6,6,.90)),
+	        radial-gradient(circle at 80% 0%, rgba(200,173,106,.06), transparent 32%);
+	      box-shadow: 0 18px 42px rgba(0,0,0,.24);
+	      overflow: hidden;
+	    }}
+	    .terminal-card.wide {{ grid-column: 1 / -1; }}
+	    .terminal-card > span {{
+	      display: block;
+	      margin-bottom: 10px;
+	      color: var(--brass);
+	      font-size: 10px;
+	      letter-spacing: .20em;
+	      text-transform: uppercase;
+	    }}
+	    .terminal-card h2 {{
+	      margin: 0 0 12px;
+	      font-family: var(--serif);
+	      font-size: 24px;
+	      font-weight: 500;
+	      letter-spacing: .14em;
+	      line-height: 1.05;
+	      text-transform: uppercase;
+	    }}
+	    .terminal-card p {{
+	      margin: 0;
+	      color: rgba(222,218,205,.68);
+	      font-size: 14px;
+	      line-height: 1.55;
+	    }}
+	    .terminal-card ul {{
+	      display: grid;
+	      gap: 8px;
+	      margin: 16px 0 0;
+	      padding: 0;
+	      list-style: none;
+	    }}
+	    .terminal-card li {{
+	      position: relative;
+	      padding-left: 14px;
+	      color: rgba(222,218,205,.62);
+	      font-size: 12px;
+	      line-height: 1.45;
+	      letter-spacing: .03em;
+	    }}
+	    .terminal-card li::before {{
+	      content: "";
+	      position: absolute;
+	      left: 0;
+	      top: .65em;
+	      width: 4px;
+	      height: 4px;
+	      border-radius: 999px;
+	      background: var(--brass);
+	      opacity: .76;
+	    }}
+	    .dossier-list {{
+	      display: grid;
+	      gap: 10px;
+	      margin-top: 8px;
+	    }}
+	    .dossier-row {{
+	      display: grid;
+	      grid-template-columns: minmax(0, 1fr) auto auto;
+	      align-items: center;
+	      gap: 12px;
+	      min-height: 58px;
+	      padding: 12px 14px;
+	      border: 1px solid rgba(200,173,106,.10);
+	      background: rgba(0,0,0,.22);
+	    }}
+	    .dossier-row strong {{
+	      display: block;
+	      color: var(--text);
+	      font-size: 16px;
+	      letter-spacing: .08em;
+	    }}
+	    .dossier-row span {{
+	      display: block;
+	      margin-top: 3px;
+	      color: var(--muted);
+	      font-size: 12px;
+	      white-space: nowrap;
+	      overflow: hidden;
+	      text-overflow: ellipsis;
+	    }}
+	    .dossier-row em, .dossier-row b {{
+	      font-style: normal;
+	      color: rgba(222,218,205,.58);
+	      font-size: 10px;
+	      letter-spacing: .14em;
+	      text-transform: uppercase;
+	      white-space: nowrap;
+	    }}
+	    .dossier-row b {{
+	      min-width: 52px;
+	      padding: 6px 8px;
+	      border: 1px solid rgba(200,173,106,.24);
+	      text-align: center;
+	      color: var(--brass);
+	    }}
+	    .panel-placeholder {{
       display: none;
       min-height: 280px;
       place-items: center;
@@ -11808,16 +12283,12 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	    .journal-empty::before {{
 	      content: "";
 	      display: block;
-	      width: 94px;
-	      height: 116px;
+	      width: 110px;
+	      height: 134px;
 	      margin: 0 auto 18px;
-	      background:
-	        radial-gradient(ellipse at 50% 18%, rgba(238,233,220,.36), transparent 18%),
-	        radial-gradient(ellipse at 50% 45%, rgba(238,233,220,.18), transparent 31%),
-	        linear-gradient(180deg, rgba(200,173,106,.16), rgba(0,0,0,0));
-	      clip-path: polygon(38% 0, 66% 6%, 72% 24%, 62% 37%, 78% 52%, 83% 100%, 18% 100%, 22% 56%, 37% 38%, 29% 22%);
-	      filter: grayscale(1);
-	      opacity: .42;
+	      background: url('/static/art/atlas-statue-bust.svg') center top / contain no-repeat;
+	      filter: grayscale(1) contrast(1.08);
+	      opacity: .46;
 	    }}
     .journal-empty strong {{
       display: block;
@@ -11963,7 +12434,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       transform: translateX(-50%);
       width: min(850px, 100vw);
       display: grid;
-      grid-template-columns: 1fr;
+	      grid-template-columns: repeat(6, 1fr);
       align-items: center;
       z-index: 5;
       padding: 7px 14px calc(7px + env(safe-area-inset-bottom));
@@ -11998,6 +12469,10 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
       stroke-width: 1.8;
       stroke-linecap: round;
       stroke-linejoin: round;
+    }}
+    .nav-icon-img {{
+      object-fit: contain;
+      opacity: .86;
     }}
     .journal-icon {{
       stroke-width: 1.65;
@@ -12045,8 +12520,13 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
 	      .atlas-status {{ font-size: 9px; padding: 5px 8px; gap: 6px; }}
 	      .stock-actions {{ gap: 24px; }}
 	      .recommendation {{ min-width: 58px; min-height: 34px; font-size: 10px; }}
-	      .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
-	      .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
+		      .stock-card-detail > div {{ padding-left: 20px; padding-right: 20px; }}
+		      .module-grid {{ grid-template-columns: 1fr; gap: 12px; }}
+		      .terminal-card {{ min-height: auto; padding: 18px; }}
+		      .terminal-card h2 {{ font-size: 20px; }}
+		      .dossier-row {{ grid-template-columns: minmax(0, 1fr) auto; }}
+		      .dossier-row b {{ display: none; }}
+		      .journal-stats, .journal-metrics {{ grid-template-columns: repeat(2, 1fr); }}
 	    }}
 	    @media (max-width: 390px) {{
 	      .app-shell {{ padding-left: 20px; padding-right: 20px; }}
@@ -12079,22 +12559,48 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
   </style>
 </head>
 <body>
-  <main class="app-shell" aria-label="ATLAS">
-    {market_status_header_html(market_snapshot)}
-    {market_insight_card_html(market_snapshot)}
-    <nav class="section-switcher" data-panel-switcher="home" aria-label="Home tools">
-      <button class="section-tab is-active" type="button" data-subpanel="live-watchlist">Watchlist</button>
-      <button class="section-tab" type="button" data-subpanel="pl-calendar">Capital</button>
-      <button class="section-tab" type="button" data-subpanel="atlas-journal">Positions</button>
-    </nav>
-    <section class="content">
-      <section class="stock-list" data-subpanel-content="live-watchlist">
-        {stock_cards}
-      </section>
-      {pl_calendar_html()}
-      {atlas_journal_html(alert_state)}
-      <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
-    </section>
+	  <main class="app-shell" aria-label="ATLAS">
+	    {market_status_header_html(market_snapshot)}
+	    {market_insight_card_html(market_snapshot)}
+	    <nav class="section-switcher" data-panel-switcher="briefing" aria-label="Briefing tools">
+	      <button class="section-tab is-active" type="button" data-subpanel="brief-morning">Morning</button>
+	      <button class="section-tab" type="button" data-subpanel="brief-evening">Evening</button>
+	      <button class="section-tab" type="button" data-subpanel="brief-narrative">Narrative</button>
+	    </nav>
+	    <nav class="section-switcher is-hidden" data-panel-switcher="markets" aria-label="Market intelligence tools">
+	      <button class="section-tab is-active" type="button" data-subpanel="markets-overview">Overview</button>
+	      <button class="section-tab" type="button" data-subpanel="markets-flows">Flows</button>
+	      <button class="section-tab" type="button" data-subpanel="markets-events">Events</button>
+	    </nav>
+	    <nav class="section-switcher is-hidden" data-panel-switcher="research" aria-label="Research tools">
+	      <button class="section-tab is-active" type="button" data-subpanel="research-desk">Research</button>
+	      <button class="section-tab" type="button" data-subpanel="research-compare">Compare</button>
+	      <button class="section-tab" type="button" data-subpanel="research-filings">Filings</button>
+	    </nav>
+	    <nav class="section-switcher is-hidden" data-panel-switcher="watchlist" aria-label="Watchlist tools">
+	      <button class="section-tab is-active" type="button" data-subpanel="watchlist-live">Live</button>
+	      <button class="section-tab" type="button" data-subpanel="watchlist-scanner">Scanner</button>
+	      <button class="section-tab" type="button" data-subpanel="watchlist-conviction">Evidence</button>
+	    </nav>
+	    <nav class="section-switcher is-hidden" data-panel-switcher="planner" aria-label="Planning tools">
+	      <button class="section-tab is-active" type="button" data-subpanel="planner-decision">Decision</button>
+	      <button class="section-tab" type="button" data-subpanel="planner-plan">Plan</button>
+	      <button class="section-tab" type="button" data-subpanel="planner-memory">Memory</button>
+	    </nav>
+	    <nav class="section-switcher is-hidden" data-panel-switcher="journal" aria-label="Journal tools">
+	      <button class="section-tab is-active" type="button" data-subpanel="pl-calendar">Capital</button>
+	      <button class="section-tab" type="button" data-subpanel="atlas-journal">Positions</button>
+	      <button class="section-tab" type="button" data-subpanel="journal-notes">Notes</button>
+	    </nav>
+	    <section class="content">
+	      {briefing_panel_html(market_snapshot, records)}
+	      {markets_panel_html(market_snapshot)}
+	      {research_panel_html()}
+	      {watchlist_panel_html(stock_cards, records)}
+	      {planner_panel_html(records)}
+	      {journal_panel_html(alert_state)}
+	      <span class="status-probe" aria-live="polite">Status: <span id="appStatus">Online</span></span>
+	    </section>
     {bottom_nav_html()}
   </main>
   <script>
@@ -12105,42 +12611,67 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     const panelContents = Array.from(document.querySelectorAll('[data-panel-content]'));
     const stockCards = Array.from(document.querySelectorAll('.stock-card'));
     const pageTitle = document.getElementById('pageTitle');
-    const marketInsightCard = document.getElementById('marketInsightCard');
-    const panelTitles = {{
-      home: 'Home'
-    }};
+	    const marketInsightCard = document.getElementById('marketInsightCard');
+	    const panelTitles = {{
+	      briefing: 'Briefing',
+	      markets: 'Markets',
+	      research: 'Research',
+	      watchlist: 'Watchlist',
+	      planner: 'Planner',
+	      journal: 'Journal'
+	    }};
+	    const defaultSubpanels = {{
+	      briefing: 'brief-morning',
+	      markets: 'markets-overview',
+	      research: 'research-desk',
+	      watchlist: 'watchlist-live',
+	      planner: 'planner-decision',
+	      journal: 'pl-calendar'
+	    }};
 
-    function showPanel(name) {{
-      document.body.dataset.panel = name;
-      for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
-      if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
-      marketInsightCard?.classList.toggle('is-hidden', name !== 'home');
-      for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
-      const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
-      document.body.dataset.subpanel = activeSubpanelName(name);
-      for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher !== activeSwitcher);
-      for (const content of subpanelContents) {{
-        const shouldShow = Boolean(activeSwitcher) && content.dataset.subpanelContent === activeSubpanelName(name);
-        content.classList.toggle('is-hidden', !shouldShow);
-        content.classList.toggle('is-active', shouldShow && content.classList.contains('panel-placeholder'));
-      }}
+	    function showPanel(name) {{
+	      document.body.dataset.panel = name;
+	      for (const tab of tabs) tab.classList.toggle('is-active', tab.dataset.panel === name);
+	      if (pageTitle) pageTitle.textContent = panelTitles[name] || 'ATLAS';
+	      marketInsightCard?.classList.toggle('is-hidden', !['briefing', 'markets'].includes(name));
+	      for (const content of panelContents) content.classList.toggle('is-active', content.dataset.panelContent === name);
+	      const activeSwitcher = sectionSwitchers.find((switcher) => switcher.dataset.panelSwitcher === name);
+	      const activeName = activeSubpanelName(name);
+	      document.body.dataset.subpanel = activeName;
+	      for (const switcher of sectionSwitchers) switcher.classList.toggle('is-hidden', switcher !== activeSwitcher);
+	      for (const tab of sectionTabs) {{
+	        tab.classList.toggle('is-active', tab.closest('[data-panel-switcher]') === activeSwitcher && tab.dataset.subpanel === activeName);
+	      }}
+	      for (const content of subpanelContents) {{
+	        const shouldShow = Boolean(activeSwitcher) && content.dataset.subpanelContent === activeName;
+	        content.classList.toggle('is-hidden', !shouldShow);
+	        content.classList.toggle('is-active', shouldShow && content.classList.contains('panel-placeholder'));
+	      }}
+	    }}
+
+	    function showSubpanel(name) {{
+	      if (!name) return;
+	      document.body.dataset.subpanel = name;
+	      const clickedTab = sectionTabs.find((tab) => tab.dataset.subpanel === name);
+	      const ownerSwitcher = clickedTab?.closest('[data-panel-switcher]');
+	      for (const tab of sectionTabs) {{
+	        const sameSwitcher = !ownerSwitcher || tab.closest('[data-panel-switcher]') === ownerSwitcher;
+	        if (sameSwitcher) tab.classList.toggle('is-active', tab.dataset.subpanel === name);
+	      }}
+	      for (const content of subpanelContents) {{
+	        const isActive = content.dataset.subpanelContent === name;
+	        content.classList.toggle('is-hidden', !isActive);
+	        content.classList.toggle('is-active', isActive && content.classList.contains('panel-placeholder'));
+	      }}
     }}
 
-    function showSubpanel(name) {{
-      if (!name) return;
-      document.body.dataset.subpanel = name;
-      for (const tab of sectionTabs) tab.classList.toggle('is-active', tab.dataset.subpanel === name);
-      for (const content of subpanelContents) {{
-        const isActive = content.dataset.subpanelContent === name;
-        content.classList.toggle('is-hidden', !isActive);
-        content.classList.toggle('is-active', isActive && content.classList.contains('panel-placeholder'));
-      }}
-    }}
-
-    function activeSubpanelName(panelName) {{
-      const switcher = sectionSwitchers.find((item) => item.dataset.panelSwitcher === panelName);
-      return switcher?.querySelector('.section-tab.is-active')?.dataset.subpanel || 'live-watchlist';
-    }}
+	    function activeSubpanelName(panelName) {{
+	      const switcher = sectionSwitchers.find((item) => item.dataset.panelSwitcher === panelName);
+	      return switcher?.querySelector('.section-tab.is-active')?.dataset.subpanel
+	        || defaultSubpanels[panelName]
+	        || switcher?.querySelector('.section-tab')?.dataset.subpanel
+	        || 'brief-morning';
+	    }}
 
     async function refreshStatus() {{
       const status = document.getElementById('appStatus');
@@ -12189,7 +12720,7 @@ def report_dashboard_html(market_snapshot: dict[str, Any] | None = None, state: 
     }}
     {pl_calendar_script()}
     initPLCalendar();
-    showPanel('home');
+	    showPanel('briefing');
     refreshStatus();
     refreshMarketStatus();
     setInterval(refreshStatus, 30000);
