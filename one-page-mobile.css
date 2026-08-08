@@ -1,0 +1,34 @@
+@media(max-width:600px){
+  html{scroll-padding-top:62px}
+  body{padding-bottom:0;overflow-x:hidden}
+  main{display:flex;flex-direction:column}
+  .topbar{position:sticky}
+  .hero,.bills-section,.plan-section,.bottom-grid,
+  .hero.mobile-active,.bills-section.mobile-active,.plan-section.mobile-active,.bottom-grid.mobile-active{display:block}
+  .hero{order:1;min-height:0;padding:24px 16px 18px}
+  .hero>div:first-child{margin-bottom:17px}
+  .hero h1{max-width:350px;font-size:31px;line-height:1.08;letter-spacing:-.045em}
+  .hero h1 em{display:block;margin-top:4px;font-size:44px;line-height:1.03}
+  .intro{max-width:330px;margin-top:10px;font-size:14px;line-height:1.45}
+  .paycheck-card{padding:15px 16px 16px;border-radius:15px}
+  .paycheck-card>p:first-child{margin-bottom:5px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#85878c}
+  .amount-input{margin-bottom:12px;padding-bottom:6px}
+  .amount-input input{font-size:31px}
+  .amount-input span{font-size:21px}
+  .source-label{display:none}
+  .primary{min-height:46px;margin-top:13px}
+  .plan-section{order:2;min-height:0;padding:24px 16px 25px;border-top:1px solid #242529}
+  .plan-section .section-heading{min-height:0;align-items:flex-end}
+  .plan-section .section-heading h2{font-size:22px}
+  .plan-section .eyebrow{margin-bottom:7px}
+  .allocation-grid{margin:15px 0 14px}
+  .allocation-card{min-height:84px;padding:12px}
+  .advisor{margin-top:16px}
+  .bills-section{order:3;min-height:0;padding:26px 16px 30px;border-top:1px solid #242529}
+  .bills-section .section-heading{min-height:0}
+  .bill-list{max-height:none}
+  .bottom-grid{order:4;padding:0 16px 32px}
+  .bottom-grid .history-card{display:none}
+  .tip-card{margin-top:0}
+  .mobile-nav{display:none!important}
+}

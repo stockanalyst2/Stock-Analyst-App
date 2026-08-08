@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090a0c" />
+  <title>Citadel — Paycheck Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="bills.css" />
+  <link rel="stylesheet" href="schedule.css" />
+  <link rel="stylesheet" href="mobile-premium.css" />
+  <link rel="stylesheet" href="native-app.css" />
+  <link rel="stylesheet" href="distribution-mobile.css" />
+  <link rel="stylesheet" href="one-page-mobile.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">C</span>CITADEL</a>
+    <nav><button class="nav-active">Allocation</button><button>Activity</button><button>Targets</button></nav>
+    <button class="avatar" aria-label="Profile">NH</button>
+  </header>
+
+  <main>
+    <section class="hero" id="pay-section">
+      <div>
+        <p class="eyebrow">LATEST PAYCHECK</p>
+        <h1>You were paid <em id="payHeadline">$2,400.00</em></h1>
+        <p class="intro">Here’s how Citadel recommends managing it before your next paycheck.</p>
+      </div>
+      <div class="paycheck-card">
+        <p>Paycheck details</p>
+        <div class="amount-input"><span>$</span><input id="paycheck" type="number" min="0" step="0.01" value="2400" aria-label="Paycheck amount"></div>
+        <div class="input-row"><label>Pay date<input id="payDate" type="date"></label><label>Next payday<input id="nextPayDate" type="date"></label></div>
+        <label class="source-label">Source<input id="paySource" value="Paycheck" placeholder="Employer"></label>
+        <button id="buildPlan" class="primary">Update my plan <span>↗</span></button>
+        <p class="privacy">SECURED LOCALLY ON THIS DEVICE</p>
+      </div>
+    </section>
+
+    <section class="bills-section" id="bills-section">
+      <div class="section-heading"><div><p class="eyebrow">OBLIGATION REGISTER</p><h2>Recurring bills.</h2><p class="section-copy">Citadel reviews what is due before your next deposit and adjusts for urgency.</p></div><div class="bill-actions"><div class="bill-total"><span>Monthly equivalent</span><strong id="monthlyBillTotal">$0.00</strong></div><button id="toggleBillForm" class="gold-action" type="button" aria-expanded="false">+ Add bill</button></div></div>
+      <form id="billForm" class="bill-form">
+        <label>Bill name<input id="billName" placeholder="e.g. Rent" required></label><label>Amount per bill<input id="billAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></label><label>Schedule<select id="billFrequency"><option value="monthly">Monthly</option><option value="biweekly">Biweekly (every 14 days)</option></select></label><label id="monthlyDueField">Due day<input id="billDueDay" type="number" min="1" max="31" placeholder="1–31" required></label><label id="biweeklyDueField" hidden>Next due date<input id="billAnchorDate" type="date"></label><label>Type<select id="billType"><option value="essential">Essential</option><option value="debt">Debt minimum</option><option value="standard">Standard</option><option value="optional">Optional</option></select></label><button class="secondary" type="submit">+ Add bill</button>
+      </form>
+      <div id="billList" class="bill-list"><p class="empty">Add your recurring bills to activate priority analysis.</p></div>
+    </section>
+
+    <section class="plan-section" id="plan-section">
+      <div class="section-heading"><div><p class="eyebrow">ALLOCATION STRATEGY</p><h2>Distribution overview.</h2></div><div class="total-pill"><span id="percentTotal">100</span>% allocated</div></div>
+      <div id="allocationGrid" class="allocation-grid"></div>
+      <div class="plan-footer"><p><strong id="allocatedTotal">$2,400.00</strong> of <span id="paycheckTotal">$2,400.00</span> allocated</p><button id="addCategory" class="secondary">+ Add distribution</button></div>
+      <aside id="advisor" class="advisor"><div class="advisor-head"><span>C</span><div><p class="eyebrow">CITADEL ANALYSIS</p><h3 id="advisorTitle">Baseline allocation active.</h3></div></div><div id="advisorReasons" class="advisor-reasons"><p>Add bills to receive contextual recommendations.</p></div></aside>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="tip-card"><span class="tip-icon">↗</span><div><p class="eyebrow">12-MONTH OUTLOOK</p><h3>Compounding starts with consistency.</h3><p>At your current strategy, you’ll direct <strong id="yearlySavings">$8,640</strong> toward savings and investments over the next year.</p></div></article>
+      <article class="history-card"><div class="history-title"><div><p class="eyebrow">RECENT ACTIVITY</p><h3>Deposit history</h3></div><button id="clearHistory" title="Clear history">Clear</button></div><div id="history"><p class="empty">No allocations recorded.</p></div></article>
+    </section>
+  </main>
+  <template id="allocationTemplate">
+    <article class="allocation-card">
+      <div class="allocation-top"><span class="category-icon"></span><button class="remove" aria-label="Remove category">×</button></div>
+      <input class="category-name" aria-label="Category name">
+      <div class="money"></div>
+      <div class="percentage-control"><button class="minus">−</button><label><input class="percentage" type="number" min="0" max="100"><span>%</span></label><button class="plus">+</button></div>
+      <div class="bar"><i></i></div>
+    </article>
+  </template>
+  <template id="billTemplate"><article class="bill-item"><span class="bill-priority"></span><div><strong class="bill-name"></strong><small class="bill-meta"></small></div><strong class="bill-amount"></strong><span class="bill-status"></span><button class="remove-bill" aria-label="Remove bill">×</button></article></template>
+  <script src="app.js"></script>
+</body>
+</html>

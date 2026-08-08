@@ -1,21 +1,20 @@
 services:
   - type: web
-    name: stock-analyst
-    env: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python3 stock_analyst.py --serve --host 0.0.0.0 --port $PORT"
-    healthCheckPath: /healthz
-    envVars:
-      - key: STOCK_ANALYST_PASSWORD
-        sync: false
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: TELEGRAM_CHAT_ID
-        sync: false
-      - key: STOCK_ANALYST_PUBLIC_URL
-        sync: false
-      - key: STOCK_ANALYST_AUTO_SCAN_MINUTES
-        value: "30"
-      - key: STOCK_ANALYST_ALERT_ENTRY_MODE
-        value: confirmed
+    name: citadel-budget
+    runtime: static
+    buildCommand: mkdir -p dist && cp index.html styles.css bills.css schedule.css mobile-premium.css native-app.css distribution-mobile.css one-page-mobile.css app.js dist/
+    staticPublishPath: ./dist
+    autoDeployTrigger: commit
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
